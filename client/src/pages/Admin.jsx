@@ -396,8 +396,25 @@ function EventsTab() {
   const [msg, setMsg] = useState('');
   const [boardEvent, setBoardEvent] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [womStatus, setWomStatus] = useState({ lastSync: null });
+  const [womSyncing, setWomSyncing] = useState(false);
 
-  useEffect(() => { api.get('/events').then(r => setEvents(r.data)); }, []);
+  useEffect(() => {
+    api.get('/events').then(r => setEvents(r.data));
+    api.get('/wom/status').then(r => setWomStatus(r.data)).catch(() => {});
+  }, []);
+
+  async function forceWomSync() {
+    setWomSyncing(true);
+    try {
+      const res = await api.post('/wom/sync');
+      setWomStatus({ lastSync: res.data.lastSync });
+    } catch (e) {
+      // sync failed, status unchanged
+    } finally {
+      setWomSyncing(false);
+    }
+  }
 
   async function create(e) {
     e.preventDefault();
@@ -433,6 +450,25 @@ function EventsTab() {
           onClose={() => setDeleteTarget(null)}
         />
       )}
+      <div style={{ ...s.section, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <div style={s.sectionTitle} >WiseOldMan Sync</div>
+          <div style={{ fontSize: '0.8rem', color: '#718096' }}>
+            Auto-syncs every 3 hours.{' '}
+            {womStatus.lastSync
+              ? <>Last synced: <span style={{ color: '#a0aec0' }}>{new Date(womStatus.lastSync).toLocaleString()}</span></>
+              : <span style={{ color: '#a0aec0' }}>Not yet synced this session.</span>}
+          </div>
+        </div>
+        <button
+          style={{ ...s.primaryBtn, opacity: womSyncing ? 0.6 : 1 }}
+          onClick={forceWomSync}
+          disabled={womSyncing}
+        >
+          {womSyncing ? 'Syncing…' : 'Sync Now'}
+        </button>
+      </div>
+
       <div style={s.section}>
         <div style={s.sectionTitle}>Create Event</div>
         <form onSubmit={create}>

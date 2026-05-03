@@ -2,7 +2,10 @@ const fetch = require('node-fetch');
 const { getDb } = require('../db/database');
 
 const WOM_BASE = 'https://api.wiseoldman.net/v2';
-const POLL_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const POLL_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours
+
+let lastSync = null;
+function getLastSync() { return lastSync; }
 
 async function fetchCompetitionParticipants(competitionId) {
   const res = await fetch(`${WOM_BASE}/competitions/${competitionId}`);
@@ -88,7 +91,8 @@ async function syncWomTiles(io) {
     }
   }
 
-  console.log(`[WOM] Polled ${compIds.length} competition(s) for ${womTiles.length} tile(s), event ${event.id}`);
+  lastSync = new Date().toISOString();
+  console.log(`[WOM] Synced ${compIds.length} competition(s) for ${womTiles.length} tile(s), event ${event.id}`);
 }
 
 function startWomPoller(io) {
@@ -98,4 +102,4 @@ function startWomPoller(io) {
   }, POLL_INTERVAL);
 }
 
-module.exports = { startWomPoller, syncWomTiles };
+module.exports = { startWomPoller, syncWomTiles, getLastSync };

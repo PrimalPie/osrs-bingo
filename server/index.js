@@ -18,6 +18,7 @@ const bossesRouter = require('./routes/bosses');
 const { createBot } = require('./bot/index');
 const { startWomPoller } = require('./services/wom');
 const auditRouter = require('./routes/audit');
+const womRouter = require('./routes/wom');
 
 const UPLOAD_DIR = process.env.DATA_DIR
   ? path.join(process.env.DATA_DIR, 'uploads')
@@ -46,6 +47,7 @@ app.use('/api/board', boardRouter);
 app.use('/api/items', itemsRouter);
 app.use('/api', bossesRouter);
 app.use('/api/audit', auditRouter);
+app.use('/api/wom', womRouter);
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 const ICONS_DIR = process.env.DATA_DIR

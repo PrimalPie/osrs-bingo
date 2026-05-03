@@ -2,6 +2,7 @@ const CHANGELOG = [
   {
     date: '2026-05-04',
     entries: [
+      { type: 'improvement', description: 'WOM sync interval increased from 3 minutes to 3 hours to respect WiseOldMan API best practices. A manual Sync Now button on the Events tab allows an immediate update at any time.' },
       { type: 'improvement', description: 'Login rate limiting — accounts are locked out after 10 failed attempts in a 15-minute window to prevent brute-force attacks.' },
       { type: 'improvement', description: 'Password minimum length of 8 characters enforced on account creation and password resets.' },
       { type: 'improvement', description: 'Username validation — only letters, numbers, underscores, and hyphens accepted (max 32 characters).' },
