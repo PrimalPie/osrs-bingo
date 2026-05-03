@@ -107,7 +107,7 @@ B3 - Armadyl hilt x2
 ```
 
 - Coordinate first, dash, then the item or description
-- Attach a **screenshot** (required for drop and KC tiles)
+- Attach a **screenshot** (required for drop tiles)
 - `x2`, `x3` etc. to claim multiple at once
 
 The bot confirms receipt. Captains review pending submissions at `/captain`.
