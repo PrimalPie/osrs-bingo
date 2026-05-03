@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Environment — never commit real secrets
+.env
+
+# Build output
+client/dist/
+
+# Runtime data
+server/bingo.db
+server/uploads/
+
+# Logs
+*.log
+npm-debug.log*
