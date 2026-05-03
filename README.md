@@ -151,6 +151,12 @@ For large inter-clan events with a single WOM board, use the **Preview As** feat
 
 ---
 
+## Planned / todo
+
+- **WOM group tracking for large events** — large clan-vs-clan bingos typically use a single WOM competition board with the *Preview As* filter for individual skills/bosses. That filter is UI-only; the API only returns gains for one metric per competition. The plan is to support WOM groups instead: snapshot all players' hiscores at event start, poll periodically, and diff against the baseline per tile. This would remove the need to create a separate WOM competition for every tracked metric.
+
+---
+
 ## License
 
 MIT
