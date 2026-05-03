@@ -1,5 +1,17 @@
 const CHANGELOG = [
   {
+    date: '2026-05-04',
+    entries: [
+      { type: 'improvement', description: 'Login rate limiting — accounts are locked out after 10 failed attempts in a 15-minute window to prevent brute-force attacks.' },
+      { type: 'improvement', description: 'Password minimum length of 8 characters enforced on account creation and password resets.' },
+      { type: 'improvement', description: 'Username validation — only letters, numbers, underscores, and hyphens accepted (max 32 characters).' },
+      { type: 'improvement', description: 'Role values validated on account create and update — only admin, captain, and member are accepted.' },
+      { type: 'fix', description: 'Screenshot file extension whitelist in the Discord bot — only jpg, jpeg, png, gif, and webp are accepted, falling back to png for unrecognised extensions.' },
+      { type: 'fix', description: 'Captains can no longer approve, reject, or view submissions belonging to other teams.' },
+      { type: 'fix', description: 'Submission history now reads the captain\'s team from the database rather than the JWT, preventing stale data after a team reassignment.' },
+    ],
+  },
+  {
     date: '2026-05-03',
     entries: [
       { type: 'feature', description: 'Per-tile WOM competition IDs — XP and KC tiles can each reference their own WOM competition for auto-tracking, replacing the single per-event ID.' },

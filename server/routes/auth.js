@@ -1,13 +1,32 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const { getDb } = require('../db/database');
 const { JWT_SECRET, requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../services/audit');
 
 const router = express.Router();
 
-router.post('/login', (req, res) => {
+const VALID_ROLES = ['admin', 'captain', 'member'];
+const USERNAME_RE = /^[a-zA-Z0-9_\-]{1,32}$/;
+
+function validateCredentials(username, password) {
+  if (!username || !password) return 'Missing credentials';
+  if (!USERNAME_RE.test(username)) return 'Username must be 1–32 characters (letters, numbers, _ -)';
+  if (password.length < 8) return 'Password must be at least 8 characters';
+  return null;
+}
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts — try again in 15 minutes' },
+});
+
+router.post('/login', loginLimiter, (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing credentials' });
 
@@ -27,15 +46,19 @@ router.post('/login', (req, res) => {
 
 router.post('/register', requireAdmin, (req, res) => {
   const { username, password, role, team_id } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+  const err = validateCredentials(username, password);
+  if (err) return res.status(400).json({ error: err });
+
+  const finalRole = role || 'captain';
+  if (!VALID_ROLES.includes(finalRole)) return res.status(400).json({ error: 'Invalid role' });
 
   const db = getDb();
   const hash = bcrypt.hashSync(password, 10);
   try {
-    const finalRole = role || 'captain';
     const result = db.prepare(
       'INSERT INTO users (username, password_hash, role, team_id) VALUES (?, ?, ?, ?)'
     ).run(username, hash, finalRole, team_id || null);
+
     logAudit(req.user.id, req.user.username, 'user_created', 'user', result.lastInsertRowid,
       `Created ${finalRole} '${username}'${team_id ? ` (team id ${team_id})` : ''}`
     );
@@ -53,7 +76,8 @@ router.post('/bootstrap', (req, res) => {
   if (count > 0) return res.status(409).json({ error: 'Already initialized' });
 
   const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+  const err = validateCredentials(username, password);
+  if (err) return res.status(400).json({ error: err });
 
   const hash = bcrypt.hashSync(password, 10);
   const result = db.prepare(
@@ -78,6 +102,12 @@ router.get('/users', requireAdmin, (req, res) => {
 router.patch('/users/:id', requireAdmin, (req, res) => {
   const db = getDb();
   const { role, team_id, password, username } = req.body;
+  if (username !== undefined && !USERNAME_RE.test(username))
+    return res.status(400).json({ error: 'Invalid username' });
+  if (role !== undefined && !VALID_ROLES.includes(role))
+    return res.status(400).json({ error: 'Invalid role' });
+  if (password !== undefined && password.length < 8)
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
   const updates = {};
   if (username !== undefined) updates.username = username;
   if (role !== undefined) updates.role = role;
