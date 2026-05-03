@@ -2,7 +2,8 @@
 
 A self-hosted bingo event manager for Old School RuneScape clans. Teams submit drops and boss kills via Discord, captains review them in a web dashboard, and everyone watches the board update live.
 
-![Board view showing a 9×9 bingo grid with team progress](https://raw.githubusercontent.com/PrimalPie/osrs-bingo/main/docs/preview.png)
+<img width="1423" height="854" alt="image" src="https://github.com/user-attachments/assets/83db75aa-a5e1-4cec-b7d1-bc408fdf8011" />
+
 
 ## Features
 
