@@ -87,7 +87,10 @@ module.exports = [
   // ── Raid Ornament Kits (ToB) ─────────────────────────────────────────────
   { id: 22109, name: 'Sanguine Ornament Kit',      keywords: ['sanguine ornament kit', 'sanguine kit', 'tob kit'] },
   { id: 22111, name: 'Holy Ornament Kit',          keywords: ['holy ornament kit', 'holy kit', 'tob kit'] },
-  { id: 24780, name: 'Bloody Ornament Kit',        keywords: ['bloody ornament kit', 'bloody kit', 'hard mode tob'] },
+  { id: 24780, name: 'Bloody Ornament Kit',        keywords: ['bloody ornament kit', 'bloody kit', 'hard mode tob', 'hmt'] },
+
+  // ── HMT Unique Drops ─────────────────────────────────────────────────────
+  { id: 24778, name: 'Sanguine Dust',              keywords: ['sanguine dust', 'hmt dust', 'hard mode tob', 'hmt'] },
 
   // ── Raid Ornament Kits (CoX) ─────────────────────────────────────────────
   { id: 22326, name: 'Twisted Ancestral Colour Kit', keywords: ['twisted ancestral colour kit', 'ancestral kit', 'cox kit'] },
@@ -101,7 +104,7 @@ module.exports = [
   { id: 13320, name: 'Baby Mole',                 keywords: ['baby mole', 'mole pet'] },
   { id: 12921, name: 'Prince Black Dragon',        keywords: ['prince black dragon', 'kbd pet'] },
   { id: 12649, name: 'Kalphite Princess',          keywords: ['kalphite princess', 'kq pet'] },
-  { id: 12921, name: 'Vorki',                     keywords: ['vorki', 'vorkath pet'] },
+  { id: 21992, name: 'Vorki',                     keywords: ['vorki', 'vorkath pet'] },
   { id: 21802, name: 'Skotos',                    keywords: ['skotos', 'skotizo pet'] },
   { id: 22517, name: 'Noon',                      keywords: ['noon', 'grotesque guardians pet', 'gg pet'] },
   { id: 13322, name: 'Abyssal Orphan',            keywords: ['abyssal orphan', 'sire pet'] },
