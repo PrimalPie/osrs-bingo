@@ -6,6 +6,8 @@ const CHANGELOG = [
       { type: 'feature', description: 'Countdown timer on the board page — when no event is active, the page shows the next upcoming event name and a live countdown to its start date (UTC).' },
       { type: 'feature', description: 'Edit button on each event row in the admin panel — change the name, WOM competition ID, and start/end dates at any time without recreating the event.' },
       { type: 'improvement', description: 'Only one event can be active at a time — activating an event now returns an error if another is already active, preventing accidental double-activation.' },
+      { type: 'feature', description: 'Event-level WOM competition ID now acts as the master competition for all WOM-tracked tiles. Set the metric on a tile (e.g. zulrah, fletching) and it pulls gains for that metric from the event competition using the ?metric= preview parameter — no separate competition per tile needed. Per-tile competition IDs still work as overrides.' },
+      { type: 'improvement', description: 'KC tiles can now set a WOM metric name (boss name, e.g. zulrah) to enable auto-tracking via the event competition, matching how XP tiles work.' },
     ],
   },
   {

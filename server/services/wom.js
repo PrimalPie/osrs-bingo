@@ -7,9 +7,12 @@ const POLL_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours
 let lastSync = null;
 function getLastSync() { return lastSync; }
 
-async function fetchCompetitionParticipants(competitionId) {
-  const res = await fetch(`${WOM_BASE}/competitions/${competitionId}`);
-  if (!res.ok) throw new Error(`WOM API error ${res.status} for competition ${competitionId}`);
+async function fetchCompetitionParticipants(competitionId, metric) {
+  const url = metric
+    ? `${WOM_BASE}/competitions/${competitionId}?metric=${metric}`
+    : `${WOM_BASE}/competitions/${competitionId}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`WOM API error ${res.status} for competition ${competitionId}${metric ? ` (metric: ${metric})` : ''}`);
   const data = await res.json();
   return data.participations ?? [];
 }
@@ -19,10 +22,13 @@ async function syncWomTiles(io) {
   const event = db.prepare("SELECT * FROM events WHERE status = 'active' LIMIT 1").get();
   if (!event) return;
 
-  // Both XP and KC tiles can have a per-tile competition ID
-  const womTiles = db.prepare(
-    'SELECT * FROM tiles WHERE event_id = ? AND wom_competition_id IS NOT NULL'
-  ).all(event.id);
+  // Tiles with their own competition ID, or tiles that can fall back to the event's competition
+  const womTiles = db.prepare(`
+    SELECT * FROM tiles WHERE event_id = ? AND (
+      wom_competition_id IS NOT NULL
+      OR (wom_metric IS NOT NULL AND ? IS NOT NULL)
+    )
+  `).all(event.id, event.wom_competition_id);
   if (!womTiles.length) return;
 
   const teams = db.prepare('SELECT * FROM teams WHERE event_id = ?').all(event.id);
@@ -30,19 +36,31 @@ async function syncWomTiles(io) {
     'SELECT tm.* FROM team_members tm JOIN teams t ON tm.team_id = t.id WHERE t.event_id = ?'
   ).all(event.id);
 
-  // Fetch participants once per unique competition ID
-  const compIds = [...new Set(womTiles.map(t => t.wom_competition_id))];
-  const participantsByComp = {};
-  for (const compId of compIds) {
+  // Fetch participants once per unique (competitionId, metric) pair
+  const fetchKeys = new Map();
+  for (const tile of womTiles) {
+    const compId = tile.wom_competition_id || event.wom_competition_id;
+    if (!compId) continue;
+    const metric = tile.wom_metric || null;
+    const key = `${compId}:${metric || ''}`;
+    if (!fetchKeys.has(key)) fetchKeys.set(key, { compId, metric });
+  }
+
+  const participantsByKey = {};
+  for (const [key, { compId, metric }] of fetchKeys) {
     try {
-      participantsByComp[compId] = await fetchCompetitionParticipants(compId);
+      participantsByKey[key] = await fetchCompetitionParticipants(compId, metric);
     } catch (e) {
-      console.error(`[WOM] Failed to fetch competition ${compId}:`, e.message);
+      console.error(`[WOM] Failed to fetch competition ${compId} metric ${metric || 'default'}:`, e.message);
     }
   }
 
   for (const tile of womTiles) {
-    const participants = participantsByComp[tile.wom_competition_id];
+    const compId = tile.wom_competition_id || event.wom_competition_id;
+    if (!compId) continue;
+    const metric = tile.wom_metric || null;
+    const key = `${compId}:${metric || ''}`;
+    const participants = participantsByKey[key];
     if (!participants) continue;
 
     for (const team of teams) {
@@ -92,7 +110,7 @@ async function syncWomTiles(io) {
   }
 
   lastSync = new Date().toISOString();
-  console.log(`[WOM] Synced ${compIds.length} competition(s) for ${womTiles.length} tile(s), event ${event.id}`);
+  console.log(`[WOM] Synced ${fetchKeys.size} competition/metric pair(s) for ${womTiles.length} tile(s), event ${event.id}`);
 }
 
 function startWomPoller(io) {

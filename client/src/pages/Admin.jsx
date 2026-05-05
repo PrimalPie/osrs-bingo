@@ -158,21 +158,23 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
           </div>
         )}
 
-        {isXp && (
+        {(form.type === 'xp' || form.type === 'kc') && (
           <div style={{ marginBottom: '0.9rem' }}>
-            <label style={s.label}>WOM Metric (skill name, e.g. fletching)</label>
+            <label style={s.label}>
+              WOM Metric ({form.type === 'xp' ? 'skill name, e.g. fletching' : 'boss name, e.g. zulrah'})
+            </label>
             <input
               style={{ ...s.input, width: '100%', minWidth: 0 }}
               value={form.wom_metric}
               onChange={e => set('wom_metric', e.target.value)}
-              placeholder="fletching"
+              placeholder={form.type === 'xp' ? 'fletching' : 'zulrah'}
             />
           </div>
         )}
 
         {(form.type === 'xp' || form.type === 'kc') && (
           <div style={{ marginBottom: '0.9rem' }}>
-            <label style={s.label}>WOM Competition ID (optional — enables auto-tracking)</label>
+            <label style={s.label}>WOM Competition ID (optional override)</label>
             <input
               style={{ ...s.input, width: '100%', minWidth: 0 }}
               value={form.wom_competition_id}
@@ -180,7 +182,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               placeholder="e.g. 131025"
             />
             <div style={{ fontSize: '0.72rem', color: '#718096', marginTop: '0.25rem' }}>
-              If set, progress is synced from WiseOldMan every 3 min. No Discord submission needed.
+              Leave blank to use the event's main WOM competition with the metric above. Set this only if this tile needs a different competition.
             </div>
           </div>
         )}
