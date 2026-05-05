@@ -1,5 +1,16 @@
 const CHANGELOG = [
   {
+    date: '2026-05-06',
+    entries: [
+      { type: 'feature', description: 'Points game mode — events can now be set to Blackout (first to complete every tile) or Points (5 pts per tile, 50 pt bonus for completing a full row, column, or diagonal). Mode is chosen when creating an event and can be changed at any time via Edit.' },
+      { type: 'feature', description: 'Live scoreboard on the board page — teams are ranked by score (points mode) or tiles completed (blackout mode) with a crown for the current leader. Standings update in real time as submissions are approved.' },
+      { type: 'feature', description: 'Rules helper text below the scoreboard explains the active game mode at a glance.' },
+      { type: 'feature', description: 'Board generator now auto-assigns icons — boss tiles use locally cached hiscores icons, skill tiles use the skill icon cache, and drop tiles use their RuneLite item IDs. Icons are written to the database on apply, so no manual icon selection is needed after generating a board.' },
+      { type: 'feature', description: 'Untradable item search — the tile icon picker now includes a curated list of untradable items (combat capes, void set, graceful, skilling outfits, Theatre of Blood and Chambers of Xeric ornament kits, HMT uniques such as Sanguine Dust, and boss pets). These appear before GE results and use RuneLite item cache icons.' },
+      { type: 'fix', description: 'Board grid cells now have a consistent fixed height using CSS Grid (replacing the previous HTML table layout). Tiles with longer labels no longer expand their row, keeping the board visually uniform.' },
+    ],
+  },
+  {
     date: '2026-05-05',
     entries: [
       { type: 'feature', description: 'Board Generator — admin-only sandbox at /generate. Choose total players, number of teams, board size (5×5 or 7×7), duration, and difficulty/category mix. Targets scale automatically by team size and event length (linear for XP, square-root for KC, fixed for rare drops). Preview the colour-coded grid before applying it to any event.' },
