@@ -90,7 +90,7 @@ module.exports = [
   { id: 24780, name: 'Bloody Ornament Kit',        keywords: ['bloody ornament kit', 'bloody kit', 'hard mode tob', 'hmt'] },
 
   // ── HMT Unique Drops ─────────────────────────────────────────────────────
-  { id: 24778, name: 'Sanguine Dust',              keywords: ['sanguine dust', 'hmt dust', 'hard mode tob', 'hmt'] },
+  { id: 25746, name: 'Sanguine Dust',              keywords: ['sanguine dust', 'hmt dust', 'hard mode tob', 'hmt'] },
 
   // ── Raid Ornament Kits (CoX) ─────────────────────────────────────────────
   { id: 22326, name: 'Twisted Ancestral Colour Kit', keywords: ['twisted ancestral colour kit', 'ancestral kit', 'cox kit'] },
