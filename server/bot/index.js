@@ -10,6 +10,8 @@ const UPLOAD_DIR = process.env.DATA_DIR
   ? path.join(process.env.DATA_DIR, 'uploads')
   : path.join(__dirname, '..', 'uploads');
 
+const MAX_SCREENSHOT_BYTES = 10 * 1024 * 1024; // 10 MB
+
 // Format: A1 - Dragon Legs  (with optional screenshot)
 // Optional count suffix: A1 - Dragon Legs x3
 const SUBMISSION_REGEX = /^([A-Ia-i][1-9])\s*[-–]\s*(.+?)(?:\s+x(\d+))?$/i;
@@ -112,6 +114,10 @@ function createBot(io) {
     const attachment = message.attachments.first();
     const ALLOWED_IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp']);
     if (attachment && attachment.contentType?.startsWith('image/')) {
+      if (attachment.size > MAX_SCREENSHOT_BYTES) {
+        await message.reply('⚠️ Screenshot is too large (max 10 MB). Please compress the image and resubmit.');
+        return;
+      }
       const rawExt = attachment.name?.split('.').pop()?.toLowerCase() || '';
       const ext = ALLOWED_IMAGE_EXTS.has(rawExt) ? rawExt : 'png';
       const filename = `${Date.now()}_${message.id}.${ext}`;

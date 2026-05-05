@@ -25,7 +25,7 @@ router.get('/team/:teamId/pending', requireCaptainOrAdmin, (req, res) => {
 });
 
 // Get all submissions for a tile+team
-router.get('/tile/:tileId/team/:teamId', (req, res) => {
+router.get('/tile/:tileId/team/:teamId', requireCaptainOrAdmin, (req, res) => {
   const db = getDb();
   const rows = db.prepare(
     "SELECT * FROM submissions WHERE tile_id = ? AND team_id = ? ORDER BY created_at DESC"

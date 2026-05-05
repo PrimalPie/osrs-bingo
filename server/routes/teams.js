@@ -1,7 +1,16 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { getDb } = require('../db/database');
-const { requireAdmin, requireCaptainOrAdmin } = require('../middleware/auth');
+const { requireAdmin, requireCaptainOrAdmin, JWT_SECRET } = require('../middleware/auth');
 const { logAudit } = require('../services/audit');
+
+function isAdmin(req) {
+  try {
+    const h = req.headers.authorization;
+    if (!h?.startsWith('Bearer ')) return false;
+    return jwt.verify(h.slice(7), JWT_SECRET).role === 'admin';
+  } catch { return false; }
+}
 
 const router = express.Router();
 
@@ -23,9 +32,10 @@ router.get('/event/:eventId', (req, res) => {
   const members = db.prepare(
     'SELECT tm.*, t.event_id FROM team_members tm JOIN teams t ON tm.team_id = t.id WHERE t.event_id = ?'
   ).all(req.params.eventId);
-  res.json(teams.map(team => ({
-    ...team,
-    members: members.filter(m => m.team_id === team.id)
+  const admin = isAdmin(req);
+  res.json(teams.map(({ discord_channel_id, ...pub }, _, arr) => ({
+    ...(admin ? { discord_channel_id, ...pub } : pub),
+    members: members.filter(m => m.team_id === pub.id),
   })));
 });
 

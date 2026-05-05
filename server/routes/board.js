@@ -12,7 +12,7 @@ router.get('/event/:eventId', (req, res) => {
   if (!event) return res.status(404).json({ error: 'Event not found' });
 
   const tiles = db.prepare('SELECT * FROM tiles WHERE event_id = ? ORDER BY row, col').all(req.params.eventId);
-  const teams = db.prepare('SELECT id, name, color, discord_channel_id FROM teams WHERE event_id = ?').all(req.params.eventId);
+  const teams = db.prepare('SELECT id, name, color FROM teams WHERE event_id = ?').all(req.params.eventId);
   const progress = db.prepare(
     'SELECT tp.* FROM tile_progress tp JOIN tiles t ON tp.tile_id = t.id WHERE t.event_id = ?'
   ).all(req.params.eventId);
