@@ -60,6 +60,7 @@ const BOSS_ICONS = {
   'Tempoross':                'game_icon_tempoross.png',
   'Zalcano':                  'game_icon_zalcano.png',
   'Guardians of the Rift':    'game_icon_riftsclosed.png',
+  'Hespori':                  'game_icon_hespori.png',
   'Hueycoatl':                'game_icon_thehueycoatl.png',
   'Amoxliatl':                'game_icon_amoxliatl.png',
 };
@@ -88,6 +89,8 @@ const SKILL_ICONS = {
   'Firemaking':   'hiscores/skill_icon_firemaking1.gif',
   'Woodcutting':  'hiscores/skill_icon_woodcutting1.gif',
   'Farming':      'hiscores/skill_icon_farming1.gif',
+  'Sailing':      'hiscores/skill_icon_sailing1.gif',
+  'Overall':      'hiscores/skill_icon_overall1.gif',
 };
 
 async function downloadTo(url, dest) {

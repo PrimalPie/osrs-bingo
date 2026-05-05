@@ -52,6 +52,7 @@ const BOSS_LIST = [
   { name: 'Tempoross',               keywords: ['tempoross','temp'] },
   { name: 'Zalcano',                 keywords: ['zalcano'] },
   { name: 'Guardians of the Rift',   keywords: ['guardians','rift','gotr'] },
+  { name: 'Hespori',                 keywords: ['hespori'] },
   { name: 'Hueycoatl',               keywords: ['hueycoatl','hueya'] },
   { name: 'Amoxliatl',               keywords: ['amoxliatl'] },
 ];
@@ -80,6 +81,8 @@ const SKILL_LIST = [
   { name: 'Firemaking',   keywords: ['firemaking','fm'] },
   { name: 'Woodcutting',  keywords: ['woodcutting','wc','woodcut'] },
   { name: 'Farming',      keywords: ['farming','farm'] },
+  { name: 'Sailing',      keywords: ['sailing','sail'] },
+  { name: 'Overall',      keywords: ['overall','total xp','total level'] },
 ];
 
 let cacheInProgress = false;
