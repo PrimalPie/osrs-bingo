@@ -7,11 +7,16 @@ const POLL_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours
 let lastSync = null;
 function getLastSync() { return lastSync; }
 
+const WOM_HEADERS = {
+  'User-Agent': 'osrs-bingo-tracker/1.0 (self-hosted clan bingo; contact: joseph@farah.gg)',
+  ...(process.env.WOM_API_KEY ? { 'x-api-key': process.env.WOM_API_KEY } : {}),
+};
+
 async function fetchCompetitionParticipants(competitionId, metric) {
   const url = metric
     ? `${WOM_BASE}/competitions/${competitionId}?metric=${metric}`
     : `${WOM_BASE}/competitions/${competitionId}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: WOM_HEADERS });
   if (!res.ok) throw new Error(`WOM API error ${res.status} for competition ${competitionId}${metric ? ` (metric: ${metric})` : ''}`);
   const data = await res.json();
   return data.participations ?? [];
