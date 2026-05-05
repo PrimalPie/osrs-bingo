@@ -291,6 +291,22 @@ export default function Board() {
         onSelectTeam={toggleTeam}
       />
 
+      <div style={{ fontSize: '0.78rem', color: '#4a5568', marginBottom: '1rem', lineHeight: 1.6 }}>
+        {mode === 'points' ? (
+          <>
+            <strong style={{ color: '#718096' }}>Points mode · </strong>
+            Each completed tile is worth <strong style={{ color: '#e2e8f0' }}>5 pts</strong>.
+            Complete an entire row, column, or diagonal to earn a <strong style={{ color: '#e2e8f0' }}>50 pt</strong> line bonus.
+            Highest total score wins.
+          </>
+        ) : (
+          <>
+            <strong style={{ color: '#718096' }}>Blackout mode · </strong>
+            First team to complete <strong style={{ color: '#e2e8f0' }}>every tile</strong> on the board wins.
+          </>
+        )}
+      </div>
+
       <BingoBoard tiles={tiles} teams={teams} boardSize={event.board_size || 9} selectedTeam={selectedTeam} />
     </div>
   );
