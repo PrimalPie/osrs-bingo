@@ -26,7 +26,7 @@ function Countdown({ dateStr }) {
   const [parts, setParts] = useState(null);
 
   useEffect(() => {
-    const target = new Date(dateStr + 'T00:00:00Z').getTime();
+    const target = new Date(dateStr).getTime();
 
     function tick() {
       const diff = target - Date.now();
@@ -56,11 +56,22 @@ function Countdown({ dateStr }) {
   );
 }
 
+function gmtOffset() {
+  const off = -new Date().getTimezoneOffset();
+  const h = Math.floor(Math.abs(off) / 60);
+  const m = Math.abs(off) % 60;
+  const sign = off >= 0 ? '+' : '-';
+  return m > 0 ? `GMT${sign}${h}:${String(m).padStart(2,'0')}` : `GMT${sign}${h}`;
+}
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtDate(dateStr) {
   if (!dateStr) return null;
-  const [y, mo, d] = dateStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${parseInt(d)} ${months[parseInt(mo) - 1]} ${y}`;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const base = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  const hasTime = dateStr.includes('T') && (d.getHours() || d.getMinutes());
+  return hasTime ? `${base} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : base;
 }
 
 export default function Board() {
@@ -122,7 +133,7 @@ export default function Board() {
               {upcoming.start_date ? (
                 <div style={{ display: 'inline-block', background: '#16213e', border: '1px solid #0f3460', borderRadius: 10, padding: '1.25rem 2.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
-                    Starts {fmtDate(upcoming.start_date)} (UTC)
+                    Starts {fmtDate(upcoming.start_date)} · Local Time ({gmtOffset()})
                   </div>
                   <div style={{ fontSize: '1.75rem', letterSpacing: '-0.01em' }}>
                     <Countdown dateStr={upcoming.start_date} />

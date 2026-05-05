@@ -6,6 +6,7 @@ import LoginPage from './pages/Login';
 import CaptainPage from './pages/Captain';
 import AdminPage from './pages/Admin';
 import ChangelogPage from './pages/Changelog';
+import GeneratePage from './pages/Generate';
 
 export const AuthContext = createContext(null);
 
@@ -39,6 +40,9 @@ function Nav() {
       )}
       {user?.role === 'admin' && (
         <Link to="/admin" style={styles.navLink}>Admin</Link>
+      )}
+      {user?.role === 'admin' && (
+        <Link to="/generate" style={styles.navLink}>Generate</Link>
       )}
       <Link to="/changelog" style={styles.navLink}>Changelog</Link>
       <div style={styles.navRight}>
@@ -106,6 +110,9 @@ export default function App() {
             <ProtectedRoute role="admin"><AdminPage /></ProtectedRoute>
           } />
           <Route path="/changelog" element={<ChangelogPage />} />
+          <Route path="/generate" element={
+            <ProtectedRoute role="admin"><GeneratePage /></ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

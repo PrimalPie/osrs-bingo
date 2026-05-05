@@ -429,8 +429,8 @@ function EventEditModal({ event, onSave, onClose }) {
   const [form, setForm] = useState({
     name: event.name || '',
     wom_competition_id: event.wom_competition_id ? String(event.wom_competition_id) : '',
-    start_date: event.start_date || '',
-    end_date: event.end_date || '',
+    start_date: utcToInput(event.start_date),
+    end_date: utcToInput(event.end_date),
   });
   const [err, setErr] = useState('');
 
@@ -440,8 +440,8 @@ function EventEditModal({ event, onSave, onClose }) {
       await onSave({
         name: form.name.trim(),
         wom_competition_id: form.wom_competition_id ? parseInt(form.wom_competition_id) : null,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
+        start_date: inputToUtc(form.start_date),
+        end_date: inputToUtc(form.end_date),
       });
     } catch (e) {
       setErr(e.response?.data?.error || 'Save failed');
@@ -450,7 +450,7 @@ function EventEditModal({ event, onSave, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.5rem', width: 420, maxWidth: '92vw' }} onClick={e => e.stopPropagation()}>
+      <div style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.5rem', width: 500, maxWidth: '94vw' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <span style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0' }}>Edit Event</span>
           <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
@@ -466,15 +466,14 @@ function EventEditModal({ event, onSave, onClose }) {
           <input style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.wom_competition_id} onChange={e => setForm(f => ({ ...f, wom_competition_id: e.target.value }))} placeholder="e.g. 131025" />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.9rem' }}>
-          <div style={{ flex: 1 }}>
-            <label style={s.label}>Start Date (UTC)</label>
-            <input type="date" style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={s.label}>End Date (UTC)</label>
-            <input type="date" style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
-          </div>
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={s.label}>Start Date/Time (UTC)</label>
+          <input type="datetime-local" style={{ ...s.input, width: '100%', minWidth: 0, colorScheme: 'dark' }} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+        </div>
+
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={s.label}>End Date/Time (UTC)</label>
+          <input type="datetime-local" style={{ ...s.input, width: '100%', minWidth: 0, colorScheme: 'dark' }} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
         </div>
 
         {err && <div style={{ ...s.errMsg, marginBottom: '0.75rem' }}>{err}</div>}
@@ -488,11 +487,29 @@ function EventEditModal({ event, onSave, onClose }) {
   );
 }
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function fmtDate(dateStr) {
   if (!dateStr) return '—';
-  const [y, mo, d] = dateStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${parseInt(d)} ${months[parseInt(mo) - 1]}`;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '—';
+  const base = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+  const hasTime = dateStr.includes('T') && (d.getUTCHours() || d.getUTCMinutes());
+  return hasTime ? `${base} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC` : base;
+}
+
+// UTC ISO string → datetime-local input value (no timezone conversion — admin always works in UTC)
+function utcToInput(utcStr) {
+  if (!utcStr) return '';
+  const m = utcStr.match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/);
+  if (!m) return '';
+  return m[2] ? `${m[1]}T${m[2]}` : `${m[1]}T00:00`;
+}
+
+// datetime-local input value → UTC ISO string (value is already UTC, just append Z)
+function inputToUtc(inputStr) {
+  if (!inputStr) return null;
+  return `${inputStr}:00.000Z`;
 }
 
 // ─── Events Tab ───────────────────────────────────────────────────────────────
@@ -530,8 +547,8 @@ function EventsTab() {
       name: form.name,
       board_size: parseInt(form.board_size),
       wom_competition_id: form.wom_competition_id || null,
-      start_date: form.start_date || null,
-      end_date: form.end_date || null,
+      start_date: inputToUtc(form.start_date),
+      end_date: inputToUtc(form.end_date),
     });
     setEvents(prev => [res.data, ...prev]);
     setForm({ name: '', board_size: '9', wom_competition_id: '', start_date: '', end_date: '' });
@@ -645,12 +662,12 @@ function EventsTab() {
           </div>
           <div style={s.row}>
             <div>
-              <label style={s.label}>Start Date (UTC, optional)</label>
-              <input type="date" style={s.input} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+              <label style={s.label}>Start Date/Time (UTC, optional)</label>
+              <input type="datetime-local" style={{ ...s.input, colorScheme: 'dark' }} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
             </div>
             <div>
-              <label style={s.label}>End Date (UTC, optional)</label>
-              <input type="date" style={s.input} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+              <label style={s.label}>End Date/Time (UTC, optional)</label>
+              <input type="datetime-local" style={{ ...s.input, colorScheme: 'dark' }} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
             </div>
             <button type="submit" style={{ ...s.primaryBtn, alignSelf: 'flex-end' }}>Create</button>
           </div>
@@ -668,7 +685,7 @@ function EventsTab() {
               <th style={s.th}>Name</th>
               <th style={s.th}>Size</th>
               <th style={s.th}>Status</th>
-              <th style={s.th}>Dates (UTC)</th>
+              <th style={s.th}>Dates</th>
               <th style={s.th}>Actions</th>
             </tr>
           </thead>

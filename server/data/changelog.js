@@ -2,6 +2,10 @@ const CHANGELOG = [
   {
     date: '2026-05-05',
     entries: [
+      { type: 'feature', description: 'Board Generator — admin-only sandbox at /generate. Choose total players, number of teams, board size (5×5 or 7×7), duration, and difficulty/category mix. Targets scale automatically by team size and event length (linear for XP, square-root for KC, fixed for rare drops). Preview the colour-coded grid before applying it to any event.' },
+      { type: 'improvement', description: 'Event start and end dates now include a time component. Admins enter the time in UTC; the board countdown counts down to the exact start time rather than midnight.' },
+      { type: 'improvement', description: 'Board countdown displays the event start time converted to each viewer\'s local timezone, labelled with their GMT offset (e.g. "Local Time (GMT+1)").' },
+      { type: 'fix', description: 'Edit Event modal is now wider with start and end date/time pickers stacked vertically, preventing the inputs from being cramped.' },
       { type: 'feature', description: 'Events now have configurable start and end dates (UTC). Set them when creating or edit them later — useful for pre-creating events before dates are confirmed.' },
       { type: 'feature', description: 'Countdown timer on the board page — when no event is active, the page shows the next upcoming event name and a live countdown to its start date (UTC).' },
       { type: 'feature', description: 'Edit button on each event row in the admin panel — change the name, WOM competition ID, and start/end dates at any time without recreating the event.' },
