@@ -12,6 +12,7 @@ const schema = `
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'setup',
+    mode TEXT NOT NULL DEFAULT 'blackout',
     board_size INTEGER NOT NULL DEFAULT 9,
     wom_competition_id INTEGER,
     winner_team_id INTEGER,

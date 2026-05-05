@@ -40,17 +40,18 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', requireAdmin, (req, res) => {
-  const { name, wom_competition_id, board_size, start_date, end_date } = req.body;
+  const { name, wom_competition_id, board_size, start_date, end_date, mode } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const size = Math.min(Math.max(parseInt(board_size) || 9, 3), 12);
+  const eventMode = mode === 'points' ? 'points' : 'blackout';
   const db = getDb();
   const result = db.prepare(
-    'INSERT INTO events (name, board_size, wom_competition_id, start_date, end_date) VALUES (?, ?, ?, ?, ?)'
-  ).run(name, size, wom_competition_id || null, start_date || null, end_date || null);
+    'INSERT INTO events (name, board_size, mode, wom_competition_id, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(name, size, eventMode, wom_competition_id || null, start_date || null, end_date || null);
   logAudit(req.user.id, req.user.username, 'event_created', 'event', result.lastInsertRowid,
-    `Created event '${name}' (${size}×${size})`
+    `Created event '${name}' (${size}×${size}, ${eventMode})`
   );
-  res.json({ id: result.lastInsertRowid, name, board_size: size, status: 'setup', start_date: start_date || null, end_date: end_date || null });
+  res.json({ id: result.lastInsertRowid, name, board_size: size, mode: eventMode, status: 'setup', start_date: start_date || null, end_date: end_date || null });
 });
 
 router.patch('/:id', requireAdmin, (req, res) => {
@@ -58,7 +59,7 @@ router.patch('/:id', requireAdmin, (req, res) => {
   const event = db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id);
   if (!event) return res.status(404).json({ error: 'Not found' });
 
-  const { name, status, wom_competition_id, start_date, end_date } = req.body;
+  const { name, status, wom_competition_id, start_date, end_date, mode } = req.body;
   const updates = {};
   const changed = [];
 
@@ -66,6 +67,7 @@ router.patch('/:id', requireAdmin, (req, res) => {
   if (wom_competition_id !== undefined) updates.wom_competition_id = wom_competition_id || null;
   if (start_date !== undefined) updates.start_date = start_date || null;
   if (end_date !== undefined) updates.end_date = end_date || null;
+  if (mode !== undefined) updates.mode = mode === 'points' ? 'points' : 'blackout';
 
   if (status !== undefined) {
     if (status === 'active') {

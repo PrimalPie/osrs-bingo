@@ -52,6 +52,9 @@ function getDb() {
     if (!eventCols.includes('end_date')) {
       raw.exec('ALTER TABLE events ADD COLUMN end_date TEXT');
     }
+    if (!eventCols.includes('mode')) {
+      raw.exec("ALTER TABLE events ADD COLUMN mode TEXT NOT NULL DEFAULT 'blackout'");
+    }
     const tileCols = raw.prepare("PRAGMA table_info(tiles)").all().map(r => r.name);
     if (!tileCols.includes('icon_url')) {
       raw.exec('ALTER TABLE tiles ADD COLUMN icon_url TEXT');

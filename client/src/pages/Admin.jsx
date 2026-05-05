@@ -428,6 +428,7 @@ function DeleteEventModal({ event, onConfirm, onClose }) {
 function EventEditModal({ event, onSave, onClose }) {
   const [form, setForm] = useState({
     name: event.name || '',
+    mode: event.mode || 'blackout',
     wom_competition_id: event.wom_competition_id ? String(event.wom_competition_id) : '',
     start_date: utcToInput(event.start_date),
     end_date: utcToInput(event.end_date),
@@ -439,6 +440,7 @@ function EventEditModal({ event, onSave, onClose }) {
     try {
       await onSave({
         name: form.name.trim(),
+        mode: form.mode,
         wom_competition_id: form.wom_competition_id ? parseInt(form.wom_competition_id) : null,
         start_date: inputToUtc(form.start_date),
         end_date: inputToUtc(form.end_date),
@@ -464,6 +466,27 @@ function EventEditModal({ event, onSave, onClose }) {
         <div style={{ marginBottom: '0.9rem' }}>
           <label style={s.label}>WiseOldMan Competition ID (optional)</label>
           <input style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.wom_competition_id} onChange={e => setForm(f => ({ ...f, wom_competition_id: e.target.value }))} placeholder="e.g. 131025" />
+        </div>
+
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={s.label}>Game Mode</label>
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {[['blackout', 'Blackout'], ['points', 'Points']].map(([val, label]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setForm(f => ({ ...f, mode: val }))}
+                style={{
+                  padding: '0.45rem 0.9rem', borderRadius: 4, cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600, border: 'none',
+                  background: form.mode === val ? '#e94560' : '#0f3460',
+                  color: form.mode === val ? '#fff' : '#a0aec0',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div style={{ marginBottom: '0.9rem' }}>
@@ -515,7 +538,7 @@ function inputToUtc(inputStr) {
 // ─── Events Tab ───────────────────────────────────────────────────────────────
 function EventsTab() {
   const [events, setEvents] = useState([]);
-  const [form, setForm] = useState({ name: '', board_size: '9', wom_competition_id: '', start_date: '', end_date: '' });
+  const [form, setForm] = useState({ name: '', board_size: '9', mode: 'blackout', wom_competition_id: '', start_date: '', end_date: '' });
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [boardEvent, setBoardEvent] = useState(null);
@@ -546,12 +569,13 @@ function EventsTab() {
     const res = await api.post('/events', {
       name: form.name,
       board_size: parseInt(form.board_size),
+      mode: form.mode,
       wom_competition_id: form.wom_competition_id || null,
       start_date: inputToUtc(form.start_date),
       end_date: inputToUtc(form.end_date),
     });
     setEvents(prev => [res.data, ...prev]);
-    setForm({ name: '', board_size: '9', wom_competition_id: '', start_date: '', end_date: '' });
+    setForm({ name: '', board_size: '9', mode: 'blackout', wom_competition_id: '', start_date: '', end_date: '' });
     setMsg('Event created');
     setTimeout(() => setMsg(''), 3000);
   }
@@ -651,6 +675,26 @@ function EventsTab() {
               </div>
             </div>
             <div>
+              <label style={s.label}>Game Mode</label>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                {[['blackout', 'Blackout'], ['points', 'Points']].map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, mode: val }))}
+                    style={{
+                      padding: '0.45rem 0.8rem', borderRadius: 4, cursor: 'pointer',
+                      fontSize: '0.85rem', fontWeight: 600, border: 'none',
+                      background: form.mode === val ? '#e94560' : '#0f3460',
+                      color: form.mode === val ? '#fff' : '#a0aec0',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
               <label style={s.label}>WOM Competition ID (optional)</label>
               <input
                 style={s.input}
@@ -684,6 +728,7 @@ function EventsTab() {
             <tr>
               <th style={s.th}>Name</th>
               <th style={s.th}>Size</th>
+              <th style={s.th}>Mode</th>
               <th style={s.th}>Status</th>
               <th style={s.th}>Dates</th>
               <th style={s.th}>Actions</th>
@@ -694,6 +739,16 @@ function EventsTab() {
               <tr key={ev.id}>
                 <td style={s.td}>{ev.name}</td>
                 <td style={s.td}>{ev.board_size}×{ev.board_size}</td>
+                <td style={s.td}>
+                  <span style={{
+                    fontSize: '0.75rem', fontWeight: 700, padding: '0.1rem 0.5rem', borderRadius: 10,
+                    background: (ev.mode || 'blackout') === 'points' ? '#2d3748' : '#1a2a3a',
+                    color: (ev.mode || 'blackout') === 'points' ? '#f6ad55' : '#63b3ed',
+                    textTransform: 'uppercase', letterSpacing: '0.05em',
+                  }}>
+                    {ev.mode || 'blackout'}
+                  </span>
+                </td>
                 <td style={s.td}>
                   <span style={{ color: ev.status === 'active' ? '#68d391' : ev.status === 'completed' ? '#718096' : '#f6ad55' }}>
                     {ev.status}
