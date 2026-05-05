@@ -5,26 +5,29 @@ const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
 const s = {
   wrapper: { overflowX: 'auto' },
-  table: { borderCollapse: 'collapse', minWidth: 600, width: '100%' },
   headerCell: {
     background: '#0f3460', color: '#a0aec0', fontSize: '0.75rem',
-    padding: '0.4rem', textAlign: 'center', fontWeight: 600, width: '11.1%',
+    padding: '0.4rem', textAlign: 'center', fontWeight: 600,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  cell: {
-    border: '1px solid #2d3748', padding: 0, verticalAlign: 'top',
-    width: '11.1%', position: 'relative',
+  rowNum: {
+    background: '#0f3460', color: '#a0aec0', fontSize: '0.75rem',
+    fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   tileInner: {
-    padding: '0.5rem', minHeight: 80, display: 'flex', flexDirection: 'column',
+    height: '100%', padding: '0.4rem 0.3rem', display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-    cursor: 'pointer', position: 'relative', gap: '0.3rem',
+    cursor: 'pointer', position: 'relative', gap: '0.2rem', overflow: 'hidden',
   },
   coord: { fontSize: '0.6rem', color: '#718096', position: 'absolute', top: 3, left: 4 },
-  label: { fontSize: '0.72rem', color: '#e2e8f0', lineHeight: 1.3 },
-  type: { fontSize: '0.58rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  progressBar: { width: '80%', height: 4, background: '#2d3748', borderRadius: 2, marginTop: 2 },
+  label: {
+    fontSize: '0.68rem', color: '#e2e8f0', lineHeight: 1.3,
+    overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+  },
+  type: { fontSize: '0.55rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  progressBar: { width: '80%', height: 3, background: '#2d3748', borderRadius: 2, marginTop: 1, flexShrink: 0 },
   progressFill: { height: '100%', borderRadius: 2, transition: 'width 0.4s ease' },
-  progressText: { fontSize: '0.6rem', color: '#a0aec0' },
+  progressText: { fontSize: '0.58rem', color: '#a0aec0' },
   modal: {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
@@ -59,6 +62,8 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
   const tileMap = {};
   for (const t of tiles) tileMap[`${t.col}-${t.row}`] = t;
 
+  const gridCols = `32px repeat(${boardSize}, 1fr)`;
+
   return (
     <div style={s.wrapper}>
       {selected && (
@@ -79,12 +84,11 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
               Type: {selected.type} · Target: {formatTarget(selected.type, selected.target)}
             </div>
 
-            {/* When a team is selected show it prominently, then the rest dimmed */}
             {(() => {
               const displayTeams = selectedTeam
                 ? [selectedTeam, ...teams.filter(t => t.id !== selectedTeam.id)]
                 : teams;
-              return displayTeams.map((team, i) => {
+              return displayTeams.map(team => {
                 const p = selected.progress?.[team.id];
                 const current = p?.current ?? 0;
                 const pct = Math.min((current / selected.target) * 100, 100);
@@ -116,64 +120,67 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
         </div>
       )}
 
-      <table style={s.table}>
-        <thead>
-          <tr>
-            <th style={{ ...s.headerCell, background: '#0a0a1a' }}></th>
-            {COLS.slice(0, boardSize).map(c => <th key={c} style={s.headerCell}>{c}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: boardSize }, (_, i) => i + 1).map(row => (
-            <tr key={row}>
-              <td style={{ ...s.headerCell, background: '#0f3460' }}>{row}</td>
-              {COLS.slice(0, boardSize).map((_, ci) => {
-                const col = ci + 1;
-                const tile = tileMap[`${col}-${row}`];
-                const bg = getTileBg(tile, selectedTeam);
-                return (
-                  <td key={col} style={s.cell}>
-                    {tile ? (
-                      <div style={{ ...s.tileInner, background: bg }} onClick={() => setSelected(tile)}>
-                        <span style={s.coord}>{tile.coord}</span>
-                        {tile.icon_url && (
-                          <img
-                            src={tile.icon_url}
-                            alt=""
-                            style={{ width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated' }}
-                            onError={e => { e.target.style.display = 'none'; }}
-                          />
-                        )}
-                        <span style={{ ...s.type, color: typeColor(tile.type) }}>{tile.type}</span>
-                        <span style={s.label}>{tile.label}</span>
+      {/* Column headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 1, background: '#2d3748', marginBottom: 1 }}>
+        <div style={{ ...s.headerCell, background: '#0a0a1a' }} />
+        {COLS.slice(0, boardSize).map(c => (
+          <div key={c} style={s.headerCell}>{c}</div>
+        ))}
+      </div>
 
-                        {selectedTeam && (() => {
-                          const p = tile.progress?.[selectedTeam.id];
-                          const pct = Math.min(((p?.current ?? 0) / tile.target) * 100, 100);
-                          return (
-                            <>
-                              <div style={s.progressBar}>
-                                <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
-                              </div>
-                              <div style={s.progressText}>
-                                {formatTarget(tile.type, p?.current ?? 0)}/{formatTarget(tile.type, tile.target)}
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    ) : (
-                      <div style={{ ...s.tileInner, background: '#12121f', opacity: 0.3 }}>
-                        <span style={s.coord}>{COLS[ci]}{row}</span>
-                      </div>
-                    )}
-                  </td>
+      {/* Board grid — fixed row height via gridAutoRows */}
+      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gridAutoRows: '90px', gap: 1, background: '#2d3748' }}>
+        {Array.from({ length: boardSize }, (_, ri) => {
+          const row = ri + 1;
+          return [
+            <div key={`r${row}`} style={s.rowNum}>{row}</div>,
+            ...COLS.slice(0, boardSize).map((_, ci) => {
+              const col = ci + 1;
+              const tile = tileMap[`${col}-${row}`];
+              const bg = getTileBg(tile, selectedTeam);
+
+              if (!tile) {
+                return (
+                  <div key={`${col}-${row}`} style={{ ...s.tileInner, background: '#12121f', opacity: 0.3, cursor: 'default' }}>
+                    <span style={s.coord}>{COLS[ci]}{row}</span>
+                  </div>
                 );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              }
+
+              return (
+                <div key={`${col}-${row}`} style={{ ...s.tileInner, background: bg }} onClick={() => setSelected(tile)}>
+                  <span style={s.coord}>{tile.coord}</span>
+                  {tile.icon_url && (
+                    <img
+                      src={tile.icon_url}
+                      alt=""
+                      style={{ width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+                      onError={e => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <span style={{ ...s.type, color: typeColor(tile.type) }}>{tile.type}</span>
+                  <span style={s.label}>{tile.label}</span>
+
+                  {selectedTeam && (() => {
+                    const p = tile.progress?.[selectedTeam.id];
+                    const pct = Math.min(((p?.current ?? 0) / tile.target) * 100, 100);
+                    return (
+                      <>
+                        <div style={s.progressBar}>
+                          <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
+                        </div>
+                        <div style={s.progressText}>
+                          {formatTarget(tile.type, p?.current ?? 0)}/{formatTarget(tile.type, tile.target)}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              );
+            }),
+          ];
+        }).flat()}
+      </div>
     </div>
   );
 }
