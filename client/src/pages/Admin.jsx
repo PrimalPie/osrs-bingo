@@ -53,6 +53,18 @@ const s = {
   errMsg: { fontSize: '0.82rem', padding: '0.5rem 0', color: '#fc8181' },
 };
 
+// ─── WOM metric helpers ───────────────────────────────────────────────────────
+const WOM_METRIC_OVERRIDES = { runecraft: 'runecrafting', barrows: 'barrows_chests' };
+
+function toWomMetric(name) {
+  const slug = name
+    .toLowerCase()
+    .replace(/[''`]/g, '')         // Kree'arra → kreearra
+    .replace(/[^a-z0-9]+/g, '_')  // spaces/hyphens → underscore
+    .replace(/^_+|_+$/g, '');     // trim edge underscores
+  return WOM_METRIC_OVERRIDES[slug] || slug;
+}
+
 // ─── Tile edit modal ──────────────────────────────────────────────────────────
 function TileModal({ cell, existing, onSave, onDelete, onClose }) {
   const [form, setForm] = useState({
@@ -63,6 +75,22 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
     wom_competition_id: existing?.wom_competition_id ? String(existing.wom_competition_id) : '',
     icon_url: existing?.icon_url || null,
   });
+  const [bossList, setBossList] = useState([]);
+  const [skillList, setSkillList] = useState([]);
+
+  useEffect(() => {
+    api.get('/bosses').then(r => setBossList(r.data)).catch(() => {});
+    api.get('/skills').then(r => setSkillList(r.data)).catch(() => {});
+  }, []);
+
+  // Auto-fill wom_metric from label when the field is empty
+  useEffect(() => {
+    if (form.type !== 'xp' && form.type !== 'kc') return;
+    if (form.wom_metric) return;
+    const match = useSuggestion(form.type, form.label, bossList, skillList);
+    if (!match) return;
+    setForm(f => f.wom_metric ? f : { ...f, wom_metric: toWomMetric(match.name) });
+  }, [form.label, form.type, bossList, skillList]);
 
   function set(field, value) { setForm(f => ({ ...f, [field]: value })); }
 
@@ -164,11 +192,16 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               WOM Metric ({form.type === 'xp' ? 'skill name, e.g. fletching' : 'boss name, e.g. zulrah'})
             </label>
             <input
-              style={{ ...s.input, width: '100%', minWidth: 0 }}
+              style={{ ...s.input, width: '100%', minWidth: 0, fontFamily: 'monospace' }}
               value={form.wom_metric}
-              onChange={e => set('wom_metric', e.target.value)}
+              onChange={e => set('wom_metric', e.target.value.toLowerCase())}
               placeholder={form.type === 'xp' ? 'fletching' : 'zulrah'}
             />
+            {form.wom_metric && (
+              <div style={{ fontSize: '0.72rem', color: '#718096', marginTop: '0.25rem' }}>
+                Uses event competition with <code style={{ color: '#a0aec0' }}>?metric={form.wom_metric}</code>
+              </div>
+            )}
           </div>
         )}
 
