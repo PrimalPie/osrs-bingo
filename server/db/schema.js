@@ -15,6 +15,8 @@ const schema = `
     board_size INTEGER NOT NULL DEFAULT 9,
     wom_competition_id INTEGER,
     winner_team_id INTEGER,
+    start_date TEXT,
+    end_date TEXT,
     started_at DATETIME,
     ended_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

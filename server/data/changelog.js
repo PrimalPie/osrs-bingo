@@ -1,5 +1,14 @@
 const CHANGELOG = [
   {
+    date: '2026-05-05',
+    entries: [
+      { type: 'feature', description: 'Events now have configurable start and end dates (UTC). Set them when creating or edit them later — useful for pre-creating events before dates are confirmed.' },
+      { type: 'feature', description: 'Countdown timer on the board page — when no event is active, the page shows the next upcoming event name and a live countdown to its start date (UTC).' },
+      { type: 'feature', description: 'Edit button on each event row in the admin panel — change the name, WOM competition ID, and start/end dates at any time without recreating the event.' },
+      { type: 'improvement', description: 'Only one event can be active at a time — activating an event now returns an error if another is already active, preventing accidental double-activation.' },
+    ],
+  },
+  {
     date: '2026-05-04',
     entries: [
       { type: 'improvement', description: 'WOM sync interval increased from 3 minutes to 3 hours to respect WiseOldMan API best practices. A manual Sync Now button on the Events tab allows an immediate update at any time.' },

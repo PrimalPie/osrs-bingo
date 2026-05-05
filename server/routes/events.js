@@ -23,6 +23,15 @@ router.get('/active', (req, res) => {
   res.json(event || null);
 });
 
+router.get('/upcoming', (req, res) => {
+  const db = getDb();
+  const today = new Date().toISOString().split('T')[0];
+  const event = db.prepare(
+    "SELECT * FROM events WHERE start_date IS NOT NULL AND start_date >= ? AND status != 'active' AND status != 'completed' ORDER BY start_date ASC LIMIT 1"
+  ).get(today);
+  res.json(event || null);
+});
+
 router.get('/:id', (req, res) => {
   const db = getDb();
   const event = db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id);
@@ -31,17 +40,17 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', requireAdmin, (req, res) => {
-  const { name, wom_competition_id, board_size } = req.body;
+  const { name, wom_competition_id, board_size, start_date, end_date } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const size = Math.min(Math.max(parseInt(board_size) || 9, 3), 12);
   const db = getDb();
   const result = db.prepare(
-    'INSERT INTO events (name, board_size, wom_competition_id) VALUES (?, ?, ?)'
-  ).run(name, size, wom_competition_id || null);
+    'INSERT INTO events (name, board_size, wom_competition_id, start_date, end_date) VALUES (?, ?, ?, ?, ?)'
+  ).run(name, size, wom_competition_id || null, start_date || null, end_date || null);
   logAudit(req.user.id, req.user.username, 'event_created', 'event', result.lastInsertRowid,
     `Created event '${name}' (${size}×${size})`
   );
-  res.json({ id: result.lastInsertRowid, name, board_size: size, status: 'setup' });
+  res.json({ id: result.lastInsertRowid, name, board_size: size, status: 'setup', start_date: start_date || null, end_date: end_date || null });
 });
 
 router.patch('/:id', requireAdmin, (req, res) => {
@@ -49,23 +58,40 @@ router.patch('/:id', requireAdmin, (req, res) => {
   const event = db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id);
   if (!event) return res.status(404).json({ error: 'Not found' });
 
-  const { name, status, wom_competition_id } = req.body;
+  const { name, status, wom_competition_id, start_date, end_date } = req.body;
   const updates = {};
-  if (name !== undefined) updates.name = name;
-  if (wom_competition_id !== undefined) updates.wom_competition_id = wom_competition_id;
+  const changed = [];
+
+  if (name !== undefined && name !== event.name) { updates.name = name; changed.push('name'); }
+  if (wom_competition_id !== undefined) updates.wom_competition_id = wom_competition_id || null;
+  if (start_date !== undefined) updates.start_date = start_date || null;
+  if (end_date !== undefined) updates.end_date = end_date || null;
+
   if (status !== undefined) {
+    if (status === 'active') {
+      const alreadyActive = db.prepare("SELECT id FROM events WHERE status = 'active' AND id != ?").get(req.params.id);
+      if (alreadyActive) return res.status(409).json({ error: 'Another event is already active. End it before activating this one.' });
+    }
     updates.status = status;
     if (status === 'active' && !event.started_at) updates.started_at = new Date().toISOString();
     if (status === 'completed' && !event.ended_at) updates.ended_at = new Date().toISOString();
   }
 
-  const cols = Object.keys(updates).map(k => `${k} = ?`).join(', ');
-  db.prepare(`UPDATE events SET ${cols} WHERE id = ?`).run(...Object.values(updates), req.params.id);
+  if (Object.keys(updates).length) {
+    const cols = Object.keys(updates).map(k => `${k} = ?`).join(', ');
+    db.prepare(`UPDATE events SET ${cols} WHERE id = ?`).run(...Object.values(updates), req.params.id);
+  }
+
   if (status !== undefined) {
     logAudit(req.user.id, req.user.username, 'event_status_changed', 'event', parseInt(req.params.id),
       `Changed event '${event.name}' status: ${event.status} → ${status}`
     );
+  } else if (Object.keys(updates).length) {
+    logAudit(req.user.id, req.user.username, 'event_updated', 'event', parseInt(req.params.id),
+      `Updated event '${event.name}': ${Object.keys(updates).join(', ')}`
+    );
   }
+
   res.json(db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id));
 });
 

@@ -46,6 +46,12 @@ function getDb() {
     if (!eventCols.includes('board_size')) {
       raw.exec('ALTER TABLE events ADD COLUMN board_size INTEGER NOT NULL DEFAULT 9');
     }
+    if (!eventCols.includes('start_date')) {
+      raw.exec('ALTER TABLE events ADD COLUMN start_date TEXT');
+    }
+    if (!eventCols.includes('end_date')) {
+      raw.exec('ALTER TABLE events ADD COLUMN end_date TEXT');
+    }
     const tileCols = raw.prepare("PRAGMA table_info(tiles)").all().map(r => r.name);
     if (!tileCols.includes('icon_url')) {
       raw.exec('ALTER TABLE tiles ADD COLUMN icon_url TEXT');

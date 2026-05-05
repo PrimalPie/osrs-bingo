@@ -389,13 +389,86 @@ function DeleteEventModal({ event, onConfirm, onClose }) {
   );
 }
 
+// ─── Event Edit Modal ─────────────────────────────────────────────────────────
+function EventEditModal({ event, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name: event.name || '',
+    wom_competition_id: event.wom_competition_id ? String(event.wom_competition_id) : '',
+    start_date: event.start_date || '',
+    end_date: event.end_date || '',
+  });
+  const [err, setErr] = useState('');
+
+  async function handleSave() {
+    if (!form.name.trim()) { setErr('Name is required'); return; }
+    try {
+      await onSave({
+        name: form.name.trim(),
+        wom_competition_id: form.wom_competition_id ? parseInt(form.wom_competition_id) : null,
+        start_date: form.start_date || null,
+        end_date: form.end_date || null,
+      });
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Save failed');
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
+      <div style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.5rem', width: 420, maxWidth: '92vw' }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0' }}>Edit Event</span>
+          <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
+        </div>
+
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={s.label}>Event Name</label>
+          <input style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+        </div>
+
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={s.label}>WiseOldMan Competition ID (optional)</label>
+          <input style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.wom_competition_id} onChange={e => setForm(f => ({ ...f, wom_competition_id: e.target.value }))} placeholder="e.g. 131025" />
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.9rem' }}>
+          <div style={{ flex: 1 }}>
+            <label style={s.label}>Start Date (UTC)</label>
+            <input type="date" style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={s.label}>End Date (UTC)</label>
+            <input type="date" style={{ ...s.input, width: '100%', minWidth: 0 }} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+          </div>
+        </div>
+
+        {err && <div style={{ ...s.errMsg, marginBottom: '0.75rem' }}>{err}</div>}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+          <button style={s.ghostBtn} onClick={onClose}>Cancel</button>
+          <button style={s.primaryBtn} onClick={handleSave}>Save changes</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '—';
+  const [y, mo, d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(d)} ${months[parseInt(mo) - 1]}`;
+}
+
 // ─── Events Tab ───────────────────────────────────────────────────────────────
 function EventsTab() {
   const [events, setEvents] = useState([]);
-  const [form, setForm] = useState({ name: '', board_size: '9', wom_competition_id: '' });
+  const [form, setForm] = useState({ name: '', board_size: '9', wom_competition_id: '', start_date: '', end_date: '' });
   const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
   const [boardEvent, setBoardEvent] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
   const [womStatus, setWomStatus] = useState({ lastSync: null });
   const [womSyncing, setWomSyncing] = useState(false);
 
@@ -422,16 +495,30 @@ function EventsTab() {
       name: form.name,
       board_size: parseInt(form.board_size),
       wom_competition_id: form.wom_competition_id || null,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
     });
     setEvents(prev => [res.data, ...prev]);
-    setForm({ name: '', board_size: '9', wom_competition_id: '' });
+    setForm({ name: '', board_size: '9', wom_competition_id: '', start_date: '', end_date: '' });
     setMsg('Event created');
     setTimeout(() => setMsg(''), 3000);
   }
 
   async function setStatus(id, status) {
-    const res = await api.patch(`/events/${id}`, { status });
-    setEvents(prev => prev.map(e => e.id === id ? res.data : e));
+    setErr('');
+    try {
+      const res = await api.patch(`/events/${id}`, { status });
+      setEvents(prev => prev.map(e => e.id === id ? res.data : e));
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Failed to update status');
+      setTimeout(() => setErr(''), 5000);
+    }
+  }
+
+  async function saveEdit(payload) {
+    const res = await api.patch(`/events/${editTarget.id}`, payload);
+    setEvents(prev => prev.map(e => e.id === editTarget.id ? res.data : e));
+    setEditTarget(null);
   }
 
   async function confirmDelete() {
@@ -450,9 +537,17 @@ function EventsTab() {
           onClose={() => setDeleteTarget(null)}
         />
       )}
+      {editTarget && (
+        <EventEditModal
+          event={editTarget}
+          onSave={saveEdit}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
+
       <div style={{ ...s.section, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <div style={s.sectionTitle} >WiseOldMan Sync</div>
+          <div style={s.sectionTitle}>WiseOldMan Sync</div>
           <div style={{ fontSize: '0.8rem', color: '#718096' }}>
             Auto-syncs every 3 hours.{' '}
             {womStatus.lastSync
@@ -504,7 +599,7 @@ function EventsTab() {
               </div>
             </div>
             <div>
-              <label style={s.label}>WiseOldMan Competition ID (optional)</label>
+              <label style={s.label}>WOM Competition ID (optional)</label>
               <input
                 style={s.input}
                 value={form.wom_competition_id}
@@ -512,11 +607,23 @@ function EventsTab() {
                 placeholder="12345"
               />
             </div>
-            <button type="submit" style={s.primaryBtn}>Create</button>
+          </div>
+          <div style={s.row}>
+            <div>
+              <label style={s.label}>Start Date (UTC, optional)</label>
+              <input type="date" style={s.input} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+            </div>
+            <div>
+              <label style={s.label}>End Date (UTC, optional)</label>
+              <input type="date" style={s.input} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+            </div>
+            <button type="submit" style={{ ...s.primaryBtn, alignSelf: 'flex-end' }}>Create</button>
           </div>
           {msg && <div style={s.msg}>{msg}</div>}
         </form>
       </div>
+
+      {err && <div style={{ ...s.errMsg, marginBottom: '1rem' }}>{err}</div>}
 
       <div style={s.section}>
         <div style={s.sectionTitle}>All Events</div>
@@ -526,7 +633,7 @@ function EventsTab() {
               <th style={s.th}>Name</th>
               <th style={s.th}>Size</th>
               <th style={s.th}>Status</th>
-              <th style={s.th}>WOM ID</th>
+              <th style={s.th}>Dates (UTC)</th>
               <th style={s.th}>Actions</th>
             </tr>
           </thead>
@@ -540,12 +647,19 @@ function EventsTab() {
                     {ev.status}
                   </span>
                 </td>
-                <td style={s.td}>{ev.wom_competition_id || '—'}</td>
+                <td style={s.td}>
+                  <span style={{ fontSize: '0.8rem' }}>
+                    {ev.start_date || ev.end_date
+                      ? <>{fmtDate(ev.start_date)} – {fmtDate(ev.end_date)}</>
+                      : <span style={{ color: '#4a5568' }}>—</span>}
+                  </span>
+                </td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                     {ev.status === 'setup' && <button style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Activate</button>}
                     {ev.status === 'active' && <button style={s.dangerBtn} onClick={() => setStatus(ev.id, 'completed')}>End</button>}
                     {ev.status === 'completed' && <button style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Reactivate</button>}
+                    <button style={s.ghostBtn} onClick={() => setEditTarget(ev)}>Edit</button>
                     <button style={s.ghostBtn} onClick={() => setBoardEvent(ev)}>View Board</button>
                     <button style={s.dangerBtn} onClick={() => setDeleteTarget(ev)}>Delete</button>
                   </div>
@@ -938,6 +1052,7 @@ const ACTION_LABELS = {
   user_updated:        { label: 'User Updated', color: '#f6ad55' },
   user_deleted:        { label: 'User Deleted', color: '#fc8181' },
   event_created:       { label: 'Event Created', color: '#b794f4' },
+  event_updated:       { label: 'Event Updated', color: '#b794f4' },
   event_status_changed:{ label: 'Event Status', color: '#b794f4' },
   event_deleted:       { label: 'Event Deleted', color: '#fc8181' },
   member_added:        { label: 'Member Added', color: '#68d391' },
@@ -957,7 +1072,7 @@ function AuditTab() {
     { key: 'all', label: 'All' },
     { key: 'submissions', label: 'Submissions', actions: ['submission_approved', 'submission_rejected'] },
     { key: 'users', label: 'Users', actions: ['user_created', 'user_updated', 'user_deleted'] },
-    { key: 'events', label: 'Events', actions: ['event_created', 'event_status_changed'] },
+    { key: 'events', label: 'Events', actions: ['event_created', 'event_updated', 'event_status_changed'] },
     { key: 'members', label: 'Members', actions: ['member_added', 'member_removed'] },
   ];
 
