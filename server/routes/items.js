@@ -1,10 +1,18 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const UNTRADABLE_ITEMS = require('../data/untradableItems');
 
 const router = express.Router();
 
 const MAPPING_URL = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
 const ICON_BASE = 'https://static.runelite.net/cache/item/icon';
+
+const untradableFormatted = UNTRADABLE_ITEMS.map(item => ({
+  id: item.id,
+  name: item.name,
+  keywords: item.keywords,
+  icon: `${ICON_BASE}/${item.id}.png`,
+}));
 
 let cachedItems = null;
 let cacheTime = 0;
@@ -17,7 +25,6 @@ async function getItems() {
   });
   if (!res.ok) throw new Error(`Mapping fetch failed: ${res.status}`);
   const data = await res.json();
-  // data is an array of { id, name, examine, members, ... }
   cachedItems = data.map(item => ({
     id: item.id,
     name: item.name,
@@ -32,14 +39,28 @@ router.get('/search', async (req, res) => {
   if (!q || q.length < 2) return res.json([]);
 
   try {
-    const items = await getItems();
+    const geItems = await getItems();
     const results = [];
-    for (const item of items) {
-      if (item.name.toLowerCase().includes(q)) {
-        results.push(item);
+    const seen = new Set();
+
+    for (const item of untradableFormatted) {
+      if (item.name.toLowerCase().includes(q) || item.keywords.some(k => k.includes(q))) {
+        results.push({ id: item.id, name: item.name, icon: item.icon });
+        seen.add(item.id);
         if (results.length >= 20) break;
       }
     }
+
+    if (results.length < 20) {
+      for (const item of geItems) {
+        if (seen.has(item.id)) continue;
+        if (item.name.toLowerCase().includes(q)) {
+          results.push(item);
+          if (results.length >= 20) break;
+        }
+      }
+    }
+
     res.json(results);
   } catch (e) {
     console.error('[Items] Search error:', e.message);
