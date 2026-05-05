@@ -85,7 +85,8 @@ const SKILL_LIST = [
   { name: 'Overall',      keywords: ['overall','total xp','total level'] },
 ];
 
-let cacheInProgress = false;
+let bossCacheInProgress = false;
+let skillCacheInProgress = false;
 
 // Returns boss/skill list with whatever local icons are already cached (non-blocking)
 function buildList(list, getCached) {
@@ -100,11 +101,11 @@ router.get('/bosses', (req, res) => {
   const bosses = buildList(BOSS_LIST, getCachedBossIcon);
   res.json(bosses);
 
-  if (!cacheInProgress) {
-    cacheInProgress = true;
+  if (!bossCacheInProgress) {
+    bossCacheInProgress = true;
     cacheAllBossIcons(BOSS_LIST)
-      .then(() => { cacheInProgress = false; console.log('[Icons] Boss icon cache complete'); })
-      .catch(e => { cacheInProgress = false; console.error('[Icons] Cache error:', e.message); });
+      .then(() => { bossCacheInProgress = false; console.log('[Icons] Boss icon cache complete'); })
+      .catch(e => { bossCacheInProgress = false; console.error('[Icons] Cache error:', e.message); });
   }
 });
 
@@ -112,11 +113,11 @@ router.get('/skills', (req, res) => {
   const skills = buildList(SKILL_LIST, getCachedSkillIcon);
   res.json(skills);
 
-  if (!cacheInProgress) {
-    cacheInProgress = true;
+  if (!skillCacheInProgress) {
+    skillCacheInProgress = true;
     cacheAllSkillIcons(SKILL_LIST)
-      .then(() => { cacheInProgress = false; })
-      .catch(e => { cacheInProgress = false; });
+      .then(() => { skillCacheInProgress = false; console.log('[Icons] Skill icon cache complete'); })
+      .catch(e => { skillCacheInProgress = false; console.error('[Icons] Skill cache error:', e.message); });
   }
 });
 

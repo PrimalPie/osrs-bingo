@@ -737,7 +737,7 @@ function TilesTab() {
       label: form.label,
       type: form.type,
       target: form.target,
-      wom_metric: form.type === 'xp' ? form.wom_metric : null,
+      wom_metric: (form.type === 'xp' || form.type === 'kc') ? (form.wom_metric || null) : null,
       wom_competition_id: (form.type === 'xp' || form.type === 'kc')
         ? (parseInt(form.wom_competition_id) || null)
         : null,
