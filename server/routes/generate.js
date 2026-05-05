@@ -2,6 +2,84 @@ const express = require('express');
 const { requireAdmin } = require('../middleware/auth');
 const { getDb } = require('../db/database');
 const TILE_POOL = require('../data/tilePool');
+const { getCachedBossIcon, getCachedSkillIcon } = require('../services/iconCache');
+
+const WOM_TO_BOSS = {
+  barrows_chests:                   'Barrows',
+  giant_mole:                       'Giant Mole',
+  king_black_dragon:                'King Black Dragon',
+  kalphite_queen:                   'Kalphite Queen',
+  scorpia:                          'Scorpia',
+  obor:                             'Obor',
+  bryophyta:                        'Bryophyta',
+  sarachnis:                        'Sarachnis',
+  chaos_elemental:                  'Chaos Elemental',
+  zulrah:                           'Zulrah',
+  vorkath:                          'Vorkath',
+  abyssal_sire:                     'Abyssal Sire',
+  cerberus:                         'Cerberus',
+  kraken:                           'Kraken',
+  grotesque_guardians:              'Grotesque Guardians',
+  thermonuclear_smoke_devil:        'Thermonuclear Smoke Devil',
+  dagannoth_rex:                    'Dagannoth Rex',
+  dagannoth_prime:                  'Dagannoth Prime',
+  corporeal_beast:                  'Corporeal Beast',
+  callisto:                         'Callisto',
+  venenatis:                        'Venenatis',
+  nightmare:                        'Nightmare',
+  general_graardor:                 'General Graardor',
+  commander_zilyana:                'Commander Zilyana',
+  kreearra:                         "Kree'arra",
+  kril_tsutsaroth:                  "K'ril Tsutsaroth",
+  nex:                              'Nex',
+  chambers_of_xeric_challenge_mode: 'Chambers of Xeric',
+  chambers_of_xeric:                'Chambers of Xeric',
+  theatre_of_blood:                 'Theatre of Blood',
+  tombs_of_amascut:                 'Tombs of Amascut',
+  alchemical_hydra:                 'Alchemical Hydra',
+  phantom_muspah:                   'Phantom Muspah',
+  duke_sucellus:                    'Duke Sucellus',
+  the_whisperer:                    'The Whisperer',
+  vardorvis:                        'Vardorvis',
+  the_leviathan:                    'The Leviathan',
+  araxxor:                          'Araxxor',
+};
+
+const WOM_TO_SKILL = {
+  fishing:      'Fishing',
+  woodcutting:  'Woodcutting',
+  cooking:      'Cooking',
+  firemaking:   'Firemaking',
+  mining:       'Mining',
+  ranged:       'Ranged',
+  agility:      'Agility',
+  thieving:     'Thieving',
+  herblore:     'Herblore',
+  crafting:     'Crafting',
+  fletching:    'Fletching',
+  smithing:     'Smithing',
+  slayer:       'Slayer',
+  hunter:       'Hunter',
+  runecrafting: 'Runecraft',
+  construction: 'Construction',
+  prayer:       'Prayer',
+  magic:        'Magic',
+  attack:       'Attack',
+  strength:     'Strength',
+};
+
+function resolveIcon(tile) {
+  if (tile.icon_url) return tile.icon_url;
+  if (tile.type === 'kc' && tile.wom_metric) {
+    const bossName = WOM_TO_BOSS[tile.wom_metric];
+    return bossName ? (getCachedBossIcon(bossName) || null) : null;
+  }
+  if (tile.type === 'xp' && tile.wom_metric) {
+    const skillName = WOM_TO_SKILL[tile.wom_metric];
+    return skillName ? (getCachedSkillIcon(skillName) || null) : null;
+  }
+  return null;
+}
 
 const router = express.Router();
 
@@ -101,6 +179,7 @@ function generateTiles(params) {
       type:       tile.type,
       target:     scaleTarget(tile, teamSize, durationDays),
       wom_metric: tile.wom_metric,
+      icon_url:   resolveIcon(tile),
       difficulty: tile.difficulty,
       category:   tile.category,
     };
@@ -145,10 +224,10 @@ router.post('/apply', requireAdmin, (req, res) => {
     }
 
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO tiles (event_id, row, col, label, type, target, wom_metric) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT OR REPLACE INTO tiles (event_id, row, col, label, type, target, wom_metric, icon_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     );
     for (const t of tiles) {
-      insert.run(eventId, t.row, t.col, t.label, t.type, t.target, t.wom_metric || null);
+      insert.run(eventId, t.row, t.col, t.label, t.type, t.target, t.wom_metric || null, t.icon_url || null);
     }
   })();
 

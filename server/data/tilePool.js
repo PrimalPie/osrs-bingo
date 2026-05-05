@@ -1,6 +1,9 @@
 // Curated tile pool for the board generator.
 // baseTarget is calibrated for 10 players and a 7-day event.
 // scaling: linear (XP), sqrt (KC boss), partial (common drops), fixed (rare drops/static)
+// icon_url: RuneLite item cache URL for drop tiles; boss/skill icons resolved at generation time.
+
+const RL = id => `https://static.runelite.net/cache/item/icon/${id}.png`;
 
 module.exports = [
   // ── PvM · Easy ─────────────────────────────────────────────────────────────
@@ -73,23 +76,23 @@ module.exports = [
   { label: 'Strength XP',                category: 'skilling', difficulty: 'hard',   type: 'xp', wom_metric: 'strength',     baseTarget: 5_000_000, scaling: 'linear' },
 
   // ── Collection · Easy ──────────────────────────────────────────────────────
-  { label: 'Abyssal Whip',               category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Dragon Med Helm',            category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Berserker Ring',             category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Barrows Unique Piece',       category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Brimstone Ring Piece',       category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
+  { label: 'Abyssal Whip',               category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(4151)  },
+  { label: 'Dragon Med Helm',            category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(1149)  },
+  { label: 'Berserker Ring',             category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(6737)  },
+  { label: 'Barrows Unique Piece',       category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(4716)  },
+  { label: 'Brimstone Ring Piece',       category: 'collection', difficulty: 'easy',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(22975) },
 
   // ── Collection · Medium ────────────────────────────────────────────────────
-  { label: 'Tanzanite Fang',             category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Magic Fang',                 category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Dragon Warhammer',           category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Avernic Defender Hilt',      category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Occult Necklace',            category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
+  { label: 'Tanzanite Fang',             category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(12922) },
+  { label: 'Magic Fang',                 category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(12932) },
+  { label: 'Dragon Warhammer',           category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(13576) },
+  { label: 'Avernic Defender Hilt',      category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(22477) },
+  { label: 'Occult Necklace',            category: 'collection', difficulty: 'medium', type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(12002) },
 
   // ── Collection · Hard ──────────────────────────────────────────────────────
-  { label: 'Twisted Bow',                category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Scythe of Vitur',            category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: "Tumeken's Shadow",           category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Elysian Spirit Shield',      category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
-  { label: 'Zaryte Vambraces',           category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed' },
+  { label: 'Twisted Bow',                category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(20997) },
+  { label: 'Scythe of Vitur',            category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(22325) },
+  { label: "Tumeken's Shadow",           category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(27275) },
+  { label: 'Elysian Spirit Shield',      category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(12817) },
+  { label: 'Zaryte Vambraces',           category: 'collection', difficulty: 'hard',   type: 'drop', wom_metric: null, baseTarget: 1, scaling: 'fixed', icon_url: RL(26382) },
 ];
