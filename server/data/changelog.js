@@ -1,5 +1,11 @@
 const CHANGELOG = [
   {
+    date: '2026-05-07',
+    entries: [
+      { type: 'improvement', description: 'Events now auto-activate and auto-complete based on their start and end dates. The server checks every 60 seconds — no admin action needed for events to go live or close on schedule. Both transitions are logged in the audit log under the system actor.' },
+    ],
+  },
+  {
     date: '2026-05-06',
     entries: [
       { type: 'feature', description: 'Points game mode — events can now be set to Blackout (first to complete every tile) or Points (5 pts per tile, 50 pt bonus for completing a full row, column, or diagonal). Mode is chosen when creating an event and can be changed at any time via Edit.' },
