@@ -17,6 +17,7 @@ const itemsRouter = require('./routes/items');
 const bossesRouter = require('./routes/bosses');
 const { createBot } = require('./bot/index');
 const { startWomPoller } = require('./services/wom');
+const { startEventScheduler } = require('./services/eventScheduler');
 const auditRouter = require('./routes/audit');
 const womRouter = require('./routes/wom');
 const generateRouter = require('./routes/generate');
@@ -87,6 +88,9 @@ app.locals.bot = createBot(io);
 
 // Start WiseOldMan poller
 startWomPoller(io);
+
+// Start event auto-activate/complete scheduler
+startEventScheduler(io);
 
 // Serve React build in production (must be after all API routes)
 if (process.env.NODE_ENV === 'production') {
