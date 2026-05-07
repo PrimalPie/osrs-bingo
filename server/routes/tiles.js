@@ -73,6 +73,8 @@ router.patch('/reorder', requireAdmin, (req, res) => {
   const db = getDb();
   const update = db.prepare('UPDATE tiles SET row = ?, col = ? WHERE id = ?');
   db.transaction(() => {
+    // Move all to temp negative positions first to avoid unique(event_id, row, col) conflicts
+    for (let i = 0; i < tiles.length; i++) update.run(-(i + 1), -(i + 1), tiles[i].id);
     for (const t of tiles) update.run(t.row, t.col, t.id);
   })();
   res.json({ ok: true });
