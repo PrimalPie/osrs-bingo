@@ -32,6 +32,12 @@ router.get('/upcoming', (req, res) => {
   res.json(event || null);
 });
 
+router.get('/last-completed', (req, res) => {
+  const db = getDb();
+  const event = db.prepare("SELECT * FROM events WHERE status = 'completed' ORDER BY ended_at DESC LIMIT 1").get();
+  res.json(event || null);
+});
+
 router.get('/:id', (req, res) => {
   const db = getDb();
   const event = db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.id);

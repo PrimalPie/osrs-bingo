@@ -45,10 +45,10 @@ function Countdown({ dateStr }) {
 }
 
 function gmtOffset() {
-  const off = -new Date().getTimezoneOffset();
+  const off = new Date().getTimezoneOffset();
   const h = Math.floor(Math.abs(off) / 60);
   const m = Math.abs(off) % 60;
-  const sign = off >= 0 ? '+' : '-';
+  const sign = off <= 0 ? '+' : '-';
   return m > 0 ? `GMT${sign}${h}:${String(m).padStart(2,'0')}` : `GMT${sign}${h}`;
 }
 
@@ -165,24 +165,122 @@ function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) 
   );
 }
 
+function PreviousBoard({ event }) {
+  const [board, setBoard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedTeamId, setSelectedTeamId] = useState(null);
+  const [winner, setWinner] = useState(null);
+
+  useEffect(() => {
+    api.get(`/board/event/${event.id}`).then(res => {
+      const bd = res.data;
+      const mode = bd.event.mode || 'blackout';
+      const scores = computeScores(bd.tiles, bd.teams, bd.event.board_size || 9);
+      const sorted = [...scores].sort((a, b) =>
+        mode === 'points'
+          ? b.total - a.total || b.tilesComplete - a.tilesComplete
+          : b.tilesComplete - a.tilesComplete || b.total - a.total
+      );
+      const top = sorted[0]?.team || null;
+      setWinner(top);
+      setSelectedTeamId(top?.id || null);
+      setBoard(bd);
+    }).finally(() => setLoading(false));
+  }, [event.id]);
+
+  if (loading) return <p style={{ color: '#718096', textAlign: 'center', padding: '2rem' }}>Loading board...</p>;
+  if (!board) return null;
+
+  const { tiles, teams } = board;
+  const mode = board.event.mode || 'blackout';
+  const scores = computeScores(tiles, teams, board.event.board_size || 9);
+  const selectedTeam = teams.find(t => t.id === selectedTeamId) || null;
+
+  function toggleTeam(id) {
+    setSelectedTeamId(prev => prev === id ? null : id);
+  }
+
+  return (
+    <div style={{ marginTop: '1.5rem' }}>
+      {winner && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '1rem',
+          background: winner.color + '18', border: `1px solid ${winner.color}55`,
+          borderRadius: 10, padding: '1rem 1.5rem', marginBottom: '1.5rem',
+        }}>
+          <div style={{ fontSize: '1.75rem' }}>🏆</div>
+          <div>
+            <div style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.2rem' }}>
+              Winners
+            </div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: winner.color }}>
+              {winner.name}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#a0aec0', marginTop: '0.15rem' }}>Congratulations!</div>
+          </div>
+        </div>
+      )}
+
+      <Scoreboard
+        scores={scores}
+        mode={mode}
+        totalTiles={tiles.length}
+        selectedTeamId={selectedTeamId}
+        onSelectTeam={toggleTeam}
+      />
+
+      <div style={{ fontSize: '0.78rem', color: '#4a5568', marginBottom: '1rem', lineHeight: 1.6 }}>
+        {mode === 'points' ? (
+          <>
+            <strong style={{ color: '#718096' }}>Points mode · </strong>
+            Each completed tile was worth <strong style={{ color: '#e2e8f0' }}>5 pts</strong>.
+            Full row, column, or diagonal earned a <strong style={{ color: '#e2e8f0' }}>50 pt</strong> line bonus.
+          </>
+        ) : (
+          <>
+            <strong style={{ color: '#718096' }}>Blackout mode · </strong>
+            First team to complete <strong style={{ color: '#e2e8f0' }}>every tile</strong> wins.
+          </>
+        )}
+      </div>
+
+      {selectedTeam && (
+        <p style={{ fontSize: '0.8rem', color: '#718096', marginBottom: '0.75rem' }}>
+          Viewing: <strong style={{ color: selectedTeam.color }}>{selectedTeam.name}</strong>
+          {selectedTeam.id === winner?.id && <span style={{ color: '#f6ad55', marginLeft: '0.4rem' }}>· Winners</span>}
+        </p>
+      )}
+
+      <BingoBoard tiles={tiles} teams={teams} boardSize={board.event.board_size || 9} selectedTeam={selectedTeam} />
+    </div>
+  );
+}
+
 export default function Board() {
   const [data, setData] = useState(null);
   const [upcoming, setUpcoming] = useState(undefined);
+  const [lastCompleted, setLastCompleted] = useState(undefined);
   const [error, setError] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
+  const [showPrev, setShowPrev] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const active = await api.get('/events/active');
       if (!active.data) {
         setData(null);
-        const up = await api.get('/events/upcoming');
+        const [up, last] = await Promise.all([
+          api.get('/events/upcoming'),
+          api.get('/events/last-completed'),
+        ]);
         setUpcoming(up.data || null);
+        setLastCompleted(last.data || null);
         return;
       }
       const board = await api.get(`/board/event/${active.data.id}`);
       setData(board.data);
       setUpcoming(undefined);
+      setLastCompleted(undefined);
     } catch {
       setError('Failed to load board');
     }
@@ -238,6 +336,37 @@ export default function Board() {
             <p>Check back when an event is running, or log in as admin to create one.</p>
           )}
         </div>
+
+        {lastCompleted && (
+          <div style={{ borderTop: '1px solid #1a2a3a', paddingTop: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div>
+                <div style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.2rem' }}>
+                  Previous Event
+                </div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0' }}>{lastCompleted.name}</div>
+                {lastCompleted.ended_at && (
+                  <div style={{ fontSize: '0.78rem', color: '#4a5568', marginTop: '0.15rem' }}>
+                    Ended {fmtDate(lastCompleted.ended_at)}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setShowPrev(p => !p)}
+                style={{
+                  background: showPrev ? '#0f3460' : '#16213e',
+                  border: '1px solid #0f3460', color: '#e2e8f0',
+                  padding: '0.5rem 1.25rem', borderRadius: 6, cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600,
+                }}
+              >
+                {showPrev ? 'Hide Board' : 'View Board'}
+              </button>
+            </div>
+
+            {showPrev && <PreviousBoard event={lastCompleted} />}
+          </div>
+        )}
       </div>
     );
   }
