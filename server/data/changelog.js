@@ -3,6 +3,7 @@ const CHANGELOG = [
     date: '2026-05-07',
     entries: [
       { type: 'improvement', description: 'Events now auto-activate and auto-complete based on their start and end dates. The server checks every 60 seconds — no admin action needed for events to go live or close on schedule. Both transitions are logged in the audit log under the system actor.' },
+      { type: 'feature', description: 'Previous event results on the board page — when no event is active, the most recently completed event is shown below the countdown. Click "View Board" to see the final standings, a winner banner, and the full board with the winning team pre-selected. Any team can be clicked to see their final progress.' },
     ],
   },
   {
