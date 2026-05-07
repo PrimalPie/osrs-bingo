@@ -7,14 +7,21 @@ A self-hosted bingo event manager for Old School RuneScape clans. Teams submit d
 
 ## Features
 
-- **Live bingo board** — tile progress updates in real-time via WebSockets
-- **Discord bot** — players post `A1 - Dragon claws` with a screenshot in their team channel; the bot handles the rest
-- **Captain review** — captains approve or reject submissions with optional count adjustment
+- **Live bingo board** — tile progress updates in real-time via WebSockets; team selector overlays each team's progress
+- **Two game modes** — Blackout (first to complete every tile wins) or Points (5 pts per tile, 50 pt line bonus for a full row, column, or diagonal)
+- **Live scoreboard** — teams ranked by score or tiles completed, with a crown on the current leader; updates as submissions are approved
+- **Discord bot** — players post `A1 - Dragon claws` with a screenshot in their team channel; the bot confirms receipt and reacts with ✅/❌ after review
+- **Captain review dashboard** — approve or reject submissions with optional count adjustment; History, By Tile, and My Team tabs
 - **WiseOldMan integration** — XP and KC tiles tracked automatically via a single WOM competition; each tile just sets a metric (e.g. `zulrah`, `fletching`). Syncs every 3 hours with a manual Sync Now button in the admin panel
-- **Board generator** — admin sandbox that generates a full board from a curated tile pool; targets scale by team size and event length, preview before applying
-- **Event scheduling** — set start and end datetimes (UTC); the board shows a live countdown to the next event in each viewer's local timezone
+- **Board generator** — admin sandbox at `/generate` that builds a full board from a curated tile pool; targets scale by team size and event length; preview before applying; drag-and-drop tile reordering in the preview
+- **Auto event scheduling** — set start and end datetimes (UTC); events activate and complete automatically; the board shows a live countdown in each viewer's local timezone
+- **Previous event results** — when no event is active, the most recently completed event is shown with a winner banner, final scoreboard, and full board
+- **CSV export** — download a results spreadsheet from the board page at any time
+- **Team rosters** — collapsible roster section on the board page shows each team's members (Discord username + OSRS name)
+- **Tile completion announcements** — bot posts to a configurable announcement channel whenever a team finishes a tile
+- **Drag-and-drop tile reordering** — swap tiles by dragging in the board generator preview or Admin > Tiles (setup events only)
 - **Multi-team support** — each team has its own Discord channel, captain account, and progress overlay
-- **Admin panel** — manage events, tiles, teams, and users; full audit log
+- **Admin panel** — manage events, tiles, teams, users, and settings; full audit log
 - **Configurable board size** — 3×3 up to 12×12
 - **Changelog page** — public record of app updates at `/changelog`
 
@@ -98,8 +105,10 @@ The app will be available on port `3100` (configurable in `docker-compose.yml`).
    - Read Messages / View Channels
    - Send Messages
    - Read Message History
+   - Add Reactions
 5. Paste the generated invite URL into your browser to add the bot to your server
 6. In the Admin panel, paste each team's Discord channel ID (right-click channel → **Copy Channel ID**)
+7. Optionally, set an announcement channel in **Admin > Settings** — the bot will post there whenever a team completes a tile
 
 ### Submission format
 
@@ -161,6 +170,7 @@ Admins can generate a full board automatically at `/generate`:
   - XP tiles — linear with team size and days
   - KC tiles — square-root scaling (diminishing returns for large teams)
   - Rare drops — fixed (always 1)
+- Drag tiles onto each other in the preview grid to swap positions before applying
 - Preview the colour-coded grid, review the full tile list, then apply directly to any event
 
 ---
@@ -175,6 +185,7 @@ Admins can generate a full board automatically at `/generate`:
 | `CLIENT_URL` | No | Frontend origin for CORS (default `http://localhost:5173`) |
 | `DATA_DIR` | No | Override data directory for DB, uploads, and icon cache (used by Docker) |
 | `WOM_API_KEY` | No | WOM API key — raises rate limit from 20 to 100 req/min |
+| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | No | Fallback announcement channel — prefer setting this in Admin > Settings |
 
 ---
 
@@ -182,12 +193,14 @@ Admins can generate a full board automatically at `/generate`:
 
 | Tab | What it does |
 |---|---|
-| Events | Create events with board size and start/end datetimes (UTC); activate, complete, edit, or delete |
-| Tiles | Add tiles with coordinate, type (drop / kc / xp), target, WOM metric, and icon |
-| Teams | Create teams, set Discord channel, add members |
-| Users | Create captain and admin accounts, assign to teams |
+| Events | Create events with board size, game mode, and start/end datetimes (UTC); activate, complete, edit, or delete |
+| Tiles | Add and edit tiles with coordinate, type (drop / kc / xp), target, WOM metric, and icon; drag-and-drop reorder (setup events only) |
+| Teams | Create teams, set Discord channel, add/remove members |
+| Users | Create captain and admin accounts, assign to teams, reset passwords |
 | Audit | Full log of all admin and captain actions |
-| Generate | Auto-generate a board from a curated tile pool with scaling targets |
+| Settings | Configure the Discord announcement channel ID |
+
+The **Board Generator** is a separate admin page at `/generate`.
 
 ---
 

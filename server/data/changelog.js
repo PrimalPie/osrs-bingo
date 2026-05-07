@@ -2,7 +2,9 @@ const CHANGELOG = [
   {
     date: '2026-05-07',
     entries: [
-      { type: 'feature', description: 'Discord tile completion announcements — when a submission is approved and a tile is fully completed, a message is posted to a configurable announcement channel (set DISCORD_ANNOUNCEMENT_CHANNEL_ID in the server .env). The message names the team and tile.' },
+      { type: 'feature', description: 'Discord tile completion announcements — when a submission is approved and a tile is fully completed, a message is posted to a configurable announcement channel. Set the channel in Admin > Settings (or via the DISCORD_ANNOUNCEMENT_CHANNEL_ID env var as a fallback). The message names the team and tile.' },
+      { type: 'feature', description: 'Admin Settings tab — a new Settings tab in the admin panel lets admins configure the Discord announcement channel ID without touching the server environment file.' },
+      { type: 'fix', description: 'Captains can no longer view submissions for tiles belonging to other teams via the per-tile submission endpoint.' },
       { type: 'feature', description: 'Team rosters on the board page — a collapsible "Team Rosters" section below the board lists every team\'s members with their Discord username and OSRS name. Visible to all viewers during and after an event.' },
       { type: 'feature', description: 'CSV export — an "Export CSV" button on the board page downloads the current standings as a spreadsheet. Includes rank, team name, tiles completed, and (in points mode) tile points, line bonus, total score, and lines completed. Also available on the previous event board.' },
       { type: 'improvement', description: 'Events now auto-activate and auto-complete based on their start and end dates. The server checks every 60 seconds — no admin action needed for events to go live or close on schedule. Both transitions are logged in the audit log under the system actor.' },
