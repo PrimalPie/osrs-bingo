@@ -243,7 +243,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
 }
 
 // ─── Visual board grid for tile editing ───────────────────────────────────────
-function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap }) {
+function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = false }) {
   const [dragOverCoord, setDragOverCoord] = useState(null);
   const [dragFromCoord, setDragFromCoord] = useState(null);
   const dragRef = useRef(null);
@@ -263,7 +263,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap }) {
   return (
     <div>
       <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
-        {filled}/{total} tiles filled · Double-click to edit · Drag to swap positions
+        {filled}/{total} tiles filled{!readonly && ' · Double-click to edit · Drag to swap positions'}
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ borderCollapse: 'collapse', tableLayout: 'fixed', width: '100%' }}>
@@ -300,8 +300,8 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap }) {
                     return (
                       <td
                         key={col}
-                        draggable={!!tile}
-                        onDragStart={tile ? () => { dragRef.current = c; setDragFromCoord(c); } : undefined}
+                        draggable={!!tile && !readonly}
+                        onDragStart={tile && !readonly ? () => { dragRef.current = c; setDragFromCoord(c); } : undefined}
                         onDragOver={e => { e.preventDefault(); if (dragRef.current !== c) setDragOverCoord(c); }}
                         onDragLeave={() => setDragOverCoord(null)}
                         onDrop={e => {
@@ -318,7 +318,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap }) {
                         style={{
                           border: isDragTarget ? '2px solid #e94560' : '1px solid #1a2a3a',
                           background: isDragSource ? '#0a1520' : tile ? '#0f2035' : '#12121f',
-                          cursor: tile ? 'grab' : 'pointer',
+                          cursor: readonly ? 'default' : tile ? 'grab' : 'pointer',
                           verticalAlign: 'top',
                           padding: '0.3rem 0.4rem',
                           minHeight: 64,
@@ -930,39 +930,49 @@ function TilesTab() {
 
       {selectedEvent && (
         <div style={s.section}>
-          {hasLayoutChanges && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
-                Unsaved layout changes
-              </span>
-              <button
-                onClick={handleSaveLayout}
-                disabled={saving}
-                style={{ background: '#0f3460', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
-              >
-                {saving ? 'Saving…' : 'Save Layout'}
-              </button>
-              <button
-                onClick={() => { setLocalTiles(savedTiles); setLayoutMsg(null); }}
-                style={{ background: 'none', border: '1px solid #2d3748', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
-              >
-                Reset
-              </button>
-              {layoutMsg && (
-                <span style={{ fontSize: '0.82rem', color: layoutMsg.ok ? '#68d391' : '#fc8181' }}>
-                  {layoutMsg.text}
-                </span>
-              )}
+          {selectedEvent.status === 'active' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#3d1f0022', border: '1px solid #744210', borderRadius: 6, padding: '0.6rem 1rem', marginBottom: '0.75rem', fontSize: '0.82rem', color: '#f6ad55' }}>
+              <span>⚠</span>
+              <span>Tile editing and reordering are disabled while an event is active. End the event first.</span>
             </div>
-          )}
-          {!hasLayoutChanges && layoutMsg && (
-            <p style={{ fontSize: '0.82rem', color: '#68d391', marginBottom: '0.5rem' }}>{layoutMsg.text}</p>
+          ) : (
+            <>
+              {hasLayoutChanges && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
+                    Unsaved layout changes
+                  </span>
+                  <button
+                    onClick={handleSaveLayout}
+                    disabled={saving}
+                    style={{ background: '#0f3460', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                  >
+                    {saving ? 'Saving…' : 'Save Layout'}
+                  </button>
+                  <button
+                    onClick={() => { setLocalTiles(savedTiles); setLayoutMsg(null); }}
+                    style={{ background: 'none', border: '1px solid #2d3748', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
+                  >
+                    Reset
+                  </button>
+                  {layoutMsg && (
+                    <span style={{ fontSize: '0.82rem', color: layoutMsg.ok ? '#68d391' : '#fc8181' }}>
+                      {layoutMsg.text}
+                    </span>
+                  )}
+                </div>
+              )}
+              {!hasLayoutChanges && layoutMsg && (
+                <p style={{ fontSize: '0.82rem', color: '#68d391', marginBottom: '0.5rem' }}>{layoutMsg.text}</p>
+              )}
+            </>
           )}
           <TileGrid
             boardSize={selectedEvent.board_size}
             tiles={localTiles}
-            onCellDoubleClick={openModal}
-            onSwap={handleSwap}
+            onCellDoubleClick={selectedEvent.status === 'active' ? () => {} : openModal}
+            onSwap={selectedEvent.status === 'active' ? () => {} : handleSwap}
+            readonly={selectedEvent.status === 'active'}
           />
         </div>
       )}
