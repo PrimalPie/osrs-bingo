@@ -27,6 +27,10 @@ router.get('/team/:teamId/pending', requireCaptainOrAdmin, (req, res) => {
 // Get all submissions for a tile+team
 router.get('/tile/:tileId/team/:teamId', requireCaptainOrAdmin, (req, res) => {
   const db = getDb();
+  if (req.user.role !== 'admin') {
+    const freshUser = db.prepare('SELECT team_id FROM users WHERE id = ?').get(req.user.id);
+    if (freshUser?.team_id !== parseInt(req.params.teamId)) return res.status(403).json({ error: 'Forbidden' });
+  }
   const rows = db.prepare(
     "SELECT * FROM submissions WHERE tile_id = ? AND team_id = ? ORDER BY created_at DESC"
   ).all(req.params.tileId, req.params.teamId);

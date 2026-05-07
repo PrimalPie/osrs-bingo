@@ -76,6 +76,8 @@ router.patch('/:id', requireAdmin, (req, res) => {
   if (mode !== undefined) updates.mode = mode === 'points' ? 'points' : 'blackout';
 
   if (status !== undefined) {
+    if (!['setup', 'active', 'completed'].includes(status))
+      return res.status(400).json({ error: 'Invalid status' });
     if (status === 'active') {
       const alreadyActive = db.prepare("SELECT id FROM events WHERE status = 'active' AND id != ?").get(req.params.id);
       if (alreadyActive) return res.status(409).json({ error: 'Another event is already active. End it before activating this one.' });
