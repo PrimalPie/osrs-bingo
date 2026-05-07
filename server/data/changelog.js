@@ -4,6 +4,8 @@ const CHANGELOG = [
     entries: [
       { type: 'improvement', description: 'Events now auto-activate and auto-complete based on their start and end dates. The server checks every 60 seconds — no admin action needed for events to go live or close on schedule. Both transitions are logged in the audit log under the system actor.' },
       { type: 'feature', description: 'Previous event results on the board page — when no event is active, the most recently completed event is shown below the countdown. Click "View Board" to see the final standings, a winner banner, and the full board with the winning team pre-selected. Any team can be clicked to see their final progress.' },
+      { type: 'feature', description: 'Drag-and-drop tile reordering — drag any tile onto another to swap their positions. Available in the Board Generator preview (before applying) and in Admin > Tiles (for setup events). The generator shows a "Rearranged" badge and a Reset Order button; the admin grid shows an "Unsaved layout changes" bar with Save Layout and Reset buttons.' },
+      { type: 'improvement', description: 'Tile editing and reordering are disabled in Admin > Tiles while an event is active. A warning banner explains why and prompts you to end the event first.' },
     ],
   },
   {
