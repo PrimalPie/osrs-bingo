@@ -128,8 +128,8 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
         ))}
       </div>
 
-      {/* Board grid — fixed row height via gridAutoRows */}
-      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gridAutoRows: '90px', gap: 1, background: '#2d3748' }}>
+      {/* Board grid — fixed row height via gridAutoRows; taller when progress is shown */}
+      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gridAutoRows: selectedTeam ? '110px' : '90px', gap: 1, background: '#2d3748' }}>
         {Array.from({ length: boardSize }, (_, ri) => {
           const row = ri + 1;
           return [

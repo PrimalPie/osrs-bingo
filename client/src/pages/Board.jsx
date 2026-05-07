@@ -81,7 +81,6 @@ function computeScores(tiles, teams, boardSize) {
     }
 
     let lineBonus = 0, lines = 0;
-
     for (let r = 1; r <= n; r++) {
       if (full(Array.from({ length: n }, (_, i) => grid[r]?.[i + 1]))) { lineBonus += 50; lines++; }
     }
@@ -95,18 +94,45 @@ function computeScores(tiles, teams, boardSize) {
   });
 }
 
+function sortScores(scores, mode) {
+  return [...scores].sort((a, b) =>
+    mode === 'points'
+      ? b.total - a.total || b.tilesComplete - a.tilesComplete
+      : b.tilesComplete - a.tilesComplete || b.total - a.total
+  );
+}
+
+function downloadCsv(event, tiles, scores) {
+  const mode = event.mode || 'blackout';
+  const isPoints = mode === 'points';
+  const sorted = sortScores(scores, mode);
+
+  const headers = ['Rank', 'Team', 'Tiles Completed', `Total Tiles`];
+  if (isPoints) headers.push('Tile Points', 'Line Bonus', 'Total Score', 'Lines Completed');
+
+  const rows = sorted.map((entry, i) => {
+    const row = [i + 1, entry.team.name, entry.tilesComplete, tiles.length];
+    if (isPoints) row.push(entry.tilePoints, entry.lineBonus, entry.total, entry.lines);
+    return row;
+  });
+
+  const csv = [headers, ...rows]
+    .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${event.name.replace(/[^a-z0-9]/gi, '_')}_results.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) {
   const isPoints = mode === 'points';
 
-  const sorted = useMemo(() =>
-    [...scores].sort((a, b) =>
-      isPoints
-        ? b.total - a.total || b.tilesComplete - a.tilesComplete
-        : b.tilesComplete - a.tilesComplete || b.total - a.total
-    ),
-    [scores, isPoints]
-  );
-
+  const sorted = useMemo(() => sortScores(scores, mode), [scores, mode]);
   const topScore = isPoints ? sorted[0]?.total : sorted[0]?.tilesComplete;
 
   return (
@@ -165,26 +191,72 @@ function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) 
   );
 }
 
+function TeamRosters({ teams }) {
+  const [open, setOpen] = useState(false);
+  const teamsWithMembers = (teams || []).filter(t => t.members?.length > 0);
+  if (teamsWithMembers.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: '1.5rem', borderTop: '1px solid #1a2a3a', paddingTop: '1.25rem' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: open ? '1rem' : 0,
+        }}
+      >
+        <span style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Team Rosters
+        </span>
+        <span style={{ fontSize: '0.65rem', color: '#4a5568' }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {teamsWithMembers.map(team => (
+            <div key={team.id} style={{
+              background: '#16213e', border: `1px solid ${team.color}44`,
+              borderRadius: 8, padding: '0.75rem 1rem', minWidth: 180,
+            }}>
+              <div style={{ fontWeight: 700, color: team.color, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                {team.name}
+              </div>
+              {team.members.map(m => (
+                <div key={m.id} style={{ fontSize: '0.8rem', marginBottom: '0.2rem' }}>
+                  <span style={{ color: '#e2e8f0' }}>{m.discord_username}</span>
+                  {m.osrs_name && (
+                    <span style={{ color: '#718096', marginLeft: '0.4rem' }}>({m.osrs_name})</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PreviousBoard({ event }) {
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [teamsWithMembers, setTeamsWithMembers] = useState([]);
 
   useEffect(() => {
-    api.get(`/board/event/${event.id}`).then(res => {
-      const bd = res.data;
+    Promise.all([
+      api.get(`/board/event/${event.id}`),
+      api.get(`/teams/event/${event.id}`),
+    ]).then(([boardRes, teamsRes]) => {
+      const bd = boardRes.data;
       const mode = bd.event.mode || 'blackout';
       const scores = computeScores(bd.tiles, bd.teams, bd.event.board_size || 9);
-      const sorted = [...scores].sort((a, b) =>
-        mode === 'points'
-          ? b.total - a.total || b.tilesComplete - a.tilesComplete
-          : b.tilesComplete - a.tilesComplete || b.total - a.total
-      );
+      const sorted = sortScores(scores, mode);
       const top = sorted[0]?.team || null;
       setWinner(top);
       setSelectedTeamId(top?.id || null);
       setBoard(bd);
+      setTeamsWithMembers(teamsRes.data);
     }).finally(() => setLoading(false));
   }, [event.id]);
 
@@ -209,15 +281,23 @@ function PreviousBoard({ event }) {
           borderRadius: 10, padding: '1rem 1.5rem', marginBottom: '1.5rem',
         }}>
           <div style={{ fontSize: '1.75rem' }}>🏆</div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.2rem' }}>
               Winners
             </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: winner.color }}>
-              {winner.name}
-            </div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: winner.color }}>{winner.name}</div>
             <div style={{ fontSize: '0.8rem', color: '#a0aec0', marginTop: '0.15rem' }}>Congratulations!</div>
           </div>
+          <button
+            onClick={() => downloadCsv(board.event, tiles, scores)}
+            style={{
+              background: '#16213e', border: '1px solid #2d3748', color: '#a0aec0',
+              padding: '0.4rem 0.9rem', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem',
+              flexShrink: 0,
+            }}
+          >
+            Export CSV
+          </button>
         </div>
       )}
 
@@ -252,6 +332,7 @@ function PreviousBoard({ event }) {
       )}
 
       <BingoBoard tiles={tiles} teams={teams} boardSize={board.event.board_size || 9} selectedTeam={selectedTeam} />
+      <TeamRosters teams={teamsWithMembers} />
     </div>
   );
 }
@@ -260,6 +341,7 @@ export default function Board() {
   const [data, setData] = useState(null);
   const [upcoming, setUpcoming] = useState(undefined);
   const [lastCompleted, setLastCompleted] = useState(undefined);
+  const [teamsWithMembers, setTeamsWithMembers] = useState([]);
   const [error, setError] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [showPrev, setShowPrev] = useState(false);
@@ -275,10 +357,15 @@ export default function Board() {
         ]);
         setUpcoming(up.data || null);
         setLastCompleted(last.data || null);
+        setTeamsWithMembers([]);
         return;
       }
-      const board = await api.get(`/board/event/${active.data.id}`);
+      const [board, teamsRes] = await Promise.all([
+        api.get(`/board/event/${active.data.id}`),
+        api.get(`/teams/event/${active.data.id}`),
+      ]);
       setData(board.data);
+      setTeamsWithMembers(teamsRes.data);
       setUpcoming(undefined);
       setLastCompleted(undefined);
     } catch {
@@ -363,7 +450,6 @@ export default function Board() {
                 {showPrev ? 'Hide Board' : 'View Board'}
               </button>
             </div>
-
             {showPrev && <PreviousBoard event={lastCompleted} />}
           </div>
         )}
@@ -374,23 +460,27 @@ export default function Board() {
   const { event, tiles, teams } = data;
   const mode = event.mode || 'blackout';
   const selectedTeam = teams.find(t => t.id === selectedTeamId) || null;
-
   const scores = computeScores(tiles, teams, event.board_size || 9);
+  const leader = sortScores(scores, mode)[0]?.team;
 
   function toggleTeam(id) {
     setSelectedTeamId(prev => prev === id ? null : id);
   }
 
-  const sortedScores = [...scores].sort((a, b) =>
-    mode === 'points'
-      ? b.total - a.total || b.tilesComplete - a.tilesComplete
-      : b.tilesComplete - a.tilesComplete || b.total - a.total
-  );
-  const leader = sortedScores[0]?.team;
-
   return (
     <div style={s.page}>
-      <h1 style={s.title}>{event.name}</h1>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.25rem' }}>
+        <h1 style={{ ...s.title, marginBottom: 0 }}>{event.name}</h1>
+        <button
+          onClick={() => downloadCsv(event, tiles, scores)}
+          style={{
+            background: '#16213e', border: '1px solid #2d3748', color: '#718096',
+            padding: '0.35rem 0.9rem', borderRadius: 6, cursor: 'pointer', fontSize: '0.78rem',
+          }}
+        >
+          Export CSV
+        </button>
+      </div>
       <p style={s.subtitle}>
         <span style={s.live} />
         Live · {tiles.length} tiles ·{' '}
@@ -437,6 +527,7 @@ export default function Board() {
       </div>
 
       <BingoBoard tiles={tiles} teams={teams} boardSize={event.board_size || 9} selectedTeam={selectedTeam} />
+      <TeamRosters teams={teamsWithMembers} />
     </div>
   );
 }

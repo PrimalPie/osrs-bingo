@@ -2,6 +2,9 @@ const CHANGELOG = [
   {
     date: '2026-05-07',
     entries: [
+      { type: 'feature', description: 'Discord tile completion announcements — when a submission is approved and a tile is fully completed, a message is posted to a configurable announcement channel (set DISCORD_ANNOUNCEMENT_CHANNEL_ID in the server .env). The message names the team and tile.' },
+      { type: 'feature', description: 'Team rosters on the board page — a collapsible "Team Rosters" section below the board lists every team\'s members with their Discord username and OSRS name. Visible to all viewers during and after an event.' },
+      { type: 'feature', description: 'CSV export — an "Export CSV" button on the board page downloads the current standings as a spreadsheet. Includes rank, team name, tiles completed, and (in points mode) tile points, line bonus, total score, and lines completed. Also available on the previous event board.' },
       { type: 'improvement', description: 'Events now auto-activate and auto-complete based on their start and end dates. The server checks every 60 seconds — no admin action needed for events to go live or close on schedule. Both transitions are logged in the audit log under the system actor.' },
       { type: 'feature', description: 'Previous event results on the board page — when no event is active, the most recently completed event is shown below the countdown. Click "View Board" to see the final standings, a winner banner, and the full board with the winning team pre-selected. Any team can be clicked to see their final progress.' },
       { type: 'feature', description: 'Drag-and-drop tile reordering — drag any tile onto another to swap their positions. Available in the Board Generator preview (before applying) and in Admin > Tiles (for setup events). The generator shows a "Rearranged" badge and a Reset Order button; the admin grid shows an "Unsaved layout changes" bar with Save Layout and Reset buttons.' },

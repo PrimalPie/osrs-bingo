@@ -161,6 +161,24 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
       console.warn('[Bot] Approve notification failed:', e.message);
     }
   })();
+
+  // Announcement channel — fires only when a tile is fully completed
+  if (result.completed) {
+    (async () => {
+      try {
+        const announcementChannelId = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
+        const bot = req.app.locals.bot;
+        if (!bot || !announcementChannelId) return;
+        const db3 = getDb();
+        const team = db3.prepare('SELECT name FROM teams WHERE id = ?').get(sub.team_id);
+        const tileCoord = rowColToCoord(tile.row, tile.col);
+        const channel = await bot.channels.fetch(announcementChannelId);
+        await channel.send(`🎉 **${team?.name || 'A team'}** completed **${tileCoord} — ${tile.label}**!`);
+      } catch (e) {
+        console.warn('[Bot] Announcement failed:', e.message);
+      }
+    })();
+  }
 });
 
 // Reject a submission
