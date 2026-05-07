@@ -166,10 +166,12 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
   if (result.completed) {
     (async () => {
       try {
-        const announcementChannelId = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
         const bot = req.app.locals.bot;
-        if (!bot || !announcementChannelId) return;
+        if (!bot) return;
         const db3 = getDb();
+        const setting = db3.prepare("SELECT value FROM settings WHERE key = 'announcement_channel_id'").get();
+        const announcementChannelId = setting?.value || process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
+        if (!announcementChannelId) return;
         const team = db3.prepare('SELECT name FROM teams WHERE id = ?').get(sub.team_id);
         const tileCoord = rowColToCoord(tile.row, tile.col);
         const channel = await bot.channels.fetch(announcementChannelId);

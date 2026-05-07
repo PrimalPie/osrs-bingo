@@ -21,6 +21,7 @@ const { startEventScheduler } = require('./services/eventScheduler');
 const auditRouter = require('./routes/audit');
 const womRouter = require('./routes/wom');
 const generateRouter = require('./routes/generate');
+const settingsRouter = require('./routes/settings');
 
 const UPLOAD_DIR = process.env.DATA_DIR
   ? path.join(process.env.DATA_DIR, 'uploads')
@@ -59,6 +60,7 @@ app.use('/api', bossesRouter);
 app.use('/api/audit', auditRouter);
 app.use('/api/wom', womRouter);
 app.use('/api/generate', generateRouter);
+app.use('/api/settings', settingsRouter);
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 const ICONS_DIR = process.env.DATA_DIR

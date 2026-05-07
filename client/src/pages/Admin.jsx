@@ -1333,8 +1333,51 @@ function AuditTab() {
   );
 }
 
+// ─── Settings Tab ─────────────────────────────────────────────────────────────
+function SettingsTab() {
+  const [announcementChannelId, setAnnouncementChannelId] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    api.get('/settings').then(r => {
+      setAnnouncementChannelId(r.data.announcement_channel_id || '');
+    }).catch(() => {});
+  }, []);
+
+  function save() {
+    setSaved(false); setErr('');
+    api.put('/settings', { announcement_channel_id: announcementChannelId })
+      .then(() => setSaved(true))
+      .catch(e => setErr(e.response?.data?.error || 'Save failed'));
+  }
+
+  return (
+    <div style={s.section}>
+      <div style={s.sectionTitle}>Discord Settings</div>
+      <div style={s.row}>
+        <div>
+          <label style={s.label}>Announcement Channel ID</label>
+          <input
+            style={{ ...s.input, minWidth: 260 }}
+            value={announcementChannelId}
+            onChange={e => { setAnnouncementChannelId(e.target.value); setSaved(false); }}
+            placeholder="e.g. 1500033987815411785"
+          />
+        </div>
+        <button style={s.primaryBtn} onClick={save}>Save</button>
+      </div>
+      <div style={{ fontSize: '0.78rem', color: '#4a5568', marginTop: '0.25rem' }}>
+        When set, the bot will post a completion message here every time a team finishes a tile.
+      </div>
+      {saved && <div style={s.msg}>Saved.</div>}
+      {err   && <div style={s.errMsg}>{err}</div>}
+    </div>
+  );
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
-const TABS = ['Events', 'Tiles', 'Teams', 'Users', 'Audit'];
+const TABS = ['Events', 'Tiles', 'Teams', 'Users', 'Audit', 'Settings'];
 
 export default function Admin() {
   const [tab, setTab] = useState('Events');
@@ -1348,11 +1391,12 @@ export default function Admin() {
           </button>
         ))}
       </div>
-      {tab === 'Events' && <EventsTab />}
-      {tab === 'Tiles'  && <TilesTab />}
-      {tab === 'Teams'  && <TeamsTab />}
-      {tab === 'Users'  && <UsersTab />}
-      {tab === 'Audit'  && <AuditTab />}
+      {tab === 'Events'   && <EventsTab />}
+      {tab === 'Tiles'    && <TilesTab />}
+      {tab === 'Teams'    && <TeamsTab />}
+      {tab === 'Users'    && <UsersTab />}
+      {tab === 'Audit'    && <AuditTab />}
+      {tab === 'Settings' && <SettingsTab />}
     </div>
   );
 }
