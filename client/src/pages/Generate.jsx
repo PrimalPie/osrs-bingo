@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import api from '../api';
@@ -23,6 +23,8 @@ const S = {
   th:      { padding: '0.5rem', textAlign: 'left', color: '#a0aec0', fontWeight: 500 },
   td:      { padding: '0.4rem 0.5rem', color: '#e0e0ff' },
 };
+
+const CONTENT_KEYS = ['label', 'type', 'target', 'wom_metric', 'icon_url', 'difficulty', 'category'];
 
 function ParamRow({ label, children }) {
   return (
@@ -58,15 +60,21 @@ export default function GeneratePage() {
     womOnly: false,
   });
 
-  const [preview, setPreview]     = useState(null);
-  const [generating, setGen]      = useState(false);
-  const [genError, setGenError]   = useState(null);
+  const [preview, setPreview]         = useState(null);
+  const [originalPreview, setOrig]    = useState(null);
+  const [generating, setGen]          = useState(false);
+  const [genError, setGenError]       = useState(null);
 
-  const [events, setEvents]       = useState([]);
-  const [applyId, setApplyId]     = useState('');
-  const [clearExisting, setClear] = useState(true);
-  const [applying, setApplying]   = useState(false);
-  const [applyMsg, setApplyMsg]   = useState(null);
+  const [events, setEvents]           = useState([]);
+  const [applyId, setApplyId]         = useState('');
+  const [clearExisting, setClear]     = useState(true);
+  const [applying, setApplying]       = useState(false);
+  const [applyMsg, setApplyMsg]       = useState(null);
+
+  // Drag state
+  const [dragFromIdx, setDragFromIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const dragRef = useRef(null); // stable ref for the source index during drag events
 
   const teamSize = Math.max(1, Math.ceil(params.totalPlayers / params.numTeams));
   const diffSum  = params.easyPct + params.mediumPct + params.hardPct;
@@ -88,6 +96,7 @@ export default function GeneratePage() {
     try {
       const r = await api.post('/generate/preview', params);
       setPreview(r.data.tiles);
+      setOrig(r.data.tiles);
     } catch (e) {
       setGenError(e.response?.data?.error || 'Generation failed');
     } finally {
@@ -109,6 +118,22 @@ export default function GeneratePage() {
       setApplying(false);
     }
   }
+
+  const swapTiles = useCallback((fromIdx, toIdx) => {
+    if (fromIdx === null || fromIdx === toIdx) return;
+    setPreview(prev => {
+      const next = prev.map(t => ({ ...t }));
+      const tmp = {};
+      for (const k of CONTENT_KEYS) tmp[k] = next[fromIdx][k];
+      for (const k of CONTENT_KEYS) next[fromIdx][k] = next[toIdx][k];
+      for (const k of CONTENT_KEYS) next[toIdx][k] = tmp[k];
+      return next;
+    });
+  }, []);
+
+  const isRearranged = preview && originalPreview && CONTENT_KEYS.some((k) =>
+    preview.some((t, i) => t[k] !== originalPreview[i][k])
+  );
 
   const selectedEvent = events.find(e => String(e.id) === String(applyId));
 
@@ -210,9 +235,30 @@ export default function GeneratePage() {
       {/* ── Preview ── */}
       {preview && (
         <>
-          <h2 style={{ color: '#e0e0ff', margin: '0 0 1rem' }}>
-            Preview — {params.boardSize}×{params.boardSize} ({preview.length} tiles)
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <h2 style={{ color: '#e0e0ff', margin: 0 }}>
+              Preview — {params.boardSize}×{params.boardSize} ({preview.length} tiles)
+            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {isRearranged && (
+                <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
+                  Rearranged
+                </span>
+              )}
+              {isRearranged && (
+                <button
+                  onClick={() => setPreview(originalPreview)}
+                  style={{ ...S.btn, background: '#16213e', border: '1px solid #2d2d4e', color: '#a0aec0', fontSize: '0.82rem' }}
+                >
+                  Reset Order
+                </button>
+              )}
+            </div>
+          </div>
+
+          <p style={{ color: '#4a5568', fontSize: '0.8rem', margin: '0 0 0.75rem' }}>
+            Drag tiles to swap their positions. Changes are applied when you click Apply to Event below.
+          </p>
 
           {/* Counters */}
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
@@ -234,21 +280,58 @@ export default function GeneratePage() {
             ))}
           </div>
 
-          {/* Grid */}
+          {/* Draggable Grid */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${params.boardSize}, 1fr)`,
             gap: 4,
             marginBottom: '2rem',
           }}>
-            {preview.map(tile => {
+            {preview.map((tile, idx) => {
               const ds = DIFF_STYLE[tile.difficulty];
+              const isDragSource = dragFromIdx === idx;
+              const isDragTarget = dragOverIdx === idx && dragFromIdx !== idx;
               return (
-                <div key={tile.coord} style={{
-                  background: ds.bg, border: `1px solid ${ds.border}`,
-                  borderRadius: 4, padding: '0.5rem',
-                  minHeight: 90, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                }}>
+                <div
+                  key={tile.coord}
+                  draggable
+                  onDragStart={() => {
+                    dragRef.current = idx;
+                    setDragFromIdx(idx);
+                  }}
+                  onDragOver={e => {
+                    e.preventDefault();
+                    if (dragRef.current !== idx) setDragOverIdx(idx);
+                  }}
+                  onDragLeave={() => setDragOverIdx(null)}
+                  onDrop={e => {
+                    e.preventDefault();
+                    swapTiles(dragRef.current, idx);
+                    setDragOverIdx(null);
+                    setDragFromIdx(null);
+                  }}
+                  onDragEnd={() => {
+                    dragRef.current = null;
+                    setDragFromIdx(null);
+                    setDragOverIdx(null);
+                  }}
+                  style={{
+                    background: ds.bg,
+                    border: isDragTarget
+                      ? '2px solid #e94560'
+                      : `1px solid ${ds.border}`,
+                    borderRadius: 4,
+                    padding: '0.5rem',
+                    minHeight: 90,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    cursor: 'grab',
+                    opacity: isDragSource ? 0.35 : 1,
+                    transition: 'opacity 0.1s, border-color 0.1s',
+                    userSelect: 'none',
+                  }}
+                >
                   <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.45)' }}>{tile.coord}</span>
                   <span style={{ fontSize: '0.72rem', color: '#fff', fontWeight: 500, lineHeight: 1.3 }}>
                     {tile.label}
@@ -317,7 +400,7 @@ export default function GeneratePage() {
               <button onClick={handleApply} disabled={applying || !applyId}
                 style={{ ...S.btn, background: '#0f3460', color: '#e0e0ff', border: '1px solid #2d2d4e',
                   opacity: !applyId ? 0.5 : 1 }}>
-                {applying ? 'Applying…' : 'Apply to Event'}
+                {applying ? 'Applying…' : isRearranged ? 'Apply Rearranged Board' : 'Apply to Event'}
               </button>
             </div>
 

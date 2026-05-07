@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import api from '../api';
 import { parseXpTarget, formatXp, formatTarget } from '../utils';
 import IconPicker, { useSuggestion } from '../components/IconPicker';
@@ -243,7 +243,11 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
 }
 
 // ─── Visual board grid for tile editing ───────────────────────────────────────
-function TileGrid({ boardSize, tiles, onCellDoubleClick }) {
+function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap }) {
+  const [dragOverCoord, setDragOverCoord] = useState(null);
+  const [dragFromCoord, setDragFromCoord] = useState(null);
+  const dragRef = useRef(null);
+
   const tileMap = {};
   for (const t of tiles) tileMap[`${t.col}-${t.row}`] = t;
 
@@ -259,7 +263,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick }) {
   return (
     <div>
       <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
-        {filled}/{total} tiles filled · Double-click any cell to edit
+        {filled}/{total} tiles filled · Double-click to edit · Drag to swap positions
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ borderCollapse: 'collapse', tableLayout: 'fixed', width: '100%' }}>
@@ -291,20 +295,37 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick }) {
                     const col = ci + 1;
                     const tile = tileMap[`${col}-${row}`];
                     const c = coord(row, col);
+                    const isDragSource = dragFromCoord === c;
+                    const isDragTarget = dragOverCoord === c && dragFromCoord !== c;
                     return (
                       <td
                         key={col}
+                        draggable={!!tile}
+                        onDragStart={tile ? () => { dragRef.current = c; setDragFromCoord(c); } : undefined}
+                        onDragOver={e => { e.preventDefault(); if (dragRef.current !== c) setDragOverCoord(c); }}
+                        onDragLeave={() => setDragOverCoord(null)}
+                        onDrop={e => {
+                          e.preventDefault();
+                          const fromCoord = dragRef.current;
+                          const fromTile = tiles.find(t => coord(t.row, t.col) === fromCoord);
+                          if (fromTile && tile && fromCoord !== c) onSwap(fromTile.id, tile.id);
+                          setDragOverCoord(null);
+                          setDragFromCoord(null);
+                        }}
+                        onDragEnd={() => { dragRef.current = null; setDragFromCoord(null); setDragOverCoord(null); }}
                         onDoubleClick={() => onCellDoubleClick(c, col, row, tile)}
                         title={tile ? `${c}: ${tile.label} (${tile.type}, ${tile.target})` : `${c}: empty — double-click to add`}
                         style={{
-                          border: '1px solid #1a2a3a',
-                          background: tile ? '#0f2035' : '#12121f',
-                          cursor: 'pointer',
+                          border: isDragTarget ? '2px solid #e94560' : '1px solid #1a2a3a',
+                          background: isDragSource ? '#0a1520' : tile ? '#0f2035' : '#12121f',
+                          cursor: tile ? 'grab' : 'pointer',
                           verticalAlign: 'top',
                           padding: '0.3rem 0.4rem',
                           minHeight: 64,
                           position: 'relative',
-                          transition: 'background 0.15s',
+                          opacity: isDragSource ? 0.35 : 1,
+                          transition: 'opacity 0.1s',
+                          userSelect: 'none',
                         }}
                       >
                         {tile ? (
@@ -784,8 +805,11 @@ function EventsTab() {
 function TilesTab() {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [tiles, setTiles] = useState([]);
-  const [modal, setModal] = useState(null); // { coord, col, row, tile }
+  const [savedTiles, setSavedTiles] = useState([]);   // authoritative server state
+  const [localTiles, setLocalTiles] = useState([]);   // local state with unsaved swaps
+  const [modal, setModal] = useState(null);           // { coord, col, row, tile }
+  const [layoutMsg, setLayoutMsg] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api.get('/events').then(r => {
@@ -796,11 +820,50 @@ function TilesTab() {
 
   useEffect(() => {
     if (!selectedEvent) return;
-    api.get(`/tiles/event/${selectedEvent.id}`).then(r => setTiles(r.data));
+    api.get(`/tiles/event/${selectedEvent.id}`).then(r => {
+      setSavedTiles(r.data);
+      setLocalTiles(r.data);
+      setLayoutMsg(null);
+    });
   }, [selectedEvent]);
+
+  const hasLayoutChanges = localTiles.some(t => {
+    const orig = savedTiles.find(o => o.id === t.id);
+    return orig && (orig.row !== t.row || orig.col !== t.col);
+  });
 
   function openModal(c, col, row, tile) {
     setModal({ coord: c, col, row, tile: tile || null });
+  }
+
+  function handleSwap(aId, bId) {
+    setLocalTiles(prev => {
+      const next = prev.map(t => ({ ...t }));
+      const a = next.find(t => t.id === aId);
+      const b = next.find(t => t.id === bId);
+      if (!a || !b) return prev;
+      [a.row, b.row] = [b.row, a.row];
+      [a.col, b.col] = [b.col, a.col];
+      return next;
+    });
+    setLayoutMsg(null);
+  }
+
+  async function handleSaveLayout() {
+    const changed = localTiles.filter(t => {
+      const orig = savedTiles.find(o => o.id === t.id);
+      return orig && (orig.row !== t.row || orig.col !== t.col);
+    });
+    setSaving(true);
+    try {
+      await api.patch('/tiles/reorder', { tiles: changed.map(t => ({ id: t.id, row: t.row, col: t.col })) });
+      setSavedTiles(localTiles);
+      setLayoutMsg({ ok: true, text: 'Layout saved.' });
+    } catch {
+      setLayoutMsg({ ok: false, text: 'Failed to save layout.' });
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleSave(form) {
@@ -817,17 +880,24 @@ function TilesTab() {
     };
     if (tile) {
       const res = await api.patch(`/tiles/${tile.id}`, payload);
-      setTiles(prev => prev.map(t => t.id === tile.id ? { ...t, ...res.data } : t));
+      const updated = t => t.id === tile.id ? { ...t, ...res.data } : t;
+      setSavedTiles(prev => prev.map(updated));
+      setLocalTiles(prev => prev.map(updated));
     } else {
       const res = await api.post(`/tiles/event/${selectedEvent.id}`, { coord, ...payload });
-      setTiles(prev => [...prev, { ...res.data, col, row }].sort((a, b) => a.row - b.row || a.col - b.col));
+      const newTile = { ...res.data, col, row };
+      const sort = arr => [...arr, newTile].sort((a, b) => a.row - b.row || a.col - b.col);
+      setSavedTiles(sort);
+      setLocalTiles(sort);
     }
     setModal(null);
   }
 
   async function handleDelete() {
     await api.delete(`/tiles/${modal.tile.id}`);
-    setTiles(prev => prev.filter(t => t.id !== modal.tile.id));
+    const filter = arr => arr.filter(t => t.id !== modal.tile.id);
+    setSavedTiles(filter);
+    setLocalTiles(filter);
     setModal(null);
   }
 
@@ -860,10 +930,39 @@ function TilesTab() {
 
       {selectedEvent && (
         <div style={s.section}>
+          {hasLayoutChanges && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
+                Unsaved layout changes
+              </span>
+              <button
+                onClick={handleSaveLayout}
+                disabled={saving}
+                style={{ background: '#0f3460', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+              >
+                {saving ? 'Saving…' : 'Save Layout'}
+              </button>
+              <button
+                onClick={() => { setLocalTiles(savedTiles); setLayoutMsg(null); }}
+                style={{ background: 'none', border: '1px solid #2d3748', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
+              >
+                Reset
+              </button>
+              {layoutMsg && (
+                <span style={{ fontSize: '0.82rem', color: layoutMsg.ok ? '#68d391' : '#fc8181' }}>
+                  {layoutMsg.text}
+                </span>
+              )}
+            </div>
+          )}
+          {!hasLayoutChanges && layoutMsg && (
+            <p style={{ fontSize: '0.82rem', color: '#68d391', marginBottom: '0.5rem' }}>{layoutMsg.text}</p>
+          )}
           <TileGrid
             boardSize={selectedEvent.board_size}
-            tiles={tiles}
+            tiles={localTiles}
             onCellDoubleClick={openModal}
+            onSwap={handleSwap}
           />
         </div>
       )}

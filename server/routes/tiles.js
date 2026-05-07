@@ -66,6 +66,18 @@ router.put('/event/:eventId/bulk', requireAdmin, (req, res) => {
   }
 });
 
+router.patch('/reorder', requireAdmin, (req, res) => {
+  const { tiles } = req.body;
+  if (!Array.isArray(tiles) || !tiles.length)
+    return res.status(400).json({ error: 'tiles[] required' });
+  const db = getDb();
+  const update = db.prepare('UPDATE tiles SET row = ?, col = ? WHERE id = ?');
+  db.transaction(() => {
+    for (const t of tiles) update.run(t.row, t.col, t.id);
+  })();
+  res.json({ ok: true });
+});
+
 router.patch('/:id', requireAdmin, (req, res) => {
   const db = getDb();
   const { label, type, target, wom_metric, wom_competition_id, icon_url } = req.body;
