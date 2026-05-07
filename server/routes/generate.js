@@ -66,6 +66,7 @@ const WOM_TO_SKILL = {
   magic:        'Magic',
   attack:       'Attack',
   strength:     'Strength',
+  sailing:      'Sailing',
 };
 
 function resolveIcon(tile) {
