@@ -79,17 +79,17 @@ router.post('/:id/members', requireCaptainOrAdmin, (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
   }
-  const { discord_username, osrs_name } = req.body;
-  if (!discord_username) return res.status(400).json({ error: 'discord_username required' });
+  const { osrs_name, discord_username } = req.body;
+  if (!osrs_name) return res.status(400).json({ error: 'osrs_name required' });
   try {
     const result = db.prepare(
-      'INSERT INTO team_members (team_id, discord_username, osrs_name) VALUES (?, ?, ?)'
-    ).run(req.params.id, discord_username, osrs_name || null);
+      'INSERT INTO team_members (team_id, osrs_name, discord_username) VALUES (?, ?, ?)'
+    ).run(req.params.id, osrs_name, discord_username || null);
     const teamName = db.prepare('SELECT name FROM teams WHERE id = ?').get(req.params.id)?.name || req.params.id;
     logAudit(req.user.id, req.user.username, 'member_added', 'team_member', result.lastInsertRowid,
-      `Added '${discord_username}'${osrs_name ? ` (${osrs_name})` : ''} to ${teamName}`
+      `Added '${osrs_name}'${discord_username ? ` (Discord: ${discord_username})` : ''} to ${teamName}`
     );
-    res.json({ id: result.lastInsertRowid, discord_username, osrs_name });
+    res.json({ id: result.lastInsertRowid, osrs_name, discord_username });
   } catch (e) {
     if (e.message.includes('UNIQUE')) return res.status(409).json({ error: 'Member already on team' });
     throw e;
@@ -110,7 +110,7 @@ router.delete('/:id/members/:memberId', requireCaptainOrAdmin, (req, res) => {
   if (member) {
     const teamName = db.prepare('SELECT name FROM teams WHERE id = ?').get(req.params.id)?.name || req.params.id;
     logAudit(req.user.id, req.user.username, 'member_removed', 'team_member', parseInt(req.params.memberId),
-      `Removed '${member.discord_username}' from ${teamName}`
+      `Removed '${member.osrs_name}' from ${teamName}`
     );
   }
   res.json({ ok: true });

@@ -51,10 +51,10 @@ const schema = `
   CREATE TABLE IF NOT EXISTS team_members (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_id INTEGER NOT NULL REFERENCES teams(id),
-    discord_username TEXT NOT NULL,
-    osrs_name TEXT,
+    osrs_name TEXT NOT NULL,
+    discord_username TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(team_id, discord_username)
+    UNIQUE(team_id, osrs_name)
   );
 
   CREATE TABLE IF NOT EXISTS tile_progress (

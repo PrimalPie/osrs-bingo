@@ -63,6 +63,30 @@ function getDb() {
       raw.exec('ALTER TABLE tiles ADD COLUMN wom_competition_id INTEGER');
     }
 
+    // Migrate team_members: make osrs_name primary (NOT NULL, unique), discord_username optional
+    const memberIndexes = raw.prepare("PRAGMA index_list(team_members)").all();
+    const needsMemberMigration = memberIndexes.every(idx => {
+      const cols = raw.prepare(`PRAGMA index_info(${idx.name})`).all().map(r => r.name);
+      return !cols.includes('osrs_name');
+    });
+    if (needsMemberMigration) {
+      raw.exec(`
+        CREATE TABLE team_members_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          team_id INTEGER NOT NULL REFERENCES teams(id),
+          osrs_name TEXT NOT NULL,
+          discord_username TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(team_id, osrs_name)
+        );
+        INSERT INTO team_members_new (id, team_id, osrs_name, discord_username, created_at)
+          SELECT id, team_id, COALESCE(osrs_name, discord_username), discord_username, created_at
+          FROM team_members;
+        DROP TABLE team_members;
+        ALTER TABLE team_members_new RENAME TO team_members;
+      `);
+    }
+
     _db = new BingoDb(raw);
   }
   return _db;

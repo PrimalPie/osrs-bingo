@@ -1009,10 +1009,10 @@ function TeamsTab() {
   }
 
   async function addMember(teamId) {
-    const form = memberForms[teamId] || { discord_username: '', osrs_name: '' };
-    if (!form.discord_username) return;
+    const form = memberForms[teamId] || { osrs_name: '', discord_username: '' };
+    if (!form.osrs_name) return;
     await api.post(`/teams/${teamId}/members`, form);
-    setMemberForms(f => ({ ...f, [teamId]: { discord_username: '', osrs_name: '' } }));
+    setMemberForms(f => ({ ...f, [teamId]: { osrs_name: '', discord_username: '' } }));
     loadTeams();
   }
 
@@ -1069,25 +1069,25 @@ function TeamsTab() {
           <table style={s.table}>
             <thead>
               <tr>
-                <th style={s.th}>Discord Username</th>
                 <th style={s.th}>OSRS Name</th>
+                <th style={s.th}>Discord Username</th>
                 <th style={s.th}></th>
               </tr>
             </thead>
             <tbody>
               {(team.members || []).map(m => (
                 <tr key={m.id}>
-                  <td style={s.td}>{m.discord_username}</td>
-                  <td style={s.td}>{m.osrs_name || '—'}</td>
+                  <td style={s.td}>{m.osrs_name}</td>
+                  <td style={s.td}>{m.discord_username || '—'}</td>
                   <td style={s.td}><button style={s.dangerBtn} onClick={() => removeMember(team.id, m.id)}>Remove</button></td>
                 </tr>
               ))}
               <tr>
                 <td style={s.td}>
-                  <input style={{ ...s.input, width: '100%' }} placeholder="discorduser" value={memberForms[team.id]?.discord_username || ''} onChange={e => setMemberField(team.id, 'discord_username', e.target.value)} />
+                  <input style={{ ...s.input, width: '100%' }} placeholder="osrs name" value={memberForms[team.id]?.osrs_name || ''} onChange={e => setMemberField(team.id, 'osrs_name', e.target.value)} />
                 </td>
                 <td style={s.td}>
-                  <input style={{ ...s.input, width: '100%' }} placeholder="osrs name (optional)" value={memberForms[team.id]?.osrs_name || ''} onChange={e => setMemberField(team.id, 'osrs_name', e.target.value)} />
+                  <input style={{ ...s.input, width: '100%' }} placeholder="discord username (optional)" value={memberForms[team.id]?.discord_username || ''} onChange={e => setMemberField(team.id, 'discord_username', e.target.value)} />
                 </td>
                 <td style={s.td}><button style={s.successBtn} onClick={() => addMember(team.id)}>Add</button></td>
               </tr>

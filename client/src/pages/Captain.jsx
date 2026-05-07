@@ -422,7 +422,7 @@ function ByTileTab({ user }) {
 function MyTeamTab({ user }) {
   const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [memberForm, setMemberForm] = useState({ discord_username: '', osrs_name: '' });
+  const [memberForm, setMemberForm] = useState({ osrs_name: '', discord_username: '' });
   const [msg, setMsg] = useState('');
 
   const load = useCallback(async () => {
@@ -437,10 +437,10 @@ function MyTeamTab({ user }) {
   useEffect(() => { load(); }, [load]);
 
   async function addMember() {
-    if (!memberForm.discord_username || !team) return;
+    if (!memberForm.osrs_name || !team) return;
     try {
       await api.post(`/teams/${team.id}/members`, memberForm);
-      setMemberForm({ discord_username: '', osrs_name: '' });
+      setMemberForm({ osrs_name: '', discord_username: '' });
       setMsg('Member added');
       setTimeout(() => setMsg(''), 3000);
       load();
@@ -476,16 +476,16 @@ function MyTeamTab({ user }) {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={th}>Discord Username</th>
               <th style={th}>OSRS Name</th>
+              <th style={th}>Discord Username</th>
               <th style={{ ...th, width: 80 }} />
             </tr>
           </thead>
           <tbody>
             {(team.members || []).map(m => (
               <tr key={m.id}>
-                <td style={td}>{m.discord_username}</td>
-                <td style={{ ...td, color: '#a0aec0' }}>{m.osrs_name || '—'}</td>
+                <td style={td}>{m.osrs_name}</td>
+                <td style={{ ...td, color: '#a0aec0' }}>{m.discord_username || '—'}</td>
                 <td style={td}>
                   <button style={s.rejectBtn} onClick={() => removeMember(m.id)}>Remove</button>
                 </td>
@@ -495,18 +495,18 @@ function MyTeamTab({ user }) {
               <td style={{ padding: '0.4rem 0.6rem' }}>
                 <input
                   style={{ ...s.rejectInput, flex: 'none', width: '100%' }}
-                  placeholder="discorduser"
-                  value={memberForm.discord_username}
-                  onChange={e => setMemberForm(f => ({ ...f, discord_username: e.target.value }))}
+                  placeholder="osrs name"
+                  value={memberForm.osrs_name}
+                  onChange={e => setMemberForm(f => ({ ...f, osrs_name: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && addMember()}
                 />
               </td>
               <td style={{ padding: '0.4rem 0.6rem' }}>
                 <input
                   style={{ ...s.rejectInput, flex: 'none', width: '100%' }}
-                  placeholder="osrs name (optional)"
-                  value={memberForm.osrs_name}
-                  onChange={e => setMemberForm(f => ({ ...f, osrs_name: e.target.value }))}
+                  placeholder="discord username (optional)"
+                  value={memberForm.discord_username}
+                  onChange={e => setMemberForm(f => ({ ...f, discord_username: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && addMember()}
                 />
               </td>

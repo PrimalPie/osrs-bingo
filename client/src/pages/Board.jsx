@@ -222,9 +222,9 @@ function TeamRosters({ teams }) {
               </div>
               {team.members.map(m => (
                 <div key={m.id} style={{ fontSize: '0.8rem', marginBottom: '0.2rem' }}>
-                  <span style={{ color: '#e2e8f0' }}>{m.discord_username}</span>
-                  {m.osrs_name && (
-                    <span style={{ color: '#718096', marginLeft: '0.4rem' }}>({m.osrs_name})</span>
+                  <span style={{ color: '#e2e8f0' }}>{m.osrs_name}</span>
+                  {m.discord_username && (
+                    <span style={{ color: '#718096', marginLeft: '0.4rem' }}>({m.discord_username})</span>
                   )}
                 </div>
               ))}
