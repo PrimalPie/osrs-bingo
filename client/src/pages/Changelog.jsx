@@ -7,6 +7,8 @@ const typeColors = {
   improvement: { bg: '#2c5282', text: '#90cdf4' },
 };
 
+const typeOrder = { feature: 0, improvement: 1, fix: 2 };
+
 const s = {
   page:    { padding: '1.5rem', maxWidth: 760, margin: '0 auto' },
   title:   { fontSize: '1.5rem', fontWeight: 700, color: '#e94560', marginBottom: '0.25rem' },
@@ -40,7 +42,7 @@ export default function Changelog() {
             <span style={s.dateText}>{new Date(group.date + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             <div style={s.dateLine} />
           </div>
-          {group.entries.map((entry, i) => {
+          {[...group.entries].sort((a, b) => (typeOrder[a.type] ?? 9) - (typeOrder[b.type] ?? 9)).map((entry, i) => {
             const colors = typeColors[entry.type] || typeColors.improvement;
             return (
               <div key={i} style={s.entry}>
