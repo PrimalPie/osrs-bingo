@@ -1110,6 +1110,11 @@ function UsersTab() {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
+  const myId = (() => {
+    try { return JSON.parse(atob(localStorage.getItem('token').split('.')[1])).id; }
+    catch { return null; }
+  })();
+
   const loadUsers = useCallback(() => {
     api.get('/auth/users').then(r => setUsers(r.data));
   }, []);
@@ -1175,43 +1180,48 @@ function UsersTab() {
             </tr>
           </thead>
           <tbody>
-            {users.map(u => editing?.id === u.id ? (
-              <tr key={u.id}>
-                <td style={s.td} colSpan={2}>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{u.username}</span>
-                    <select style={s.select} value={editing.role} onChange={e => setEditing(ed => ({ ...ed, role: e.target.value }))}>
-                      <option value="captain">Captain</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    <select style={s.select} value={editing.team_id || ''} onChange={e => setEditing(ed => ({ ...ed, team_id: e.target.value }))}>
-                      <option value="">— no team —</option>
-                      {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                    </select>
-                    <input style={{ ...s.input, width: 160 }} type="password" placeholder="New password (optional)" value={editing.newPassword || ''} onChange={e => setEditing(ed => ({ ...ed, newPassword: e.target.value }))} />
-                  </div>
-                </td>
-                <td style={s.td} />
-                <td style={s.td}>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button style={s.successBtn} onClick={saveEdit}>Save</button>
-                    <button style={s.ghostBtn} onClick={() => setEditing(null)}>Cancel</button>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              <tr key={u.id}>
-                <td style={s.td}>{u.username}</td>
-                <td style={s.td}><span style={{ color: u.role === 'admin' ? '#e94560' : '#f6ad55' }}>{u.role}</span></td>
-                <td style={s.td}>{u.team_name || '—'}</td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button style={s.ghostBtn} onClick={() => setEditing({ ...u, newPassword: '' })}>Edit</button>
-                    <button style={s.dangerBtn} onClick={() => deleteUser(u.id, u.username)}>Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {users.map(u => {
+              const isOtherAdmin = u.role === 'admin' && u.id !== myId;
+              return editing?.id === u.id ? (
+                <tr key={u.id}>
+                  <td style={s.td} colSpan={2}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{u.username}</span>
+                      <select style={s.select} value={editing.role} onChange={e => setEditing(ed => ({ ...ed, role: e.target.value }))}>
+                        <option value="captain">Captain</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                      <select style={s.select} value={editing.team_id || ''} onChange={e => setEditing(ed => ({ ...ed, team_id: e.target.value }))}>
+                        <option value="">— no team —</option>
+                        {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                      </select>
+                      {!isOtherAdmin && (
+                        <input style={{ ...s.input, width: 160 }} type="password" placeholder="New password (optional)" value={editing.newPassword || ''} onChange={e => setEditing(ed => ({ ...ed, newPassword: e.target.value }))} />
+                      )}
+                    </div>
+                  </td>
+                  <td style={s.td} />
+                  <td style={s.td}>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button style={s.successBtn} onClick={saveEdit}>Save</button>
+                      <button style={s.ghostBtn} onClick={() => setEditing(null)}>Cancel</button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={u.id}>
+                  <td style={s.td}>{u.username}</td>
+                  <td style={s.td}><span style={{ color: u.role === 'admin' ? '#e94560' : '#f6ad55' }}>{u.role}</span></td>
+                  <td style={s.td}>{u.team_name || '—'}</td>
+                  <td style={s.td}>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      {!isOtherAdmin && <button style={s.ghostBtn} onClick={() => setEditing({ ...u, newPassword: '' })}>Edit</button>}
+                      {!isOtherAdmin && <button style={s.dangerBtn} onClick={() => deleteUser(u.id, u.username)}>Delete</button>}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

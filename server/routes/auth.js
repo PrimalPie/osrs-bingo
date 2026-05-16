@@ -101,6 +101,11 @@ router.get('/users', requireAdmin, (req, res) => {
 // Update user — role, team, or password reset (admin only)
 router.patch('/users/:id', requireAdmin, (req, res) => {
   const db = getDb();
+  // Admins cannot modify other admin accounts
+  if (req.user.id !== parseInt(req.params.id)) {
+    const target = db.prepare('SELECT role FROM users WHERE id = ?').get(req.params.id);
+    if (target?.role === 'admin') return res.status(403).json({ error: 'Cannot modify another admin account' });
+  }
   const { role, team_id, password, username } = req.body;
   if (username !== undefined && !USERNAME_RE.test(username))
     return res.status(400).json({ error: 'Invalid username' });
@@ -129,11 +134,12 @@ router.patch('/users/:id', requireAdmin, (req, res) => {
   }
 });
 
-// Delete user (admin only, can't delete yourself)
+// Delete user (admin only, can't delete yourself or other admins)
 router.delete('/users/:id', requireAdmin, (req, res) => {
   const db = getDb();
   if (req.user.id === parseInt(req.params.id)) return res.status(400).json({ error: "Can't delete yourself" });
   const target = db.prepare('SELECT username, role FROM users WHERE id = ?').get(req.params.id);
+  if (target?.role === 'admin') return res.status(403).json({ error: 'Cannot delete another admin account' });
   db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
   logAudit(req.user.id, req.user.username, 'user_deleted', 'user', parseInt(req.params.id),
     `Deleted ${target?.role || 'user'} '${target?.username || req.params.id}'`

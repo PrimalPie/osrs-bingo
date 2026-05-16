@@ -1,5 +1,14 @@
 const CHANGELOG = [
   {
+    date: '2026-05-16',
+    entries: [
+      { type: 'fix', description: 'Admins can no longer edit or delete other admin accounts. The password field and action buttons are hidden in the UI, and the server enforces the restriction with a 403.' },
+      { type: 'feature', description: 'Submission revert — admins can revert any approved submission back to pending for re-review. The tile progress is rolled back automatically and the board updates live. A Revert button appears on approved entries in the History tab (admin only).' },
+      { type: 'improvement', description: 'Submission history now has an event dropdown. Select any past or current event to filter the list, or choose "All events" for the full unfiltered view. The dropdown is shared between captains and admins and only appears when more than one event exists.' },
+      { type: 'fix', description: 'Express trust proxy setting corrected — rate limiting now accurately identifies client IPs when the app is behind a reverse proxy (e.g. Nginx, Cloudflare).' },
+    ],
+  },
+  {
     date: '2026-05-07',
     entries: [
       { type: 'feature', description: 'Discord tile completion announcements — when a submission is approved and a tile is fully completed, a message is posted to a configurable announcement channel. Set the channel in Admin > Settings (or via the DISCORD_ANNOUNCEMENT_CHANNEL_ID env var as a fallback). The message names the team and tile.' },

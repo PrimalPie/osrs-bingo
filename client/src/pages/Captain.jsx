@@ -159,7 +159,7 @@ function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
   );
 }
 
-function HistoryCard({ sub, showTeam }) {
+function HistoryCard({ sub, showTeam, onRevert }) {
   const [lightbox, setLightbox] = useState(false);
   const c = coord(sub.row, sub.col);
   const approved = sub.status === 'approved';
@@ -189,16 +189,26 @@ function HistoryCard({ sub, showTeam }) {
             )}
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
           <div style={{ fontSize: '0.72rem', color: '#4a5568' }}>
             Reviewed {sub.reviewed_at ? new Date(sub.reviewed_at).toLocaleString() : '—'}
           </div>
           {sub.screenshot_path && (
             <button
-              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: '#63b3ed', marginTop: 4 }}
+              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: '#63b3ed' }}
               onClick={() => setLightbox(true)}
             >
               View screenshot
+            </button>
+          )}
+          {approved && onRevert && (
+            <button
+              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: '#fc8181' }}
+              onClick={() => {
+                if (confirm(`Revert approval for "${sub.tile_label}"? It will return to pending for re-review.`)) onRevert(sub.id);
+              }}
+            >
+              Revert
             </button>
           )}
         </div>
@@ -263,10 +273,33 @@ function HistoryTab({ user }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState('');
 
   useEffect(() => {
-    api.get('/submissions/history').then(r => { setHistory(r.data); setLoading(false); }).catch(() => setLoading(false));
+    api.get('/events').then(r => {
+      setEvents(r.data);
+      if (r.data.length > 0) setSelectedEvent(String(r.data[0].id));
+    });
   }, []);
+
+  const load = useCallback(() => {
+    const params = selectedEvent ? `?eventId=${selectedEvent}` : '';
+    api.get(`/submissions/history${params}`)
+      .then(r => { setHistory(r.data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [selectedEvent]);
+
+  useEffect(() => { if (selectedEvent !== null) load(); }, [load, selectedEvent]);
+
+  async function handleRevert(id) {
+    try {
+      await api.post(`/submissions/${id}/revert`);
+      load();
+    } catch (e) {
+      alert(e.response?.data?.error || 'Revert failed');
+    }
+  }
 
   const visible = filter === 'all' ? history : history.filter(s => s.status === filter);
 
@@ -274,7 +307,13 @@ function HistoryTab({ user }) {
 
   return (
     <>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        {events.length > 1 && (
+          <select style={s.select} value={selectedEvent} onChange={e => setSelectedEvent(e.target.value)}>
+            <option value=''>All events</option>
+            {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
+          </select>
+        )}
         <span style={{ fontSize: '0.82rem', color: '#718096' }}>Filter:</span>
         {['all', 'approved', 'rejected'].map(f => (
           <button key={f} style={{ ...s.tab, ...(filter === f ? s.activeTab : {}), padding: '0.3rem 0.8rem' }} onClick={() => setFilter(f)}>
@@ -285,7 +324,14 @@ function HistoryTab({ user }) {
       </div>
       {visible.length === 0
         ? <div style={s.empty}><p>No {filter === 'all' ? '' : filter} submissions found.</p></div>
-        : visible.map(sub => <HistoryCard key={sub.id} sub={sub} showTeam={user.role === 'admin'} />)
+        : visible.map(sub => (
+          <HistoryCard
+            key={sub.id}
+            sub={sub}
+            showTeam={user.role === 'admin'}
+            onRevert={user.role === 'admin' ? handleRevert : null}
+          />
+        ))
       }
     </>
   );

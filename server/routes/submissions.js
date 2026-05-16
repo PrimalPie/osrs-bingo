@@ -40,6 +40,8 @@ router.get('/tile/:tileId/team/:teamId', requireCaptainOrAdmin, (req, res) => {
 // Get reviewed submissions (approved/rejected) for audit
 router.get('/history', requireCaptainOrAdmin, (req, res) => {
   const db = getDb();
+  const eventId = req.query.eventId ? parseInt(req.query.eventId) : null;
+
   if (req.user.role === 'admin') {
     const rows = db.prepare(`
       SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col,
@@ -48,9 +50,10 @@ router.get('/history', requireCaptainOrAdmin, (req, res) => {
       JOIN tiles t ON s.tile_id = t.id
       JOIN teams tm ON s.team_id = tm.id
       WHERE s.status != 'pending'
+        AND (? IS NULL OR t.event_id = ?)
       ORDER BY s.reviewed_at DESC
       LIMIT 300
-    `).all();
+    `).all(eventId, eventId);
     res.json(rows);
   } else {
     const teamId = db.prepare('SELECT team_id FROM users WHERE id = ?').get(req.user.id)?.team_id;
@@ -59,10 +62,12 @@ router.get('/history', requireCaptainOrAdmin, (req, res) => {
       SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col
       FROM submissions s
       JOIN tiles t ON s.tile_id = t.id
+      JOIN teams tm ON s.team_id = tm.id
       WHERE s.team_id = ? AND s.status != 'pending'
+        AND (? IS NULL OR t.event_id = ?)
       ORDER BY s.reviewed_at DESC
       LIMIT 300
-    `).all(teamId);
+    `).all(teamId, eventId, eventId);
     res.json(rows);
   }
 });
@@ -238,6 +243,58 @@ router.post('/:id/reject', requireCaptainOrAdmin, (req, res) => {
       console.warn('[Bot] Reject notification failed:', e.message);
     }
   })();
+});
+
+// Revert an approved submission back to pending (admin only)
+router.post('/:id/revert', requireAdmin, (req, res) => {
+  const db = getDb();
+
+  const sub = db.prepare('SELECT * FROM submissions WHERE id = ?').get(req.params.id);
+  if (!sub) return res.status(404).json({ error: 'Not found' });
+  if (sub.status !== 'approved') return res.status(400).json({ error: 'Only approved submissions can be reverted' });
+
+  const tile = db.prepare('SELECT * FROM tiles WHERE id = ?').get(sub.tile_id);
+
+  const revertAndRollback = db.transaction(() => {
+    db.prepare(
+      "UPDATE submissions SET status = 'pending', reviewed_by = NULL, reviewed_at = NULL WHERE id = ?"
+    ).run(sub.id);
+
+    const progress = db.prepare(
+      'SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?'
+    ).get(sub.tile_id, sub.team_id);
+
+    let newCurrent = 0;
+    if (progress) {
+      newCurrent = Math.max(0, progress.current - sub.count);
+      const completedAt = newCurrent >= tile.target ? progress.completed_at : null;
+      db.prepare(
+        'UPDATE tile_progress SET current = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
+      ).run(newCurrent, completedAt, sub.tile_id, sub.team_id);
+    }
+
+    return { newCurrent, completed: newCurrent >= tile.target };
+  });
+
+  const result = revertAndRollback();
+
+  if (req.io) {
+    req.io.emit('progress_update', {
+      team_id: sub.team_id,
+      tile_id: sub.tile_id,
+      current: result.newCurrent,
+      target: tile.target,
+      completed: result.completed,
+    });
+  }
+
+  const coord = rowColToCoord(tile.row, tile.col);
+  const teamName = db.prepare('SELECT name FROM teams WHERE id = ?').get(sub.team_id)?.name || 'Unknown';
+  logAudit(req.user.id, req.user.username, 'submission_reverted', 'submission', sub.id,
+    `Reverted approval of ${coord} — ${tile.label} for ${teamName}. Progress: ${result.newCurrent}/${tile.target}`
+  );
+
+  res.json({ ok: true, ...result });
 });
 
 module.exports = router;

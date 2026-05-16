@@ -11,7 +11,7 @@ A self-hosted bingo event manager for Old School RuneScape clans. Teams submit d
 - **Two game modes** — Blackout (first to complete every tile wins) or Points (5 pts per tile, 50 pt line bonus for a full row, column, or diagonal)
 - **Live scoreboard** — teams ranked by score or tiles completed, with a crown on the current leader; updates as submissions are approved
 - **Discord bot** — players post `A1 - Dragon claws` with a screenshot in their team channel; the bot confirms receipt and reacts with ✅/❌ after review
-- **Captain review dashboard** — approve or reject submissions with optional count adjustment; History, By Tile, and My Team tabs
+- **Captain review dashboard** — approve or reject submissions with optional count adjustment; History (filterable by event), By Tile, and My Team tabs; admins can revert any approved submission back to pending
 - **WiseOldMan integration** — XP and KC tiles tracked automatically via a single WOM competition; each tile just sets a metric (e.g. `zulrah`, `fletching`). Syncs every 3 hours with a manual Sync Now button in the admin panel
 - **Board generator** — admin sandbox at `/generate` that builds a full board from a curated tile pool; targets scale by team size and event length; preview before applying; drag-and-drop tile reordering in the preview
 - **Auto event scheduling** — set start and end datetimes (UTC); events activate and complete automatically; the board shows a live countdown in each viewer's local timezone
@@ -196,7 +196,7 @@ Admins can generate a full board automatically at `/generate`:
 | Events | Create events with board size, game mode, and start/end datetimes (UTC); activate, complete, edit, or delete |
 | Tiles | Add and edit tiles with coordinate, type (drop / kc / xp), target, WOM metric, and icon; drag-and-drop reorder (setup events only) |
 | Teams | Create teams, set Discord channel, add/remove members |
-| Users | Create captain and admin accounts, assign to teams, reset passwords |
+| Users | Create captain and admin accounts, assign to teams, reset passwords; admins cannot modify other admin accounts |
 | Audit | Full log of all admin and captain actions |
 | Settings | Configure the Discord announcement channel ID |
 
