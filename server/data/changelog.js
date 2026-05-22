@@ -1,5 +1,14 @@
 const CHANGELOG = [
   {
+    date: '2026-05-23',
+    entries: [
+      { type: 'feature', description: 'Clue scroll tile support — KC tiles with a clue_scrolls_* WOM metric now display a specific label (e.g. "Medium Clues", "Hard Clues") instead of "KC" throughout the board, captain view, and admin panel.' },
+      { type: 'feature', description: 'Reward casket icons — the tile icon picker shows all six reward caskets (beginner through master) when editing a clue scroll tile, replacing the boss list.' },
+      { type: 'feature', description: 'Board preview for admins — a Preview Board button appears on the countdown page when a setup event exists, letting admins verify the tile layout and team colours before the event goes live.' },
+      { type: 'improvement', description: 'Setup event boards are now private — the board endpoint returns 403 for unauthenticated requests while an event is in setup. The layout is only visible to admins until the event is activated.' },
+    ],
+  },
+  {
     date: '2026-05-22',
     entries: [
       { type: 'improvement', description: 'Security headers hardened — Content-Security-Policy and Permissions-Policy headers added; X-Powered-By header removed.' },
