@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import api from '../api';
 import socket from '../socket';
 import BingoBoard from '../components/BingoBoard';
+import { useAuth } from '../App';
 
 const s = {
   page: { padding: '1.5rem', maxWidth: 1200, margin: '0 auto' },
@@ -338,6 +339,7 @@ function PreviousBoard({ event }) {
 }
 
 export default function Board() {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [upcoming, setUpcoming] = useState(undefined);
   const [lastCompleted, setLastCompleted] = useState(undefined);
@@ -345,6 +347,7 @@ export default function Board() {
   const [error, setError] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [showPrev, setShowPrev] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -372,6 +375,26 @@ export default function Board() {
       setError('Failed to load board');
     }
   }, []);
+
+  const loadPreview = useCallback(async (eventId) => {
+    try {
+      const [board, teamsRes] = await Promise.all([
+        api.get(`/board/event/${eventId}`),
+        api.get(`/teams/event/${eventId}`),
+      ]);
+      setData(board.data);
+      setTeamsWithMembers(teamsRes.data);
+      setIsPreview(true);
+    } catch {
+      setError('Failed to load preview');
+    }
+  }, []);
+
+  const exitPreview = useCallback(() => {
+    setData(null);
+    setIsPreview(false);
+    load();
+  }, [load]);
 
   useEffect(() => {
     load();
@@ -417,6 +440,20 @@ export default function Board() {
                 </div>
               ) : (
                 <p style={{ color: '#718096' }}>Start date to be announced.</p>
+              )}
+              {user?.role === 'admin' && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <button
+                    onClick={() => loadPreview(upcoming.id)}
+                    style={{
+                      background: '#16213e', border: '1px solid #f6ad55', color: '#f6ad55',
+                      padding: '0.5rem 1.25rem', borderRadius: 6, cursor: 'pointer',
+                      fontSize: '0.85rem', fontWeight: 600,
+                    }}
+                  >
+                    Preview Board
+                  </button>
+                </div>
               )}
             </>
           ) : (
@@ -469,6 +506,26 @@ export default function Board() {
 
   return (
     <div style={s.page}>
+      {isPreview && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: '#2d2000', border: '1px solid #f6ad55', borderRadius: 6,
+          padding: '0.6rem 1rem', marginBottom: '1rem',
+        }}>
+          <span style={{ color: '#f6ad55', fontWeight: 700, fontSize: '0.85rem' }}>
+            Preview mode — this event has not started yet. Progress shown is for layout reference only.
+          </span>
+          <button
+            onClick={exitPreview}
+            style={{
+              background: 'none', border: '1px solid #f6ad55', color: '#f6ad55',
+              padding: '0.25rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.8rem',
+            }}
+          >
+            Exit Preview
+          </button>
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.25rem' }}>
         <h1 style={{ ...s.title, marginBottom: 0 }}>{event.name}</h1>
         <button
