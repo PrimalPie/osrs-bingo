@@ -146,7 +146,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
         </div>
 
         <div style={{ marginBottom: '0.9rem' }}>
-          <IconPicker type={form.type} value={form.icon_url} label={form.label} onChange={url => set('icon_url', url)} />
+          <IconPicker type={form.type} womMetric={form.wom_metric} value={form.icon_url} label={form.label} onChange={url => set('icon_url', url)} />
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', marginBottom: isXp ? '0.4rem' : '0.9rem' }}>

@@ -95,16 +95,27 @@ function useIconList(endpoint) {
   return { list, loading };
 }
 
-export default function IconPicker({ type, value, label, onChange }) {
+const ICON_BASE = 'https://static.runelite.net/cache/item/icon';
+const CLUE_CASKETS = [
+  { name: 'Reward casket (beginner)', icon: `${ICON_BASE}/23245.png`, keywords: ['beginner'] },
+  { name: 'Reward casket (easy)',     icon: `${ICON_BASE}/20546.png`, keywords: ['easy'] },
+  { name: 'Reward casket (medium)',   icon: `${ICON_BASE}/20545.png`, keywords: ['medium'] },
+  { name: 'Reward casket (hard)',     icon: `${ICON_BASE}/20544.png`, keywords: ['hard'] },
+  { name: 'Reward casket (elite)',    icon: `${ICON_BASE}/20543.png`, keywords: ['elite'] },
+  { name: 'Reward casket (master)',   icon: `${ICON_BASE}/19836.png`, keywords: ['master'] },
+];
+
+export default function IconPicker({ type, womMetric, value, label, onChange }) {
   const { list: bossList, loading: bossLoading } = useIconList('/bosses');
   const { list: skillList, loading: skillLoading } = useIconList('/skills');
 
-  const activeList = type === 'xp' ? skillList : type === 'kc' ? bossList : [];
+  const isClue = type === 'kc' && womMetric?.startsWith('clue_scrolls');
+  const activeList = type === 'xp' ? skillList : isClue ? CLUE_CASKETS : type === 'kc' ? bossList : [];
   const selectedEntry = activeList.find(e => e.icon === value) || null;
 
   // Auto-suggest: best keyword match in the current list
   const suggestion = useSuggestion(type, label, bossList, skillList);
-  const showSuggestion = suggestion && suggestion.icon && suggestion.icon !== value && !value;
+  const showSuggestion = suggestion && suggestion.icon && suggestion.icon !== value && !value && !isClue;
 
   return (
     <div>
@@ -140,7 +151,11 @@ export default function IconPicker({ type, value, label, onChange }) {
           : <IconGrid entries={skillList} value={value} onChange={onChange} filterable={false} />
       )}
 
-      {type === 'kc' && (
+      {type === 'kc' && isClue && (
+        <IconGrid entries={CLUE_CASKETS} value={value} onChange={onChange} filterable={false} />
+      )}
+
+      {type === 'kc' && !isClue && (
         bossLoading
           ? <div style={s.loading}>Loading boss icons…</div>
           : <IconGrid entries={bossList} value={value} onChange={onChange} filterable={true} />
