@@ -1,5 +1,13 @@
 const CHANGELOG = [
   {
+    date: '2026-05-22',
+    entries: [
+      { type: 'improvement', description: 'Security headers hardened — Content-Security-Policy and Permissions-Policy headers added; X-Powered-By header removed.' },
+      { type: 'fix', description: 'CORS origin corrected to the production domain, removing the leftover localhost development origin from API responses.' },
+      { type: 'improvement', description: 'Item search endpoint now requires authentication, limiting it to captains and admins.' },
+    ],
+  },
+  {
     date: '2026-05-16',
     entries: [
       { type: 'fix', description: 'Admins can no longer edit or delete other admin accounts. The password field and action buttons are hidden in the UI, and the server enforces the restriction with a 403.' },

@@ -1,6 +1,7 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const UNTRADABLE_ITEMS = require('../data/untradableItems');
+const { requireCaptainOrAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ async function getItems() {
   return cachedItems;
 }
 
-router.get('/search', async (req, res) => {
+router.get('/search', requireCaptainOrAdmin, async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q || q.length < 2) return res.json([]);
 
