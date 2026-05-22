@@ -1,6 +1,8 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { getDb } = require('../db/database');
 const { rowColToCoord, COLS } = require('./tiles');
+const { JWT_SECRET } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -10,6 +12,16 @@ router.get('/event/:eventId', (req, res) => {
 
   const event = db.prepare('SELECT * FROM events WHERE id = ?').get(req.params.eventId);
   if (!event) return res.status(404).json({ error: 'Event not found' });
+
+  if (event.status === 'setup') {
+    try {
+      const header = req.headers.authorization;
+      const decoded = header?.startsWith('Bearer ') ? jwt.verify(header.slice(7), JWT_SECRET) : null;
+      if (decoded?.role !== 'admin') return res.status(403).json({ error: 'Board is not yet public' });
+    } catch {
+      return res.status(403).json({ error: 'Board is not yet public' });
+    }
+  }
 
   const tiles = db.prepare('SELECT * FROM tiles WHERE event_id = ? ORDER BY row, col').all(req.params.eventId);
   const teams = db.prepare('SELECT id, name, color FROM teams WHERE event_id = ?').all(req.params.eventId);
