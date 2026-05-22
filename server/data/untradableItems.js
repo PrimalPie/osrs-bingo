@@ -4,6 +4,14 @@
 
 module.exports = [
 
+  // ── Clue Scroll Reward Caskets ────────────────────────────────────────────
+  { id: 23245, name: 'Reward casket (beginner)', keywords: ['beginner casket', 'beginner clue', 'clue casket'] },
+  { id: 20546, name: 'Reward casket (easy)',     keywords: ['easy casket', 'easy clue', 'clue casket'] },
+  { id: 20545, name: 'Reward casket (medium)',   keywords: ['medium casket', 'medium clue', 'clue casket'] },
+  { id: 20544, name: 'Reward casket (hard)',     keywords: ['hard casket', 'hard clue', 'clue casket'] },
+  { id: 20543, name: 'Reward casket (elite)',    keywords: ['elite casket', 'elite clue', 'clue casket'] },
+  { id: 19836, name: 'Reward casket (master)',   keywords: ['master casket', 'master clue', 'clue casket'] },
+
   // ── Combat Capes ──────────────────────────────────────────────────────────
   { id: 6570,  name: 'Fire Cape',                keywords: ['fire cape'] },
   { id: 21295, name: 'Infernal Cape',             keywords: ['infernal cape', 'infernal'] },

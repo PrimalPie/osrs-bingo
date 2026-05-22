@@ -30,8 +30,18 @@ export function formatTarget(type, target) {
   return type === 'xp' ? formatXp(target) : String(target);
 }
 
+const CLUE_LABELS = {
+  clue_scrolls_beginner: 'Beginner Clues',
+  clue_scrolls_easy:     'Easy Clues',
+  clue_scrolls_medium:   'Medium Clues',
+  clue_scrolls_hard:     'Hard Clues',
+  clue_scrolls_elite:    'Elite Clues',
+  clue_scrolls_master:   'Master Clues',
+  clue_scrolls_all:      'Clues',
+};
+
 export function tileTypeLabel(type, womMetric) {
-  if (type === 'kc' && womMetric?.startsWith('clue_scrolls')) return 'Clues';
+  if (type === 'kc' && womMetric && CLUE_LABELS[womMetric]) return CLUE_LABELS[womMetric];
   if (type === 'kc') return 'KC';
   if (type === 'xp') return 'XP';
   return type;
