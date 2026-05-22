@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api';
 import socket from '../socket';
 import { useAuth } from '../App';
-import { formatTarget } from '../utils';
+import { formatTarget, tileTypeLabel } from '../utils';
 
 const COLS = ['A','B','C','D','E','F','G','H','I'];
 function coord(row, col) { return `${COLS[col-1]}${row}`; }
@@ -117,7 +117,7 @@ function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
           </div>
           <div style={s.meta}>
             <span style={{ ...s.badge, background: typeColor(sub.tile_type) + '33', color: typeColor(sub.tile_type) }}>
-              {sub.tile_type}
+              {tileTypeLabel(sub.tile_type, sub.tile_wom_metric)}
             </span>
             {' '}Count: {sub.count}
           </div>
@@ -412,7 +412,7 @@ function ByTileTab({ user }) {
               <span style={{ color: '#718096', fontSize: '0.72rem', marginRight: 6 }}>{tile.coord}</span>
               <span style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>{tile.label}</span>
             </span>
-            <span style={{ ...s.badge, background: typeColor(tile.type) + '33', color: typeColor(tile.type) }}>{tile.type}</span>
+            <span style={{ ...s.badge, background: typeColor(tile.type) + '33', color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
           </button>
         ))}
       </div>

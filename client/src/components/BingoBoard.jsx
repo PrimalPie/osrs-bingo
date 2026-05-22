@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { formatTarget } from '../utils';
+import { formatTarget, tileTypeLabel } from '../utils';
 
 const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
@@ -81,7 +81,7 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
               <div style={s.modalTitle}>{selected.coord} — {selected.label}</div>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#718096', marginBottom: '1rem' }}>
-              Type: {selected.type} · Target: {formatTarget(selected.type, selected.target)}
+              Type: {tileTypeLabel(selected.type, selected.wom_metric)} · Target: {formatTarget(selected.type, selected.target)}
             </div>
 
             {(() => {
@@ -158,7 +158,7 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                       onError={e => { e.target.style.display = 'none'; }}
                     />
                   )}
-                  <span style={{ ...s.type, color: typeColor(tile.type) }}>{tile.type}</span>
+                  <span style={{ ...s.type, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
                   <span style={s.label}>{tile.label}</span>
 
                   {selectedTeam && (() => {

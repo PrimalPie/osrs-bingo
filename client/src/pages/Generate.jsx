@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import api from '../api';
-import { formatTarget } from '../utils';
+import { formatTarget, tileTypeLabel } from '../utils';
 
 const DIFF_STYLE = {
   easy:   { bg: '#1b4332', border: '#2d6a4f', badge: '#2d6a4f', badgeText: '#b7e4c7' },
@@ -363,7 +363,7 @@ export default function GeneratePage() {
                     <tr key={tile.coord} style={{ borderBottom: '1px solid #12122a' }}>
                       <td style={S.td}>{tile.coord}</td>
                       <td style={S.td}>{tile.label}</td>
-                      <td style={S.td}>{tile.type}</td>
+                      <td style={S.td}>{tileTypeLabel(tile.type, tile.wom_metric)}</td>
                       <td style={S.td}>{formatTarget(tile.type, tile.target)}</td>
                       <td style={{ ...S.td, color: '#a0aec0', fontFamily: 'monospace', fontSize: '0.8rem' }}>
                         {tile.wom_metric || '—'}

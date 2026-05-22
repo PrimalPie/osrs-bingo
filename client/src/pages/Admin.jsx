@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import api from '../api';
-import { parseXpTarget, formatXp, formatTarget } from '../utils';
+import { parseXpTarget, formatXp, formatTarget, tileTypeLabel } from '../utils';
 import IconPicker, { useSuggestion } from '../components/IconPicker';
 import BingoBoard from '../components/BingoBoard';
 
@@ -343,7 +343,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
                                 fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase',
                                 color: typeColor(tile.type), letterSpacing: '0.04em',
                               }}>
-                                {tile.type} ×{formatTarget(tile.type, tile.target)}
+                                {tileTypeLabel(tile.type, tile.wom_metric)} ×{formatTarget(tile.type, tile.target)}
                               </span>
                             </div>
                             <span style={{ fontSize: '0.72rem', color: '#e2e8f0', lineHeight: 1.3 }}>

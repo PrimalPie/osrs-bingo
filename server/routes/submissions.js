@@ -15,7 +15,7 @@ router.get('/team/:teamId/pending', requireCaptainOrAdmin, (req, res) => {
   }
   const rows = db.prepare(`
     SELECT s.*, t.label as tile_label, t.type as tile_type, t.target as tile_target,
-           t.row, t.col
+           t.row, t.col, t.wom_metric as tile_wom_metric
     FROM submissions s
     JOIN tiles t ON s.tile_id = t.id
     WHERE s.team_id = ? AND s.status = 'pending'
@@ -45,7 +45,7 @@ router.get('/history', requireCaptainOrAdmin, (req, res) => {
   if (req.user.role === 'admin') {
     const rows = db.prepare(`
       SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col,
-             tm.name as team_name, tm.color as team_color
+             t.wom_metric as tile_wom_metric, tm.name as team_name, tm.color as team_color
       FROM submissions s
       JOIN tiles t ON s.tile_id = t.id
       JOIN teams tm ON s.team_id = tm.id
@@ -59,7 +59,8 @@ router.get('/history', requireCaptainOrAdmin, (req, res) => {
     const teamId = db.prepare('SELECT team_id FROM users WHERE id = ?').get(req.user.id)?.team_id;
     if (!teamId) return res.json([]);
     const rows = db.prepare(`
-      SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col
+      SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col,
+             t.wom_metric as tile_wom_metric
       FROM submissions s
       JOIN tiles t ON s.tile_id = t.id
       JOIN teams tm ON s.team_id = tm.id
@@ -77,7 +78,7 @@ router.get('/pending', requireAdmin, (req, res) => {
   const db = getDb();
   const rows = db.prepare(`
     SELECT s.*, t.label as tile_label, t.type as tile_type, t.target as tile_target,
-           t.row, t.col, tm.name as team_name, tm.color as team_color
+           t.row, t.col, t.wom_metric as tile_wom_metric, tm.name as team_name, tm.color as team_color
     FROM submissions s
     JOIN tiles t ON s.tile_id = t.id
     JOIN teams tm ON s.team_id = tm.id

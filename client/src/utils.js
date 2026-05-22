@@ -29,3 +29,10 @@ export function formatXp(n) {
 export function formatTarget(type, target) {
   return type === 'xp' ? formatXp(target) : String(target);
 }
+
+export function tileTypeLabel(type, womMetric) {
+  if (type === 'kc' && womMetric?.startsWith('clue_scrolls')) return 'Clues';
+  if (type === 'kc') return 'KC';
+  if (type === 'xp') return 'XP';
+  return type;
+}
