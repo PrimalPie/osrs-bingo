@@ -213,24 +213,36 @@ function TeamRosters({ teams }) {
       </button>
       {open && (
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {teamsWithMembers.map(team => (
-            <div key={team.id} style={{
-              background: '#16213e', border: `1px solid ${team.color}44`,
-              borderRadius: 8, padding: '0.75rem 1rem', minWidth: 180,
-            }}>
-              <div style={{ fontWeight: 700, color: team.color, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                {team.name}
-              </div>
-              {team.members.map(m => (
-                <div key={m.id} style={{ fontSize: '0.8rem', marginBottom: '0.2rem' }}>
-                  <span style={{ color: '#e2e8f0' }}>{m.osrs_name}</span>
-                  {m.discord_username && (
-                    <span style={{ color: '#718096', marginLeft: '0.4rem' }}>({m.discord_username})</span>
-                  )}
+          {teamsWithMembers.map(team => {
+            const capName = team.captain_username?.toLowerCase();
+            const isCaptain = m => !!capName && m.osrs_name?.toLowerCase() === capName;
+            const sorted = capName
+              ? [...team.members].sort((a, b) => isCaptain(b) - isCaptain(a))
+              : team.members;
+            return (
+              <div key={team.id} style={{
+                background: '#16213e', border: `1px solid ${team.color}44`,
+                borderRadius: 8, padding: '0.75rem 1rem', minWidth: 180,
+              }}>
+                <div style={{ fontWeight: 700, color: team.color, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                  {team.name}
                 </div>
-              ))}
-            </div>
-          ))}
+                {sorted.map(m => (
+                  <div key={m.id} style={{ fontSize: '0.8rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    {isCaptain(m) && (
+                      <span title="Captain" style={{ fontSize: '0.65rem', background: '#744210', color: '#f6ad55', padding: '0.05rem 0.3rem', borderRadius: 3, fontWeight: 700, flexShrink: 0 }}>
+                        Cap
+                      </span>
+                    )}
+                    <span style={{ color: isCaptain(m) ? '#f6e8c0' : '#e2e8f0' }}>{m.osrs_name}</span>
+                    {m.discord_username && (
+                      <span style={{ color: '#718096' }}>({m.discord_username})</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

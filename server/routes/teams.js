@@ -28,12 +28,17 @@ router.get('/mine', requireCaptainOrAdmin, (req, res) => {
 
 router.get('/event/:eventId', (req, res) => {
   const db = getDb();
-  const teams = db.prepare('SELECT * FROM teams WHERE event_id = ?').all(req.params.eventId);
+  const teams = db.prepare(`
+    SELECT t.*, u.username AS captain_username
+    FROM teams t
+    LEFT JOIN users u ON t.captain_id = u.id
+    WHERE t.event_id = ?
+  `).all(req.params.eventId);
   const members = db.prepare(
     'SELECT tm.*, t.event_id FROM team_members tm JOIN teams t ON tm.team_id = t.id WHERE t.event_id = ?'
   ).all(req.params.eventId);
   const admin = isAdmin(req);
-  res.json(teams.map(({ discord_channel_id, ...pub }, _, arr) => ({
+  res.json(teams.map(({ discord_channel_id, ...pub }) => ({
     ...(admin ? { discord_channel_id, ...pub } : pub),
     members: members.filter(m => m.team_id === pub.id),
   })));
