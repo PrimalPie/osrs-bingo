@@ -215,7 +215,7 @@ function TeamRosters({ teams }) {
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {teamsWithMembers.map(team => {
             const capName = team.captain_username?.toLowerCase();
-            const isCaptain = m => !!capName && m.osrs_name?.toLowerCase() === capName;
+            const isCaptain = m => !!capName && m.osrs_name?.toLowerCase().startsWith(capName);
             const sorted = capName
               ? [...team.members].sort((a, b) => isCaptain(b) - isCaptain(a))
               : team.members;
