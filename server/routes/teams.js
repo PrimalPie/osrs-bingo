@@ -31,7 +31,7 @@ router.get('/event/:eventId', (req, res) => {
   const teams = db.prepare(`
     SELECT t.*, u.username AS captain_username
     FROM teams t
-    LEFT JOIN users u ON t.captain_id = u.id
+    LEFT JOIN users u ON u.team_id = t.id AND u.role = 'captain'
     WHERE t.event_id = ?
   `).all(req.params.eventId);
   const members = db.prepare(
