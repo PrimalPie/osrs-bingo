@@ -31,7 +31,7 @@ router.post('/login', loginLimiter, (req, res) => {
   if (!username || !password) return res.status(400).json({ error: 'Missing credentials' });
 
   const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+  const user = db.prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?)').get(username);
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
     return res.status(401).json({ error: 'Invalid username or password' });
   }
