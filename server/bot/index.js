@@ -99,7 +99,7 @@ function createBot(io) {
       return;
     }
 
-    if (tile.type === 'xp' || (tile.type === 'kc' && tile.wom_competition_id)) {
+    if (tile.type === 'xp' || (tile.type === 'kc' && (tile.wom_competition_id || tile.wom_metric))) {
       const kind = tile.type === 'xp' ? 'XP' : 'KC';
       await message.reply(`ℹ️ **${parsed.coord} — ${tile.label}** is tracked automatically via WiseOldMan (${kind}). No submission needed!`);
       return;
