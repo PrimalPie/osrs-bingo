@@ -62,6 +62,19 @@ function getDb() {
     if (!tileCols.includes('wom_competition_id')) {
       raw.exec('ALTER TABLE tiles ADD COLUMN wom_competition_id INTEGER');
     }
+    if (!tileCols.includes('target2')) {
+      raw.exec('ALTER TABLE tiles ADD COLUMN target2 INTEGER');
+    }
+
+    const progressCols = raw.prepare("PRAGMA table_info(tile_progress)").all().map(r => r.name);
+    if (!progressCols.includes('current2')) {
+      raw.exec('ALTER TABLE tile_progress ADD COLUMN current2 INTEGER NOT NULL DEFAULT 0');
+    }
+
+    const subCols = raw.prepare("PRAGMA table_info(submissions)").all().map(r => r.name);
+    if (!subCols.includes('condition')) {
+      raw.exec('ALTER TABLE submissions ADD COLUMN condition INTEGER NOT NULL DEFAULT 1');
+    }
 
     // Migrate team_members: make osrs_name primary (NOT NULL, unique), discord_username optional
     const memberIndexes = raw.prepare("PRAGMA index_list(team_members)").all();

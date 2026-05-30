@@ -71,6 +71,8 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
     label: existing?.label || '',
     type: existing?.type || 'drop',
     targetRaw: existing ? formatTarget(existing.type, existing.target) : '1',
+    orCondition: existing?.target2 != null,
+    target2Raw: existing?.target2 ? String(existing.target2) : '',
     wom_metric: existing?.wom_metric || '',
     wom_competition_id: existing?.wom_competition_id ? String(existing.wom_competition_id) : '',
     icon_url: existing?.icon_url || null,
@@ -110,9 +112,11 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
   const isXp = form.type === 'xp';
   const parsedTarget = isXp ? parseXpTarget(form.targetRaw) : parseInt(form.targetRaw) || 1;
   const targetValid = parsedTarget != null && parsedTarget > 0;
+  const parsedTarget2 = form.orCondition ? (parseInt(form.target2Raw) || null) : null;
+  const target2Valid = !form.orCondition || (parsedTarget2 != null && parsedTarget2 > 0);
 
   function handleSave() {
-    onSave({ ...form, target: parsedTarget });
+    onSave({ ...form, target: parsedTarget, target2: parsedTarget2 });
   }
 
   return (
@@ -186,6 +190,31 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
           </div>
         )}
 
+        <div style={{ marginBottom: '0.9rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none' }}>
+            <input
+              type="checkbox"
+              checked={form.orCondition}
+              onChange={e => set('orCondition', e.target.checked)}
+              style={{ accentColor: '#e94560', width: 14, height: 14 }}
+            />
+            <span style={{ fontSize: '0.78rem', color: '#a0aec0' }}>OR condition — tile completes when <em>either</em> target is met</span>
+          </label>
+          {form.orCondition && (
+            <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#718096', whiteSpace: 'nowrap' }}>2nd Target</span>
+              <input
+                type="number" min={1}
+                style={{ ...s.input, width: 110, minWidth: 0, borderColor: target2Valid ? '#2d3748' : '#742a2a' }}
+                value={form.target2Raw}
+                onChange={e => set('target2Raw', e.target.value)}
+                placeholder="e.g. 100"
+              />
+              {!target2Valid && <span style={{ fontSize: '0.72rem', color: '#fc8181' }}>Required</span>}
+            </div>
+          )}
+        </div>
+
         {(form.type === 'xp' || form.type === 'kc') && (
           <div style={{ marginBottom: '0.9rem' }}>
             <label style={s.label}>
@@ -230,7 +259,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
             <button style={s.ghostBtn} onClick={onClose}>Cancel</button>
             <button
               style={s.primaryBtn}
-              disabled={!form.label.trim() || !targetValid}
+              disabled={!form.label.trim() || !targetValid || !target2Valid}
               onClick={handleSave}
             >
               {existing ? 'Save changes' : 'Add tile'}
@@ -872,6 +901,7 @@ function TilesTab() {
       label: form.label,
       type: form.type,
       target: form.target,
+      target2: form.target2 ?? null,
       wom_metric: (form.type === 'xp' || form.type === 'kc') ? (form.wom_metric || null) : null,
       wom_competition_id: (form.type === 'xp' || form.type === 'kc')
         ? (parseInt(form.wom_competition_id) || null)

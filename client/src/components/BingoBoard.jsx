@@ -82,16 +82,20 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
             </div>
             <div style={{ fontSize: '0.75rem', color: '#718096', marginBottom: '1rem' }}>
               Type: {tileTypeLabel(selected.type, selected.wom_metric)} · Target: {formatTarget(selected.type, selected.target)}
+              {selected.target2 != null && <> <span style={{ color: '#4a5568' }}>OR</span> {selected.target2}</>}
             </div>
 
             {(() => {
+              const isOr = selected.target2 != null;
               const displayTeams = selectedTeam
                 ? [selectedTeam, ...teams.filter(t => t.id !== selectedTeam.id)]
                 : teams;
               return displayTeams.map(team => {
                 const p = selected.progress?.[team.id];
                 const current = p?.current ?? 0;
+                const current2 = p?.current2 ?? 0;
                 const pct = Math.min((current / selected.target) * 100, 100);
+                const pct2 = isOr ? Math.min((current2 / selected.target2) * 100, 100) : 0;
                 const isSelected = selectedTeam && team.id === selectedTeam.id;
                 const dimmed = selectedTeam && !isSelected;
                 return (
@@ -100,11 +104,24 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span style={{ color: team.color, fontWeight: isSelected ? 700 : 400 }}>{team.name}</span>
                         <span style={{ color: p?.completed_at ? '#68d391' : '#a0aec0' }}>
-                          {formatTarget(selected.type, current)}/{formatTarget(selected.type, selected.target)}
+                          {isOr
+                            ? `${current}/${selected.target} or ${current2}/${selected.target2}`
+                            : `${formatTarget(selected.type, current)}/${formatTarget(selected.type, selected.target)}`}
                           {p?.completed_at ? ' ✓' : ''}
                         </span>
                       </div>
-                      {isSelected && (
+                      {isSelected && isOr && (
+                        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                          <div style={{ ...s.progressBar, flex: 1, margin: 0 }}>
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: team.color }} />
+                          </div>
+                          <span style={{ fontSize: '0.55rem', color: '#4a5568' }}>or</span>
+                          <div style={{ ...s.progressBar, flex: 1, margin: 0 }}>
+                            <div style={{ ...s.progressFill, width: `${pct2}%`, background: team.color }} />
+                          </div>
+                        </div>
+                      )}
+                      {isSelected && !isOr && (
                         <div style={{ ...s.progressBar, width: '100%', margin: 0 }}>
                           <div style={{ ...s.progressFill, width: `${pct}%`, background: team.color }} />
                         </div>
@@ -163,14 +180,31 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
 
                   {selectedTeam && (() => {
                     const p = tile.progress?.[selectedTeam.id];
-                    const pct = Math.min(((p?.current ?? 0) / tile.target) * 100, 100);
+                    const isOr = tile.target2 != null;
+                    const current = p?.current ?? 0;
+                    const current2 = p?.current2 ?? 0;
+                    const pct = Math.min((current / tile.target) * 100, 100);
+                    const pct2 = isOr ? Math.min((current2 / tile.target2) * 100, 100) : 0;
                     return (
                       <>
-                        <div style={s.progressBar}>
-                          <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
-                        </div>
+                        {isOr ? (
+                          <div style={{ display: 'flex', gap: '0.15rem', width: '80%' }}>
+                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1 }}>
+                              <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
+                            </div>
+                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1 }}>
+                              <div style={{ ...s.progressFill, width: `${pct2}%`, background: selectedTeam.color }} />
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={s.progressBar}>
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
+                          </div>
+                        )}
                         <div style={s.progressText}>
-                          {formatTarget(tile.type, p?.current ?? 0)}/{formatTarget(tile.type, tile.target)}
+                          {isOr
+                            ? `${current}/${tile.target} or ${current2}/${tile.target2}`
+                            : `${formatTarget(tile.type, current)}/${formatTarget(tile.type, tile.target)}`}
                         </div>
                       </>
                     );

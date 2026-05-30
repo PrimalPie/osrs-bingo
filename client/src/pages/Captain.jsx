@@ -96,10 +96,12 @@ function Lightbox({ src, onClose }) {
 
 function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
   const [count, setCount] = useState(sub.count);
+  const [condition, setCondition] = useState(1);
   const [rejectReason, setRejectReason] = useState('');
   const [showReject, setShowReject] = useState(false);
   const [lightbox, setLightbox] = useState(false);
   const c = coord(sub.row, sub.col);
+  const isOr = sub.tile_target2 != null;
 
   return (
     <div style={s.card}>
@@ -142,10 +144,21 @@ function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
         />
       )}
 
+      {isOr && (
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.78rem', color: '#718096', alignSelf: 'center' }}>Condition:</span>
+          {[1, 2].map(c => (
+            <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontSize: '0.82rem', color: condition === c ? '#e2e8f0' : '#718096' }}>
+              <input type="radio" name={`cond-${sub.id}`} checked={condition === c} onChange={() => setCondition(c)} style={{ accentColor: '#e94560' }} />
+              Cond. {c} (target: {c === 1 ? sub.tile_target : sub.tile_target2})
+            </label>
+          ))}
+        </div>
+      )}
       <div style={s.actions}>
         <label style={{ fontSize: '0.8rem', color: '#a0aec0' }}>Count:</label>
         <input type="number" min={1} style={s.countInput} value={count} onChange={e => setCount(parseInt(e.target.value) || 1)} />
-        <button style={s.approveBtn} onClick={() => onApprove(sub.id, count)}>✓ Approve</button>
+        <button style={s.approveBtn} onClick={() => onApprove(sub.id, count, condition)}>✓ Approve</button>
         <button style={s.rejectBtn} onClick={() => setShowReject(v => !v)}>✗ Reject</button>
       </div>
 
@@ -242,8 +255,8 @@ function PendingTab({ user }) {
     return () => { socket.off('new_submission', load); socket.off('submission_rejected'); socket.off('progress_update', load); };
   }, [load, user]);
 
-  async function handleApprove(id, count) {
-    await api.post(`/submissions/${id}/approve`, { count });
+  async function handleApprove(id, count, condition) {
+    await api.post(`/submissions/${id}/approve`, { count, condition });
     setSubmissions(p => p.filter(s => s.id !== id));
   }
 
@@ -379,8 +392,8 @@ function ByTileTab({ user }) {
       .finally(() => setLoadingSubs(false));
   }, [selectedTile, selectedTeamId]);
 
-  async function handleApprove(id, count) {
-    await api.post(`/submissions/${id}/approve`, { count });
+  async function handleApprove(id, count, condition) {
+    await api.post(`/submissions/${id}/approve`, { count, condition });
     const r = await api.get(`/submissions/tile/${selectedTile.id}/team/${selectedTeamId}`);
     setSubmissions(r.data);
   }

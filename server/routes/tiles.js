@@ -23,7 +23,7 @@ router.get('/event/:eventId', (req, res) => {
 });
 
 router.post('/event/:eventId', requireAdmin, (req, res) => {
-  const { coord, label, type, target, wom_metric, wom_competition_id, icon_url } = req.body;
+  const { coord, label, type, target, target2, wom_metric, wom_competition_id, icon_url } = req.body;
   if (!coord || !label) return res.status(400).json({ error: 'coord and label required' });
 
   const pos = coordToRowCol(coord);
@@ -32,9 +32,9 @@ router.post('/event/:eventId', requireAdmin, (req, res) => {
   const db = getDb();
   try {
     const result = db.prepare(
-      'INSERT INTO tiles (event_id, row, col, label, type, target, wom_metric, wom_competition_id, icon_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(req.params.eventId, pos.row, pos.col, label, type || 'drop', target || 1, wom_metric || null, wom_competition_id || null, icon_url || null);
-    res.json({ id: result.lastInsertRowid, coord, label, type: type || 'drop', target: target || 1, icon_url: icon_url || null });
+      'INSERT INTO tiles (event_id, row, col, label, type, target, target2, wom_metric, wom_competition_id, icon_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(req.params.eventId, pos.row, pos.col, label, type || 'drop', target || 1, target2 || null, wom_metric || null, wom_competition_id || null, icon_url || null);
+    res.json({ id: result.lastInsertRowid, coord, label, type: type || 'drop', target: target || 1, target2: target2 || null, icon_url: icon_url || null });
   } catch (e) {
     if (e.message.includes('UNIQUE')) return res.status(409).json({ error: 'Tile already exists at that coordinate' });
     throw e;
@@ -82,10 +82,10 @@ router.patch('/reorder', requireAdmin, (req, res) => {
 
 router.patch('/:id', requireAdmin, (req, res) => {
   const db = getDb();
-  const { label, type, target, wom_metric, wom_competition_id, icon_url } = req.body;
-  // icon_url and wom_competition_id can be explicitly set to null to clear them
+  const { label, type, target, target2, wom_metric, wom_competition_id, icon_url } = req.body;
   const hasIcon = Object.prototype.hasOwnProperty.call(req.body, 'icon_url');
   const hasWomComp = Object.prototype.hasOwnProperty.call(req.body, 'wom_competition_id');
+  const hasTarget2 = Object.prototype.hasOwnProperty.call(req.body, 'target2');
   db.prepare(
     `UPDATE tiles SET
       label = COALESCE(?, label),
@@ -94,8 +94,9 @@ router.patch('/:id', requireAdmin, (req, res) => {
       wom_metric = COALESCE(?, wom_metric)
       ${hasIcon ? ', icon_url = ?' : ''}
       ${hasWomComp ? ', wom_competition_id = ?' : ''}
+      ${hasTarget2 ? ', target2 = ?' : ''}
     WHERE id = ?`
-  ).run(label, type, target, wom_metric, ...(hasIcon ? [icon_url] : []), ...(hasWomComp ? [wom_competition_id] : []), req.params.id);
+  ).run(label, type, target, wom_metric, ...(hasIcon ? [icon_url] : []), ...(hasWomComp ? [wom_competition_id] : []), ...(hasTarget2 ? [target2] : []), req.params.id);
   const tile = db.prepare('SELECT * FROM tiles WHERE id = ?').get(req.params.id);
   res.json({ ...tile, coord: rowColToCoord(tile.row, tile.col) });
 });

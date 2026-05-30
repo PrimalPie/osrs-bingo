@@ -15,7 +15,7 @@ router.get('/team/:teamId/pending', requireCaptainOrAdmin, (req, res) => {
   }
   const rows = db.prepare(`
     SELECT s.*, t.label as tile_label, t.type as tile_type, t.target as tile_target,
-           t.row, t.col, t.wom_metric as tile_wom_metric
+           t.target2 as tile_target2, t.row, t.col, t.wom_metric as tile_wom_metric
     FROM submissions s
     JOIN tiles t ON s.tile_id = t.id
     WHERE s.team_id = ? AND s.status = 'pending'
@@ -78,7 +78,8 @@ router.get('/pending', requireAdmin, (req, res) => {
   const db = getDb();
   const rows = db.prepare(`
     SELECT s.*, t.label as tile_label, t.type as tile_type, t.target as tile_target,
-           t.row, t.col, t.wom_metric as tile_wom_metric, tm.name as team_name, tm.color as team_color
+           t.target2 as tile_target2, t.row, t.col, t.wom_metric as tile_wom_metric,
+           tm.name as team_name, tm.color as team_color
     FROM submissions s
     JOIN tiles t ON s.tile_id = t.id
     JOIN teams tm ON s.team_id = tm.id
@@ -91,7 +92,8 @@ router.get('/pending', requireAdmin, (req, res) => {
 // Approve a submission
 router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
   const db = getDb();
-  const { count } = req.body;
+  const { count, condition } = req.body;
+  const cond = (condition === 2) ? 2 : 1;
 
   const sub = db.prepare('SELECT * FROM submissions WHERE id = ?').get(req.params.id);
   if (!sub) return res.status(404).json({ error: 'Not found' });
@@ -103,34 +105,49 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
   }
 
   const approvedCount = count ?? sub.count;
-
   const tile = db.prepare('SELECT * FROM tiles WHERE id = ?').get(sub.tile_id);
+  const isOr = tile.target2 != null;
+  const activeTarget = (isOr && cond === 2) ? tile.target2 : tile.target;
 
   const approveAndProgress = db.transaction(() => {
     db.prepare(
-      "UPDATE submissions SET status = 'approved', count = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?"
-    ).run(approvedCount, req.user.id, new Date().toISOString(), sub.id);
+      "UPDATE submissions SET status = 'approved', count = ?, condition = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?"
+    ).run(approvedCount, cond, req.user.id, new Date().toISOString(), sub.id);
 
     const existing = db.prepare(
       'SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?'
     ).get(sub.tile_id, sub.team_id);
 
-    let newCurrent;
+    let newCurrent, newCurrent2;
     if (existing) {
-      newCurrent = Math.min(existing.current + approvedCount, tile.target);
-      const completedAt = newCurrent >= tile.target ? new Date().toISOString() : existing.completed_at;
+      newCurrent = existing.current;
+      newCurrent2 = existing.current2 ?? 0;
+      if (isOr && cond === 2) {
+        newCurrent2 = Math.min(newCurrent2 + approvedCount, tile.target2);
+      } else {
+        newCurrent = Math.min(newCurrent + approvedCount, tile.target);
+      }
+      const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
+      const completedAt = completed ? (existing.completed_at || new Date().toISOString()) : null;
       db.prepare(
-        'UPDATE tile_progress SET current = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
-      ).run(newCurrent, completedAt, sub.tile_id, sub.team_id);
+        'UPDATE tile_progress SET current = ?, current2 = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
+      ).run(newCurrent, newCurrent2, completedAt, sub.tile_id, sub.team_id);
+      return { newCurrent, newCurrent2, completed };
     } else {
-      newCurrent = Math.min(approvedCount, tile.target);
-      const completedAt = newCurrent >= tile.target ? new Date().toISOString() : null;
+      newCurrent = 0;
+      newCurrent2 = 0;
+      if (isOr && cond === 2) {
+        newCurrent2 = Math.min(approvedCount, tile.target2);
+      } else {
+        newCurrent = Math.min(approvedCount, tile.target);
+      }
+      const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
+      const completedAt = completed ? new Date().toISOString() : null;
       db.prepare(
-        'INSERT INTO tile_progress (tile_id, team_id, current, completed_at) VALUES (?, ?, ?, ?)'
-      ).run(sub.tile_id, sub.team_id, newCurrent, completedAt);
+        'INSERT INTO tile_progress (tile_id, team_id, current, current2, completed_at) VALUES (?, ?, ?, ?, ?)'
+      ).run(sub.tile_id, sub.team_id, newCurrent, newCurrent2, completedAt);
+      return { newCurrent, newCurrent2, completed };
     }
-
-    return { newCurrent, completed: newCurrent >= tile.target };
   });
 
   const result = approveAndProgress();
@@ -140,6 +157,7 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
       team_id: sub.team_id,
       tile_id: sub.tile_id,
       current: result.newCurrent,
+      current2: result.newCurrent2,
       target: tile.target,
       completed: result.completed,
     });
@@ -147,8 +165,9 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
 
   const coord = rowColToCoord(tile.row, tile.col);
   const teamName = db.prepare('SELECT name FROM teams WHERE id = ?').get(sub.team_id)?.name || 'Unknown';
+  const condLabel = isOr ? ` (Cond. ${cond})` : '';
   logAudit(req.user.id, req.user.username, 'submission_approved', 'submission', sub.id,
-    `Approved ${coord} — ${tile.label} (+${approvedCount}) for ${teamName}. Progress: ${result.newCurrent}/${tile.target}${result.completed ? ' ✓ Tile complete' : ''}`
+    `Approved ${coord} — ${tile.label}${condLabel} (+${approvedCount}) for ${teamName}. Progress: ${result.newCurrent}/${tile.target}${isOr ? ` | ${result.newCurrent2}/${tile.target2}` : ''}${result.completed ? ' ✓ Tile complete' : ''}`
   );
 
   res.json({ ok: true, ...result });
@@ -165,7 +184,10 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
       const msg = await channel.messages.fetch(sub.discord_message_id);
       await msg.react('✅');
       const tileCoord = rowColToCoord(tile.row, tile.col);
-      const completedText = result.completed ? ' 🎉 Tile complete!' : ` Progress: ${result.newCurrent}/${tile.target}`;
+      const progressText = isOr
+        ? ` Progress: ${result.newCurrent}/${tile.target} | ${result.newCurrent2}/${tile.target2}`
+        : ` Progress: ${result.newCurrent}/${activeTarget}`;
+      const completedText = result.completed ? ' 🎉 Tile complete!' : progressText;
       await msg.reply(`✅ **${tileCoord} — ${tile.label}** approved (+${approvedCount}).${completedText}`);
     } catch (e) {
       console.warn('[Bot] Approve notification failed:', e.message);
@@ -256,6 +278,9 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
 
   const tile = db.prepare('SELECT * FROM tiles WHERE id = ?').get(sub.tile_id);
 
+  const isOr = tile.target2 != null;
+  const subCond = sub.condition === 2 ? 2 : 1;
+
   const revertAndRollback = db.transaction(() => {
     db.prepare(
       "UPDATE submissions SET status = 'pending', reviewed_by = NULL, reviewed_at = NULL WHERE id = ?"
@@ -265,16 +290,23 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
       'SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?'
     ).get(sub.tile_id, sub.team_id);
 
-    let newCurrent = 0;
+    let newCurrent = 0, newCurrent2 = 0;
     if (progress) {
-      newCurrent = Math.max(0, progress.current - sub.count);
-      const completedAt = newCurrent >= tile.target ? progress.completed_at : null;
+      newCurrent = progress.current;
+      newCurrent2 = progress.current2 ?? 0;
+      if (isOr && subCond === 2) {
+        newCurrent2 = Math.max(0, newCurrent2 - sub.count);
+      } else {
+        newCurrent = Math.max(0, newCurrent - sub.count);
+      }
+      const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
+      const completedAt = completed ? progress.completed_at : null;
       db.prepare(
-        'UPDATE tile_progress SET current = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
-      ).run(newCurrent, completedAt, sub.tile_id, sub.team_id);
+        'UPDATE tile_progress SET current = ?, current2 = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
+      ).run(newCurrent, newCurrent2, completedAt, sub.tile_id, sub.team_id);
     }
 
-    return { newCurrent, completed: newCurrent >= tile.target };
+    return { newCurrent, newCurrent2, completed: newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2) };
   });
 
   const result = revertAndRollback();
@@ -284,6 +316,7 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
       team_id: sub.team_id,
       tile_id: sub.tile_id,
       current: result.newCurrent,
+      current2: result.newCurrent2,
       target: tile.target,
       completed: result.completed,
     });
@@ -292,7 +325,7 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
   const coord = rowColToCoord(tile.row, tile.col);
   const teamName = db.prepare('SELECT name FROM teams WHERE id = ?').get(sub.team_id)?.name || 'Unknown';
   logAudit(req.user.id, req.user.username, 'submission_reverted', 'submission', sub.id,
-    `Reverted approval of ${coord} — ${tile.label} for ${teamName}. Progress: ${result.newCurrent}/${tile.target}`
+    `Reverted approval of ${coord} — ${tile.label} for ${teamName}. Progress: ${result.newCurrent}/${tile.target}${isOr ? ` | ${result.newCurrent2}/${tile.target2}` : ''}`
   );
 
   res.json({ ok: true, ...result });

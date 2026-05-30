@@ -32,7 +32,7 @@ router.get('/event/:eventId', (req, res) => {
   const progressMap = {};
   for (const p of progress) {
     if (!progressMap[p.tile_id]) progressMap[p.tile_id] = {};
-    progressMap[p.tile_id][p.team_id] = { current: p.current, completed_at: p.completed_at };
+    progressMap[p.tile_id][p.team_id] = { current: p.current, current2: p.current2 ?? 0, completed_at: p.completed_at };
   }
 
   const tilesWithProgress = tiles.map(t => ({
