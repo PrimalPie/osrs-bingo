@@ -9,10 +9,10 @@ import ChangelogPage from './pages/Changelog';
 import GeneratePage from './pages/Generate';
 
 export const AuthContext = createContext(null);
+export const ThemeContext = createContext({ beta: false, toggleBeta: () => {} });
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }
+export function useTheme() { return useContext(ThemeContext); }
 
 const styles = {
   nav: {
@@ -31,6 +31,7 @@ const styles = {
 
 function Nav() {
   const { user, logout } = useAuth();
+  const { beta, toggleBeta } = useTheme();
   return (
     <nav style={styles.nav}>
       <Link to="/" style={styles.navTitle}>⚔️ OSRS Bingo</Link>
@@ -46,6 +47,23 @@ function Nav() {
       )}
       <Link to="/changelog" style={styles.navLink}>Changelog</Link>
       <div style={styles.navRight}>
+        {user?.role === 'admin' && (
+          <button
+            onClick={toggleBeta}
+            title={beta ? 'Switch to classic theme' : 'Preview beta theme'}
+            style={{
+              background: beta ? '#2d3748' : 'none',
+              border: `1px solid ${beta ? '#68d391' : '#4a5568'}`,
+              color: beta ? '#68d391' : '#4a5568',
+              padding: '0.2rem 0.55rem',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: 'monospace',
+              letterSpacing: '0.05em',
+            }}
+          >β</button>
+        )}
         {user ? (
           <>
             <span style={{ color: '#68d391', fontSize: '0.85rem' }}>{user.username} ({user.role})</span>
@@ -71,6 +89,7 @@ function ProtectedRoute({ children, role }) {
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [beta, setBeta] = useState(() => localStorage.getItem('beta-theme') === 'true');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -83,6 +102,13 @@ export default function App() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('beta-theme', beta);
+    localStorage.setItem('beta-theme', String(beta));
+  }, [beta]);
+
+  function toggleBeta() { setBeta(b => !b); }
 
   function login(token, userData) {
     localStorage.setItem('token', token);
@@ -97,6 +123,7 @@ export default function App() {
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
 
   return (
+    <ThemeContext.Provider value={{ beta, toggleBeta }}>
     <AuthContext.Provider value={{ user, login, logout }}>
       <BrowserRouter>
         <Nav />
@@ -116,5 +143,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>
+    </ThemeContext.Provider>
   );
 }

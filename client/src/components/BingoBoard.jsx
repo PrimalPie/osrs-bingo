@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatTarget, tileTypeLabel } from '../utils';
+import { useTheme } from '../App';
 
 const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
@@ -50,7 +51,12 @@ function typeColor(type) {
   return '#63b3ed';
 }
 
-function getTileBg(tile, selectedTeam) {
+function getTileBg(tile, selectedTeam, beta, tileGreen, tileBg) {
+  if (beta) {
+    if (!tile) return tileBg;
+    const completed = selectedTeam && tile.progress?.[selectedTeam.id]?.completed_at;
+    return completed ? tileGreen : tileBg;
+  }
   if (!tile || !selectedTeam) return '#1e2a3a';
   const completed = tile.progress?.[selectedTeam.id]?.completed_at;
   return completed ? selectedTeam.color + '44' : '#1e2a3a';
@@ -58,6 +64,20 @@ function getTileBg(tile, selectedTeam) {
 
 export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam = null }) {
   const [selected, setSelected] = useState(null);
+  const { beta } = useTheme();
+
+  const headerBg    = beta ? 'transparent' : '#0f3460';
+  const gridGapPx   = beta ? 8            : 1;
+  const gridContBg  = beta ? '#000'        : '#2d3748';
+  const emptyBg     = beta ? '#1e2029'     : '#12121f';
+  const modalBg     = beta ? '#1e2029'     : '#1a1a2e';
+  const modalBdr    = beta ? '#444'        : '#0f3460';
+  const progTrack   = beta ? '#111'        : '#2d3748';
+  const progFill    = (teamColor) => beta ? '#48bb78' : teamColor;
+  const tileBg      = beta ? '#2d3040'     : '#1e2a3a';
+  const tileGreen   = '#4cae50';
+  const tileRadius  = beta ? 10 : 0;
+  const fs = (base) => beta ? `${parseFloat(base) * 0.9}rem` : base;
 
   const tileMap = {};
   for (const t of tiles) tileMap[`${t.col}-${t.row}`] = t;
@@ -68,7 +88,7 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
     <div style={s.wrapper}>
       {selected && (
         <div style={s.modal} onClick={() => setSelected(null)}>
-          <div style={s.modalBox} onClick={e => e.stopPropagation()}>
+          <div style={{ ...s.modalBox, background: modalBg, border: `1px solid ${modalBdr}` }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
               {selected.icon_url && (
                 <img
@@ -112,18 +132,18 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                       </div>
                       {isSelected && isOr && (
                         <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                          <div style={{ ...s.progressBar, flex: 1, margin: 0 }}>
-                            <div style={{ ...s.progressFill, width: `${pct}%`, background: team.color }} />
+                          <div style={{ ...s.progressBar, flex: 1, margin: 0, background: progTrack }}>
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(team.color) }} />
                           </div>
                           <span style={{ fontSize: '0.55rem', color: '#4a5568' }}>or</span>
-                          <div style={{ ...s.progressBar, flex: 1, margin: 0 }}>
-                            <div style={{ ...s.progressFill, width: `${pct2}%`, background: team.color }} />
+                          <div style={{ ...s.progressBar, flex: 1, margin: 0, background: progTrack }}>
+                            <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill(team.color) }} />
                           </div>
                         </div>
                       )}
                       {isSelected && !isOr && (
-                        <div style={{ ...s.progressBar, width: '100%', margin: 0 }}>
-                          <div style={{ ...s.progressFill, width: `${pct}%`, background: team.color }} />
+                        <div style={{ ...s.progressBar, width: '100%', margin: 0, background: progTrack }}>
+                          <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(team.color) }} />
                         </div>
                       )}
                     </div>
@@ -138,45 +158,45 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
       )}
 
       {/* Column headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 1, background: '#2d3748', marginBottom: 1 }}>
-        <div style={{ ...s.headerCell, background: '#0a0a1a' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGapPx, background: gridContBg, marginBottom: gridGapPx }}>
+        <div style={{ ...s.headerCell, background: headerBg }} />
         {COLS.slice(0, boardSize).map(c => (
-          <div key={c} style={s.headerCell}>{c}</div>
+          <div key={c} style={{ ...s.headerCell, background: headerBg, fontSize: fs('0.75rem') }}>{c}</div>
         ))}
       </div>
 
-      {/* Board grid — fixed row height via gridAutoRows; taller when progress is shown */}
-      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gridAutoRows: selectedTeam ? '110px' : '90px', gap: 1, background: '#2d3748' }}>
+      {/* Board grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: gridCols, gridAutoRows: selectedTeam ? '110px' : '90px', gap: gridGapPx, background: gridContBg }}>
         {Array.from({ length: boardSize }, (_, ri) => {
           const row = ri + 1;
           return [
-            <div key={`r${row}`} style={s.rowNum}>{row}</div>,
+            <div key={`r${row}`} style={{ ...s.rowNum, background: headerBg, fontSize: fs('0.75rem') }}>{row}</div>,
             ...COLS.slice(0, boardSize).map((_, ci) => {
               const col = ci + 1;
               const tile = tileMap[`${col}-${row}`];
-              const bg = getTileBg(tile, selectedTeam);
+              const bg = getTileBg(tile, selectedTeam, beta, tileGreen, tileBg);
 
               if (!tile) {
                 return (
-                  <div key={`${col}-${row}`} style={{ ...s.tileInner, background: '#12121f', opacity: 0.3, cursor: 'default' }}>
-                    <span style={s.coord}>{COLS[ci]}{row}</span>
+                  <div key={`${col}-${row}`} style={{ ...s.tileInner, background: emptyBg, borderRadius: tileRadius, opacity: 0.3, cursor: 'default' }}>
+                    {!beta && <span style={s.coord}>{COLS[ci]}{row}</span>}
                   </div>
                 );
               }
 
               return (
-                <div key={`${col}-${row}`} style={{ ...s.tileInner, background: bg }} onClick={() => setSelected(tile)}>
-                  <span style={s.coord}>{tile.coord}</span>
+                <div key={`${col}-${row}`} style={{ ...s.tileInner, background: bg, borderRadius: tileRadius }} onClick={() => setSelected(tile)}>
+                  {!beta && <span style={{ ...s.coord, fontSize: fs('0.6rem') }}>{tile.coord}</span>}
                   {tile.icon_url && (
                     <img
                       src={tile.icon_url}
                       alt=""
-                      style={{ width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+                      style={{ width: beta ? 34 : 28, height: beta ? 34 : 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
                       onError={e => { e.target.style.display = 'none'; }}
                     />
                   )}
-                  <span style={{ ...s.type, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
-                  <span style={s.label}>{tile.label}</span>
+                  {!beta && <span style={{ ...s.type, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>}
+                  <span style={{ ...s.label, fontSize: fs('0.68rem'), textTransform: beta ? 'uppercase' : 'none' }}>{tile.label}</span>
 
                   {selectedTeam && (() => {
                     const p = tile.progress?.[selectedTeam.id];
@@ -185,23 +205,46 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                     const current2 = p?.current2 ?? 0;
                     const pct = Math.min((current / tile.target) * 100, 100);
                     const pct2 = isOr ? Math.min((current2 / tile.target2) * 100, 100) : 0;
+
+                    if (beta) {
+                      return (
+                        <>
+                          <div style={{ ...s.progressText, fontSize: fs('0.58rem'), color: '#ccc' }}>
+                            {isOr
+                              ? `${current}/${tile.target} OR ${current2}/${tile.target2}`
+                              : `${formatTarget(tile.type, current)}/${formatTarget(tile.type, tile.target)}`}
+                          </div>
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: progTrack, borderRadius: `0 0 ${tileRadius}px ${tileRadius}px` }}>
+                            {isOr ? (
+                              <div style={{ display: 'flex', height: '100%' }}>
+                                <div style={{ width: `${pct / 2}%`, height: '100%', background: '#48bb78' }} />
+                                <div style={{ width: `${pct2 / 2}%`, height: '100%', background: '#68d391', marginLeft: 1 }} />
+                              </div>
+                            ) : (
+                              <div style={{ width: `${pct}%`, height: '100%', background: '#48bb78', borderRadius: `0 0 0 ${tileRadius}px` }} />
+                            )}
+                          </div>
+                        </>
+                      );
+                    }
+
                     return (
                       <>
                         {isOr ? (
                           <div style={{ display: 'flex', gap: '0.15rem', width: '80%' }}>
-                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1 }}>
-                              <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
+                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1, background: progTrack }}>
+                              <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(selectedTeam.color) }} />
                             </div>
-                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1 }}>
-                              <div style={{ ...s.progressFill, width: `${pct2}%`, background: selectedTeam.color }} />
+                            <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1, background: progTrack }}>
+                              <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill(selectedTeam.color) }} />
                             </div>
                           </div>
                         ) : (
-                          <div style={s.progressBar}>
-                            <div style={{ ...s.progressFill, width: `${pct}%`, background: selectedTeam.color }} />
+                          <div style={{ ...s.progressBar, background: progTrack }}>
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(selectedTeam.color) }} />
                           </div>
                         )}
-                        <div style={s.progressText}>
+                        <div style={{ ...s.progressText, fontSize: fs('0.58rem') }}>
                           {isOr
                             ? `${current}/${tile.target} or ${current2}/${tile.target2}`
                             : `${formatTarget(tile.type, current)}/${formatTarget(tile.type, tile.target)}`}
