@@ -585,6 +585,183 @@ function inputToUtc(inputStr) {
   return `${inputStr}:00.000Z`;
 }
 
+// ─── WOM Override Panel ───────────────────────────────────────────────────────
+function WomOverridePanel({ event }) {
+  const [rows, setRows] = useState([]);
+  const [drafts, setDrafts] = useState({});   // key: `${tile_id}:${team_id}` → { current, wom_override }
+  const [saving, setSaving] = useState({});
+  const [msgs, setMsgs] = useState({});
+
+  useEffect(() => {
+    api.get(`/tiles/event/${event.id}/wom-progress`).then(r => {
+      setRows(r.data);
+      const init = {};
+      for (const row of r.data) {
+        init[`${row.tile_id}:${row.team_id}`] = { current: row.current, wom_override: !!row.wom_override };
+      }
+      setDrafts(init);
+    });
+  }, [event.id]);
+
+  function setDraft(tileId, teamId, field, value) {
+    const key = `${tileId}:${teamId}`;
+    setDrafts(d => ({ ...d, [key]: { ...d[key], [field]: value } }));
+  }
+
+  async function save(tileId, teamId) {
+    const key = `${tileId}:${teamId}`;
+    const draft = drafts[key];
+    setSaving(s => ({ ...s, [key]: true }));
+    try {
+      const res = await api.patch(`/tiles/${tileId}/progress/${teamId}`, {
+        current: draft.current,
+        wom_override: draft.wom_override,
+      });
+      setRows(prev => prev.map(r =>
+        r.tile_id === tileId && r.team_id === teamId
+          ? { ...r, current: res.data.current, completed_at: res.data.completed_at, wom_override: res.data.wom_override }
+          : r
+      ));
+      setMsgs(m => ({ ...m, [key]: 'ok' }));
+      setTimeout(() => setMsgs(m => ({ ...m, [key]: null })), 2000);
+    } catch {
+      setMsgs(m => ({ ...m, [key]: 'err' }));
+      setTimeout(() => setMsgs(m => ({ ...m, [key]: null })), 3000);
+    } finally {
+      setSaving(s => ({ ...s, [key]: false }));
+    }
+  }
+
+  // Group rows by tile
+  const tiles = [];
+  const seen = new Set();
+  for (const r of rows) {
+    if (!seen.has(r.tile_id)) { seen.add(r.tile_id); tiles.push(r); }
+  }
+
+  if (!rows.length) return (
+    <div style={{ fontSize: '0.82rem', color: '#4a5568' }}>No WOM-tracked tiles found for this event.</div>
+  );
+
+  return (
+    <div>
+      <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
+        Check <strong style={{ color: '#f6ad55' }}>Override</strong> to disable WOM sync for a team's tile and set the value manually.
+        WOM sync will not overwrite any row with override enabled.
+      </div>
+      <table style={{ ...s.table, fontSize: '0.8rem' }}>
+        <thead>
+          <tr>
+            <th style={s.th}>Tile</th>
+            <th style={s.th}>Metric</th>
+            <th style={s.th}>Team</th>
+            <th style={s.th}>Progress</th>
+            <th style={s.th}>Override</th>
+            <th style={s.th}>Value</th>
+            <th style={s.th}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(row => {
+            const key = `${row.tile_id}:${row.team_id}`;
+            const draft = drafts[key] || { current: row.current, wom_override: false };
+            const isSaving = saving[key];
+            const msg = msgs[key];
+            const isFirst = rows.findIndex(r => r.tile_id === row.tile_id) === rows.indexOf(row);
+            const tileRowCount = rows.filter(r => r.tile_id === row.tile_id).length;
+            return (
+              <tr key={key} style={{ background: draft.wom_override ? '#1a1500' : 'transparent' }}>
+                {isFirst && (
+                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontWeight: 600, color: '#e2e8f0' }} rowSpan={tileRowCount}>
+                    <span style={{ fontSize: '0.72rem', color: '#718096', display: 'block' }}>
+                      {COLS[row.col - 1]}{row.row}
+                    </span>
+                    {row.label}
+                  </td>
+                )}
+                {isFirst && (
+                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontFamily: 'monospace', fontSize: '0.75rem', color: '#a0aec0' }} rowSpan={tileRowCount}>
+                    {row.wom_metric}
+                  </td>
+                )}
+                <td style={s.td}>
+                  <span style={{ color: row.team_color, fontWeight: 600 }}>{row.team_name}</span>
+                </td>
+                <td style={s.td}>
+                  <span style={{ color: row.completed_at ? '#68d391' : '#a0aec0' }}>
+                    {row.current}/{row.target}
+                    {row.completed_at ? ' ✓' : ''}
+                  </span>
+                </td>
+                <td style={s.td}>
+                  <input
+                    type="checkbox"
+                    checked={draft.wom_override}
+                    onChange={e => setDraft(row.tile_id, row.team_id, 'wom_override', e.target.checked)}
+                    style={{ accentColor: '#f6ad55', width: 14, height: 14, cursor: 'pointer' }}
+                  />
+                </td>
+                <td style={s.td}>
+                  {draft.wom_override ? (
+                    <input
+                      type="number"
+                      min={0}
+                      max={row.target}
+                      value={draft.current}
+                      onChange={e => setDraft(row.tile_id, row.team_id, 'current', parseInt(e.target.value) || 0)}
+                      style={{ ...s.input, width: 70, minWidth: 0, padding: '0.25rem 0.4rem', borderColor: '#744210' }}
+                    />
+                  ) : (
+                    <span style={{ color: '#4a5568', fontSize: '0.75rem' }}>—</span>
+                  )}
+                </td>
+                <td style={s.td}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <button
+                      style={{ ...s.ghostBtn, padding: '0.2rem 0.6rem', opacity: isSaving ? 0.5 : 1 }}
+                      disabled={isSaving}
+                      onClick={() => save(row.tile_id, row.team_id)}
+                    >
+                      {isSaving ? '…' : 'Save'}
+                    </button>
+                    {msg === 'ok' && <span style={{ color: '#68d391', fontSize: '0.75rem' }}>✓</span>}
+                    {msg === 'err' && <span style={{ color: '#fc8181', fontSize: '0.75rem' }}>✗</span>}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ─── WOM Override Section (collapsible) ──────────────────────────────────────
+function WomOverrideSection({ event }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={s.section}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+          padding: 0, color: '#e2e8f0',
+        }}
+      >
+        <span style={s.sectionTitle}>WOM Progress Overrides</span>
+        <span style={{ fontSize: '0.8rem', color: '#718096' }}>{open ? '▲ collapse' : '▼ expand'}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <WomOverridePanel event={event} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Events Tab ───────────────────────────────────────────────────────────────
 function EventsTab() {
   const [events, setEvents] = useState([]);
@@ -675,7 +852,7 @@ function EventsTab() {
         <div>
           <div style={s.sectionTitle}>WiseOldMan Sync</div>
           <div style={{ fontSize: '0.8rem', color: '#718096' }}>
-            Auto-syncs every 3 hours.{' '}
+            Auto-syncs every 2 hours.{' '}
             {womStatus.lastSync
               ? <>Last synced: <span style={{ color: '#a0aec0' }}>{new Date(womStatus.lastSync).toLocaleString()}</span></>
               : <span style={{ color: '#a0aec0' }}>Not yet synced this session.</span>}
@@ -689,6 +866,10 @@ function EventsTab() {
           {womSyncing ? 'Syncing…' : 'Sync Now'}
         </button>
       </div>
+
+      {events.find(e => e.status === 'active') && (
+        <WomOverrideSection event={events.find(e => e.status === 'active')} />
+      )}
 
       <div style={s.section}>
         <div style={s.sectionTitle}>Create Event</div>
@@ -1206,6 +1387,7 @@ function UsersTab() {
               <th style={s.th}>Username</th>
               <th style={s.th}>Role</th>
               <th style={s.th}>Team</th>
+              <th style={s.th}>Event</th>
               <th style={s.th}>Actions</th>
             </tr>
           </thead>
@@ -1214,7 +1396,7 @@ function UsersTab() {
               const isOtherAdmin = u.role === 'admin' && u.id !== myId;
               return editing?.id === u.id ? (
                 <tr key={u.id}>
-                  <td style={s.td} colSpan={2}>
+                  <td style={s.td} colSpan={3}>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                       <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{u.username}</span>
                       <select style={s.select} value={editing.role} onChange={e => setEditing(ed => ({ ...ed, role: e.target.value }))}>
@@ -1243,6 +1425,7 @@ function UsersTab() {
                   <td style={s.td}>{u.username}</td>
                   <td style={s.td}><span style={{ color: u.role === 'admin' ? '#e94560' : '#f6ad55' }}>{u.role}</span></td>
                   <td style={s.td}>{u.team_name || '—'}</td>
+                  <td style={s.td}><span style={{ color: '#718096' }}>{u.event_name || '—'}</span></td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       {!isOtherAdmin && <button style={s.ghostBtn} onClick={() => setEditing({ ...u, newPassword: '' })}>Edit</button>}

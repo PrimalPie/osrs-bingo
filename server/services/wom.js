@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const { getDb } = require('../db/database');
 
 const WOM_BASE = 'https://api.wiseoldman.net/v2';
-const POLL_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours
+const POLL_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours
 
 let lastSync = null;
 function getLastSync() { return lastSync; }
@@ -22,14 +22,16 @@ async function fetchCompetitionParticipants(competitionId, metric) {
   return data.participations ?? [];
 }
 
+const FETCH_DELAY_MS = 350;
+
 async function syncWomTiles(io) {
   const db = getDb();
   const event = db.prepare("SELECT * FROM events WHERE status = 'active' LIMIT 1").get();
   if (!event) return;
 
-  // Tiles with their own competition ID, or tiles that can fall back to the event's competition
+  // Only xp/kc tiles — drop tiles are always managed by captain submissions, never WOM
   const womTiles = db.prepare(`
-    SELECT * FROM tiles WHERE event_id = ? AND (
+    SELECT * FROM tiles WHERE event_id = ? AND type != 'drop' AND (
       wom_competition_id IS NOT NULL
       OR (wom_metric IS NOT NULL AND ? IS NOT NULL)
     )
@@ -41,7 +43,7 @@ async function syncWomTiles(io) {
     'SELECT tm.* FROM team_members tm JOIN teams t ON tm.team_id = t.id WHERE t.event_id = ?'
   ).all(event.id);
 
-  // Fetch participants once per unique (competitionId, metric) pair
+  // Deduplicate by (competitionId, metric) then fetch sequentially with a delay to avoid rate limiting
   const fetchKeys = new Map();
   for (const tile of womTiles) {
     const compId = tile.wom_competition_id || event.wom_competition_id;
@@ -52,7 +54,10 @@ async function syncWomTiles(io) {
   }
 
   const participantsByKey = {};
+  let isFirst = true;
   for (const [key, { compId, metric }] of fetchKeys) {
+    if (!isFirst) await new Promise(r => setTimeout(r, FETCH_DELAY_MS));
+    isFirst = false;
     try {
       participantsByKey[key] = await fetchCompetitionParticipants(compId, metric);
     } catch (e) {
@@ -89,6 +94,7 @@ async function syncWomTiles(io) {
       ).get(tile.id, team.id);
 
       if (existing) {
+        if (existing.wom_override) continue;
         if (existing.current === capped) continue;
         const completedAt = capped >= tile.target
           ? (existing.completed_at || new Date().toISOString())
@@ -115,7 +121,8 @@ async function syncWomTiles(io) {
   }
 
   lastSync = new Date().toISOString();
-  console.log(`[WOM] Synced ${fetchKeys.size} competition/metric pair(s) for ${womTiles.length} tile(s), event ${event.id}`);
+  const fetched = Object.keys(participantsByKey).length;
+  console.log(`[WOM] Synced ${fetched}/${fetchKeys.size} metric(s) for ${womTiles.length} tile(s), event ${event.id}`);
 }
 
 function startWomPoller(io) {

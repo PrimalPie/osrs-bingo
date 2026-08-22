@@ -1,5 +1,6 @@
 const { getDb } = require('../db/database');
 const { logAudit } = require('./audit');
+const { dailyBackup, eventSnapshot } = require('./backup');
 
 const POLL_MS = 60_000;
 
@@ -17,6 +18,7 @@ function tick(io) {
     logAudit(null, 'system', 'event_status_changed', 'event', event.id,
       `Auto-completed '${event.name}' (end_date ${event.end_date} reached)`);
     console.log(`[Scheduler] Auto-completed event '${event.name}' (id=${event.id})`);
+    eventSnapshot(event.id, event.name, 'end');
     if (io) io.emit('event_status_changed', { eventId: event.id, status: 'completed' });
   }
 
@@ -35,13 +37,15 @@ function tick(io) {
     logAudit(null, 'system', 'event_status_changed', 'event', event.id,
       `Auto-activated '${event.name}' (start_date ${event.start_date} reached)`);
     console.log(`[Scheduler] Auto-activated event '${event.name}' (id=${event.id})`);
+    eventSnapshot(event.id, event.name, 'start');
     if (io) io.emit('event_status_changed', { eventId: event.id, status: 'active' });
   }
 }
 
 function startEventScheduler(io) {
   tick(io);
-  setInterval(() => tick(io), POLL_MS);
+  dailyBackup();
+  setInterval(() => { tick(io); dailyBackup(); }, POLL_MS);
   console.log('[Scheduler] Event scheduler started (interval: 60s)');
 }
 

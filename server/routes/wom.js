@@ -4,7 +4,7 @@ const { syncWomTiles, getLastSync } = require('../services/wom');
 
 const router = express.Router();
 
-router.get('/status', requireAdmin, (_req, res) => {
+router.get('/status', (_req, res) => {
   res.json({ lastSync: getLastSync() });
 });
 

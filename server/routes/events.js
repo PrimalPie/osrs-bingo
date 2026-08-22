@@ -4,6 +4,7 @@ const path = require('path');
 const { getDb } = require('../db/database');
 const { requireAdmin } = require('../middleware/auth');
 const { logAudit } = require('../services/audit');
+const { eventSnapshot } = require('../services/backup');
 
 const UPLOAD_DIR = process.env.DATA_DIR
   ? path.join(process.env.DATA_DIR, 'uploads')
@@ -96,6 +97,8 @@ router.patch('/:id', requireAdmin, (req, res) => {
     logAudit(req.user.id, req.user.username, 'event_status_changed', 'event', parseInt(req.params.id),
       `Changed event '${event.name}' status: ${event.status} → ${status}`
     );
+    if (status === 'active') eventSnapshot(event.id, event.name, 'start');
+    if (status === 'completed') eventSnapshot(event.id, event.name, 'end');
   } else if (Object.keys(updates).length) {
     logAudit(req.user.id, req.user.username, 'event_updated', 'event', parseInt(req.params.id),
       `Updated event '${event.name}': ${Object.keys(updates).join(', ')}`

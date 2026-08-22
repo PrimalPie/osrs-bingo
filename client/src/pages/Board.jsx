@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import api from '../api';
 import socket from '../socket';
 import BingoBoard from '../components/BingoBoard';
-import { useAuth } from '../App';
+import { useAuth, useTheme } from '../App';
 
 const s = {
   page: { padding: '1.5rem', maxWidth: 1200, margin: '0 auto' },
@@ -132,21 +132,49 @@ function downloadCsv(event, tiles, scores) {
 
 function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) {
   const isPoints = mode === 'points';
+  const { beta } = useTheme();
 
   const sorted = useMemo(() => sortScores(scores, mode), [scores, mode]);
   const topScore = isPoints ? sorted[0]?.total : sorted[0]?.tilesComplete;
 
   return (
     <div style={{ marginBottom: '1.25rem' }}>
-      <div style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>
-        {isPoints ? 'Points Standings' : 'Standings'} · click to view team
+      <div style={{ fontSize: beta ? '0.45rem' : '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>
+        {isPoints ? 'Point Standings' : 'Standings'}{beta ? '' : ' · click to view team'}
       </div>
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <div style={beta
+        ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }
+        : { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }
+      }>
         {sorted.map((entry, i) => {
           const isLeading = i === 0;
           const isTied = i > 0 && (isPoints ? entry.total === topScore : entry.tilesComplete === topScore);
           const isSelected = selectedTeamId === entry.team.id;
           const rank = isTied ? sorted.findIndex(e => isPoints ? e.total === topScore : e.tilesComplete === topScore) : i;
+
+          if (beta) {
+            return (
+              <button
+                key={entry.team.id}
+                onClick={() => onSelectTeam(entry.team.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.6rem',
+                  background: '#1e2029',
+                  border: `2px solid ${isSelected ? entry.team.color : '#333'}`,
+                  padding: '0.65rem 1rem', borderRadius: 8, cursor: 'pointer',
+                  fontSize: '0.85rem', textAlign: 'left',
+                }}
+              >
+                <span style={{ fontSize: '1rem', flexShrink: 0 }}>{isLeading ? '👑' : ''}</span>
+                <strong style={{ color: entry.team.color, flexShrink: 0 }}>{entry.team.name.toUpperCase()}</strong>
+                <span style={{ color: '#718096', fontSize: '0.8rem' }}>
+                  {isPoints
+                    ? `${entry.total} PTS • ${entry.lines} LINES • ${entry.tilesComplete}/${totalTiles}`
+                    : `${entry.tilesComplete}/${totalTiles}`}
+                </span>
+              </button>
+            );
+          }
 
           return (
             <button
@@ -167,7 +195,7 @@ function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) 
               <strong style={{ color: '#e2e8f0' }}>{entry.team.name}</strong>
               {isPoints ? (
                 <>
-                  <span style={{ color: isLeading ? '#f6ad55' : '#a0aec0', fontWeight: isLeading ? 700 : 400, fontSize: '0.85rem' }}>
+                  <span style={{ color: isLeading ? '#f6ad55' : '#a0aec0', fontWeight: isLeading ? 700 : 400 }}>
                     {entry.total} pts
                   </span>
                   {entry.lines > 0 && (
@@ -180,7 +208,7 @@ function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) 
                   </span>
                 </>
               ) : (
-                <span style={{ color: isLeading ? '#f6ad55' : '#718096', fontWeight: isLeading ? 700 : 400, fontSize: '0.85rem' }}>
+                <span style={{ color: isLeading ? '#f6ad55' : '#718096', fontWeight: isLeading ? 700 : 400 }}>
                   {entry.tilesComplete}/{totalTiles}
                 </span>
               )}
@@ -360,6 +388,7 @@ export default function Board() {
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [showPrev, setShowPrev] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [lastSync, setLastSync] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -375,12 +404,14 @@ export default function Board() {
         setTeamsWithMembers([]);
         return;
       }
-      const [board, teamsRes] = await Promise.all([
+      const [board, teamsRes, womStatus] = await Promise.all([
         api.get(`/board/event/${active.data.id}`),
         api.get(`/teams/event/${active.data.id}`),
+        api.get('/wom/status').catch(() => ({ data: {} })),
       ]);
       setData(board.data);
       setTeamsWithMembers(teamsRes.data);
+      setLastSync(womStatus.data.lastSync || null);
       setUpcoming(undefined);
       setLastCompleted(undefined);
     } catch {
@@ -569,6 +600,12 @@ export default function Board() {
         {selectedTeam && (
           <span style={{ marginLeft: '0.5rem' }}>· Viewing: <strong style={{ color: selectedTeam.color }}>{selectedTeam.name}</strong></span>
         )}
+      </p>
+      <p style={{ fontSize: '0.72rem', color: '#4a5568', marginBottom: '0.75rem', marginTop: '-0.5rem' }}>
+        XP Tiles Last Sync'd:{' '}
+        <span style={{ color: '#718096' }}>
+          {lastSync ? new Date(lastSync).toLocaleTimeString() : 'Not yet synced this session'}
+        </span>
       </p>
 
       <Scoreboard

@@ -353,6 +353,7 @@ function HistoryTab({ user }) {
 // ─── By Tile tab ─────────────────────────────────────────────────────────────
 function ByTileTab({ user }) {
   const [event, setEvent] = useState(null);
+  const [eventCompleted, setEventCompleted] = useState(false);
   const [tiles, setTiles] = useState([]);
   const [teams, setTeams] = useState([]);
   const [selectedTile, setSelectedTile] = useState(null);
@@ -365,9 +366,16 @@ function ByTileTab({ user }) {
     async function load() {
       try {
         const evRes = await api.get('/events/active');
-        if (!evRes.data) { setLoading(false); return; }
-        const ev = evRes.data;
+        let ev = evRes.data;
+        let completed = false;
+        if (!ev) {
+          const lastRes = await api.get('/events/last-completed');
+          ev = lastRes.data;
+          completed = true;
+        }
+        if (!ev) { setLoading(false); return; }
         setEvent(ev);
+        setEventCompleted(completed);
         const [tilesRes, teamsRes] = await Promise.all([
           api.get(`/tiles/event/${ev.id}`),
           api.get(`/teams/event/${ev.id}`),
@@ -405,11 +413,17 @@ function ByTileTab({ user }) {
   }
 
   if (loading) return <p style={{ color: '#718096' }}>Loading...</p>;
-  if (!event) return <div style={s.empty}><p>No active event.</p></div>;
+  if (!event) return <div style={s.empty}><p>No events found.</p></div>;
 
   const teamForUser = user.role !== 'admin' ? teams.find(t => t.id === user.team_id) : null;
 
   return (
+    <div>
+      {eventCompleted && (
+        <div style={{ fontSize: '0.78rem', color: '#f6ad55', marginBottom: '1rem', padding: '0.5rem 0.75rem', background: '#2d1a00', borderRadius: 4, border: '1px solid #744210' }}>
+          Event ended — showing <strong>{event.name}</strong>
+        </div>
+      )}
     <div style={{ display: 'flex', gap: '1.25rem' }}>
       {/* Tile list */}
       <div style={{ width: 220, flexShrink: 0 }}>
@@ -473,6 +487,7 @@ function ByTileTab({ user }) {
           </>
         )}
       </div>
+    </div>
     </div>
   );
 }

@@ -70,6 +70,9 @@ function getDb() {
     if (!progressCols.includes('current2')) {
       raw.exec('ALTER TABLE tile_progress ADD COLUMN current2 INTEGER NOT NULL DEFAULT 0');
     }
+    if (!progressCols.includes('wom_override')) {
+      raw.exec('ALTER TABLE tile_progress ADD COLUMN wom_override INTEGER NOT NULL DEFAULT 0');
+    }
 
     const subCols = raw.prepare("PRAGMA table_info(submissions)").all().map(r => r.name);
     if (!subCols.includes('condition')) {

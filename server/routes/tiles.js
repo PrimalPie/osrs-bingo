@@ -101,6 +101,50 @@ router.patch('/:id', requireAdmin, (req, res) => {
   res.json({ ...tile, coord: rowColToCoord(tile.row, tile.col) });
 });
 
+router.get('/event/:eventId/wom-progress', requireAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT t.id as tile_id, t.row, t.col, t.label, t.type, t.wom_metric, t.target,
+           te.id as team_id, te.name as team_name, te.color as team_color,
+           COALESCE(tp.current, 0) as current,
+           tp.completed_at,
+           COALESCE(tp.wom_override, 0) as wom_override
+    FROM tiles t
+    JOIN teams te ON te.event_id = t.event_id
+    LEFT JOIN tile_progress tp ON tp.tile_id = t.id AND tp.team_id = te.id
+    WHERE t.event_id = ? AND t.type != 'drop' AND t.wom_metric IS NOT NULL
+    ORDER BY t.row, t.col, te.name
+  `).all(req.params.eventId);
+  res.json(rows);
+});
+
+router.patch('/:tileId/progress/:teamId', requireAdmin, (req, res) => {
+  const db = getDb();
+  const tileId = parseInt(req.params.tileId);
+  const teamId = parseInt(req.params.teamId);
+  const tile = db.prepare('SELECT * FROM tiles WHERE id = ?').get(tileId);
+  if (!tile) return res.status(404).json({ error: 'Tile not found' });
+
+  const existing = db.prepare('SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?').get(tileId, teamId);
+  const newCurrent = req.body.current !== undefined ? parseInt(req.body.current) : (existing?.current ?? 0);
+  const newOverride = req.body.wom_override !== undefined ? (req.body.wom_override ? 1 : 0) : (existing?.wom_override ?? 0);
+  const completedAt = newCurrent >= tile.target
+    ? (existing?.completed_at || new Date().toISOString())
+    : null;
+
+  if (existing) {
+    db.prepare(
+      'UPDATE tile_progress SET current = ?, completed_at = ?, wom_override = ? WHERE tile_id = ? AND team_id = ?'
+    ).run(newCurrent, completedAt, newOverride, tileId, teamId);
+  } else {
+    db.prepare(
+      'INSERT INTO tile_progress (tile_id, team_id, current, completed_at, wom_override) VALUES (?, ?, ?, ?, ?)'
+    ).run(tileId, teamId, newCurrent, completedAt, newOverride);
+  }
+
+  res.json(db.prepare('SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?').get(tileId, teamId));
+});
+
 router.delete('/:id', requireAdmin, (req, res) => {
   const db = getDb();
   db.prepare('DELETE FROM tiles WHERE id = ?').run(req.params.id);

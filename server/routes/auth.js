@@ -90,9 +90,10 @@ router.post('/bootstrap', (req, res) => {
 router.get('/users', requireAdmin, (req, res) => {
   const db = getDb();
   const users = db.prepare(`
-    SELECT u.id, u.username, u.role, u.team_id, t.name as team_name
+    SELECT u.id, u.username, u.role, u.team_id, t.name as team_name, e.name as event_name
     FROM users u
     LEFT JOIN teams t ON u.team_id = t.id
+    LEFT JOIN events e ON t.event_id = e.id
     ORDER BY u.role DESC, u.username ASC
   `).all();
   res.json(users);
