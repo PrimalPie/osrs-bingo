@@ -63,6 +63,9 @@ const BOSS_ICONS = {
   'Hespori':                  'game_icon_hespori.png',
   'Hueycoatl':                'game_icon_thehueycoatl.png',
   'Amoxliatl':                'game_icon_amoxliatl.png',
+  'The Royal Titans':         'game_icon_theroyaltitans.png',
+  'Sol Heredit':              'game_icon_solheredit.png',
+  'Maggot King':              'game_icon_maggotking.png',
 };
 
 const SKILL_ICONS = {
