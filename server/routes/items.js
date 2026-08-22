@@ -6,13 +6,19 @@ const { requireCaptainOrAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 const MAPPING_URL = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
-const ICON_BASE = 'https://static.runelite.net/cache/item/icon';
+const WIKI_FILE_BASE = 'https://oldschool.runescape.wiki/w/Special:FilePath';
+
+function wikiIconUrl(name) {
+  // Sentence-case the name to match wiki filename conventions, then URL-encode
+  const sentence = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  return `${WIKI_FILE_BASE}/${encodeURIComponent(sentence.replace(/ /g, '_'))}.png`;
+}
 
 const untradableFormatted = UNTRADABLE_ITEMS.map(item => ({
   id: item.id,
   name: item.name,
   keywords: item.keywords,
-  icon: `${ICON_BASE}/${item.id}.png`,
+  icon: wikiIconUrl(item.name),
 }));
 
 let cachedItems = null;
@@ -29,7 +35,7 @@ async function getItems() {
   cachedItems = data.map(item => ({
     id: item.id,
     name: item.name,
-    icon: `${ICON_BASE}/${item.id}.png`,
+    icon: wikiIconUrl(item.name),
   }));
   cacheTime = Date.now();
   return cachedItems;
