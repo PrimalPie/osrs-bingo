@@ -1,5 +1,33 @@
 const CHANGELOG = [
   {
+    date: '2026-08-23',
+    entries: [
+      { type: 'feature', description: 'WOM progress overrides — admins can manually correct a team\'s progress on any WOM-tracked XP/KC tile from a new "WOM Progress Overrides" panel in Admin > Events. Enabling override for a row locks it against the automatic WOM sync, so the manual value sticks until override is turned back off.' },
+      { type: 'fix', description: 'Drop tile and item icons switched from the retired RuneLite item cache to the OSRS Wiki, removing the brown shadow that was showing on drop tile icons.' },
+      { type: 'feature', description: 'Boss icon added for Maggot King.' },
+    ],
+  },
+  {
+    date: '2026-06-02',
+    entries: [
+      { type: 'feature', description: 'Automated database backups — a daily snapshot of the database is taken automatically while an event is active, plus a snapshot on every event start and end (both auto-scheduled and manual). Backups use SQLite\'s VACUUM INTO for consistency and are stored in the data volume under backups/daily/ and backups/events/.' },
+      { type: 'feature', description: 'XP tiles last sync timestamp on the public board — a "XP Tiles Last Sync\'d" line appears below the live indicator showing the time of the last WOM sync converted to the viewer\'s local timezone. Shows "Not yet synced this session" after a server restart.' },
+      { type: 'improvement', description: 'WOM sync interval reduced from 3 hours to 2 hours based on player feedback.' },
+      { type: 'improvement', description: 'Event column added to the Users table in the admin panel, showing which event each captain\'s team belongs to.' },
+      { type: 'improvement', description: 'Captain By Tile tab now falls back to the most recently completed event when no event is active, with an amber banner indicating the event has ended. Previously showed a blank "No active event" state.' },
+      { type: 'feature', description: 'Boss icons added for The Royal Titans and Sol Heredit.' },
+    ],
+  },
+  {
+    date: '2026-05-29',
+    entries: [
+      { type: 'feature', description: 'OR condition tiles — tiles can now have two separate completion targets. Either condition completing the tile counts as a completion. When approving a submission for an OR tile, captains select which condition the count applies to. The board shows dual progress bars and X/Y or X/Y progress text for these tiles.' },
+      { type: 'feature', description: 'Captain badge on team rosters — the team captain is sorted to the top of the roster on the board page and shown with a highlighted "Cap" badge, matched by OSRS name.' },
+      { type: 'improvement', description: 'Login is now case-insensitive — captains can log in regardless of the capitalisation used when their account was created.' },
+      { type: 'fix', description: 'Discord bot now correctly blocks manual KC submissions for tiles tracked via the event-level WOM metric (previously only per-tile WOM competition IDs were checked, allowing submissions to slip through).' },
+    ],
+  },
+  {
     date: '2026-05-23',
     entries: [
       { type: 'feature', description: 'Clue scroll tile support — KC tiles with a clue_scrolls_* WOM metric now display a specific label (e.g. "Medium Clues", "Hard Clues") instead of "KC" throughout the board, captain view, and admin panel.' },
