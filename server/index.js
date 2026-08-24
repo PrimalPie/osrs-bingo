@@ -60,10 +60,10 @@ app.use((_req, res, next) => {
     [
       "default-src 'self'",
       "script-src 'self'",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https://static.runelite.net https://oldschool.runescape.wiki https://oldschool.runescape.com",
       "connect-src 'self' wss:",
-      "font-src 'self'",
+      "font-src 'self' https://fonts.gstatic.com",
       "object-src 'none'",
       "frame-ancestors 'none'",
     ].join('; ')
