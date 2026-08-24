@@ -3,6 +3,7 @@ const CHANGELOG = [
     date: '2026-08-24',
     entries: [
       { type: 'feature', description: 'Boss icon added for TzKal-Zuk (Inferno).' },
+      { type: 'feature', description: 'Boss icons and tile support added for 19 previously-missing bosses: TzTok-Jad, The Gauntlet, The Corrupted Gauntlet, Chaos Fanatic, Crazy Archaeologist, Deranged Archaeologist, Mimic, Scurrius, Skotizo, Yama, Brutus, Lunar Chests, Mad Angel, Shellbane Gryphon, Doom of Mokhaiotl, Phosani\'s Nightmare, Theatre of Blood (Hard Mode), Tombs of Amascut (Expert Mode), and Chambers of Xeric (Challenge Mode).' },
     ],
   },
   {
