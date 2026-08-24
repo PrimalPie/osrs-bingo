@@ -66,6 +66,7 @@ const BOSS_ICONS = {
   'The Royal Titans':         'game_icon_theroyaltitans.png',
   'Sol Heredit':              'game_icon_solheredit.png',
   'Maggot King':              'game_icon_maggotking.png',
+  'TzKal-Zuk':                'game_icon_tzkalzuk.png',
 };
 
 const SKILL_ICONS = {

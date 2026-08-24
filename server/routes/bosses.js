@@ -58,6 +58,7 @@ const BOSS_LIST = [
   { name: 'The Royal Titans',        keywords: ['royal titans','titans','royal'] },
   { name: 'Sol Heredit',             keywords: ['sol heredit','sol','heredit','colosseum'] },
   { name: 'Maggot King',             keywords: ['maggot king','maggot'] },
+  { name: 'TzKal-Zuk',               keywords: ['zuk','tzkal-zuk','tzkalzuk','inferno'] },
 ];
 
 const SKILL_LIST = [

@@ -1,5 +1,11 @@
 const CHANGELOG = [
   {
+    date: '2026-08-24',
+    entries: [
+      { type: 'feature', description: 'Boss icon added for TzKal-Zuk (Inferno).' },
+    ],
+  },
+  {
     date: '2026-08-23',
     entries: [
       { type: 'feature', description: 'WOM progress overrides — admins can manually correct a team\'s progress on any WOM-tracked XP/KC tile from a new "WOM Progress Overrides" panel in Admin > Events. Enabling override for a row locks it against the automatic WOM sync, so the manual value sticks until override is turned back off.' },
