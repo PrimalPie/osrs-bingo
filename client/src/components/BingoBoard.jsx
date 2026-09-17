@@ -7,12 +7,12 @@ const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 const s = {
   wrapper: { overflowX: 'auto' },
   headerCell: {
-    background: '#0f3460', color: '#a0aec0', fontSize: '0.75rem',
+    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.75rem',
     padding: '0.4rem', textAlign: 'center', fontWeight: 600,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   rowNum: {
-    background: '#0f3460', color: '#a0aec0', fontSize: '0.75rem',
+    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.75rem',
     fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   tileInner: {
@@ -26,7 +26,7 @@ const s = {
     overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
   },
   type: { fontSize: '0.55rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  progressBar: { width: '80%', height: 3, background: '#2d3748', borderRadius: 2, marginTop: 1, flexShrink: 0 },
+  progressBar: { width: '80%', height: 3, background: 'var(--c-2d3748)', borderRadius: 2, marginTop: 1, flexShrink: 0 },
   progressFill: { height: '100%', borderRadius: 2, transition: 'width 0.4s ease' },
   progressText: { fontSize: '0.58rem', color: '#a0aec0' },
   modal: {
@@ -34,13 +34,13 @@ const s = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
   },
   modalBox: {
-    background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8,
+    background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8,
     padding: '1.5rem', maxWidth: 480, width: '90%', maxHeight: '80vh', overflowY: 'auto',
   },
   modalTitle: { fontSize: '1rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.5rem' },
   teamRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' },
   closeBtn: {
-    marginTop: '1rem', background: '#0f3460', border: 'none', color: '#e2e8f0',
+    marginTop: '1rem', background: 'var(--c-0f3460)', border: 'none', color: '#e2e8f0',
     padding: '0.5rem 1rem', borderRadius: 4, cursor: 'pointer',
   },
 };
@@ -66,18 +66,18 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
   const [selected, setSelected] = useState(null);
   const { beta } = useTheme();
 
-  const headerBg    = beta ? 'transparent' : '#0f3460';
+  const headerBg    = beta ? 'transparent' : 'var(--c-0f3460)';
   const gridGapPx   = beta ? 8            : 1;
-  const gridContBg  = beta ? '#000'        : '#2d3748';
+  const gridContBg  = beta ? '#000'        : 'var(--c-2d3748)';
   const emptyBg     = beta ? '#1e2029'     : '#12121f';
-  const modalBg     = beta ? '#1e2029'     : '#1a1a2e';
-  const modalBdr    = beta ? '#444'        : '#0f3460';
-  const progTrack   = beta ? '#111'        : '#2d3748';
+  const modalBg     = beta ? '#1e2029'     : 'var(--c-1a1a2e)';
+  const modalBdr    = beta ? '#444'        : 'var(--c-0f3460)';
+  const progTrack   = beta ? '#111'        : 'var(--c-2d3748)';
   const progFill    = (teamColor) => beta ? '#48bb78' : teamColor;
   const tileBg      = beta ? '#2d3040'     : '#1e2a3a';
   const tileGreen   = '#4cae50';
   const tileRadius  = beta ? 10 : 0;
-  const fs = (base) => beta ? `${parseFloat(base) * 0.9}rem` : base;
+  const fs = (base) => beta ? `${parseFloat(base) * 1.15}rem` : base;
 
   const tileMap = {};
   for (const t of tiles) tileMap[`${t.col}-${t.row}`] = t;

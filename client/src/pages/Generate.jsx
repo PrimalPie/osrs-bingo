@@ -14,7 +14,7 @@ const CAT_ICON = { pvm: '⚔️', skilling: '📚', collection: '🎁' };
 
 const S = {
   page:    { padding: '2rem', maxWidth: '1200px', margin: '0 auto', color: '#e0e0ff', fontFamily: 'inherit' },
-  card:    { background: '#1a1a2e', border: '1px solid #2d2d4e', borderRadius: '8px', padding: '1.5rem' },
+  card:    { background: 'var(--c-1a1a2e)', border: '1px solid #2d2d4e', borderRadius: '8px', padding: '1.5rem' },
   row:     { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' },
   label:   { width: 150, color: '#a0aec0', fontSize: '0.85rem', flexShrink: 0 },
   input:   { background: '#0f0f1a', border: '1px solid #2d2d4e', color: '#e0e0ff', padding: '0.3rem 0.5rem', borderRadius: '4px' },
@@ -170,7 +170,7 @@ export default function GeneratePage() {
             {[5, 7].map(n => (
               <button key={n} style={{
                 ...S.btn,
-                background: params.boardSize === n ? '#0f3460' : '#16213e',
+                background: params.boardSize === n ? 'var(--c-0f3460)' : 'var(--c-16213e)',
                 border: `1px solid ${params.boardSize === n ? '#e94560' : '#2d2d4e'}`,
                 color: '#e0e0ff',
               }} onClick={() => set('boardSize', n)}>{n}×{n}</button>
@@ -248,7 +248,7 @@ export default function GeneratePage() {
               {isRearranged && (
                 <button
                   onClick={() => setPreview(originalPreview)}
-                  style={{ ...S.btn, background: '#16213e', border: '1px solid #2d2d4e', color: '#a0aec0', fontSize: '0.82rem' }}
+                  style={{ ...S.btn, background: 'var(--c-16213e)', border: '1px solid #2d2d4e', color: '#a0aec0', fontSize: '0.82rem' }}
                 >
                   Reset Order
                 </button>
@@ -272,7 +272,7 @@ export default function GeneratePage() {
             ))}
             {['pvm','skilling','collection'].map(c => (
               <span key={c} style={{
-                background: '#16213e', color: '#a0aec0', border: '1px solid #2d2d4e',
+                background: 'var(--c-16213e)', color: '#a0aec0', border: '1px solid #2d2d4e',
                 padding: '0.2rem 0.7rem', borderRadius: 4, fontSize: '0.8rem',
               }}>
                 {CAT_ICON[c]} {c}: {preview.filter(t => t.category === c).length}
@@ -398,7 +398,7 @@ export default function GeneratePage() {
               </label>
 
               <button onClick={handleApply} disabled={applying || !applyId}
-                style={{ ...S.btn, background: '#0f3460', color: '#e0e0ff', border: '1px solid #2d2d4e',
+                style={{ ...S.btn, background: 'var(--c-0f3460)', color: '#e0e0ff', border: '1px solid #2d2d4e',
                   opacity: !applyId ? 0.5 : 1 }}>
                 {applying ? 'Applying…' : isRearranged ? 'Apply Rearranged Board' : 'Apply to Event'}
               </button>

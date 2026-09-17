@@ -11,7 +11,7 @@ const s = {
   page: { padding: '1.5rem', maxWidth: 900, margin: '0 auto' },
   title: { fontSize: '1.3rem', fontWeight: 700, color: '#e94560', marginBottom: '0.25rem' },
   subtitle: { fontSize: '0.85rem', color: '#718096', marginBottom: '1rem' },
-  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid #0f3460' },
+  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid var(--c-0f3460)' },
   tab: {
     background: 'none', border: 'none', color: '#a0aec0',
     padding: '0.6rem 1.2rem', cursor: 'pointer', fontSize: '0.9rem',
@@ -19,7 +19,7 @@ const s = {
   },
   activeTab: { color: '#e94560', borderBottomColor: '#e94560' },
   card: {
-    background: '#16213e', border: '1px solid #0f3460', borderRadius: 8,
+    background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 8,
     padding: '1rem', marginBottom: '1rem',
   },
   cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' },
@@ -27,7 +27,7 @@ const s = {
   meta: { fontSize: '0.78rem', color: '#718096', marginTop: '0.2rem' },
   submittedBy: { fontSize: '0.8rem', color: '#a0aec0' },
   note: { fontSize: '0.82rem', color: '#cbd5e0', marginBottom: '0.75rem', fontStyle: 'italic' },
-  img: { maxWidth: '100%', maxHeight: 320, borderRadius: 6, marginBottom: '0.75rem', border: '1px solid #2d3748' },
+  img: { maxWidth: '100%', maxHeight: 320, borderRadius: 6, marginBottom: '0.75rem', border: '1px solid var(--c-2d3748)' },
   actions: { display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' },
   approveBtn: {
     background: '#276749', border: 'none', color: '#fff',
@@ -38,15 +38,15 @@ const s = {
     padding: '0.5rem 1.2rem', borderRadius: 4, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
   },
   countInput: {
-    background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.4rem 0.6rem', borderRadius: 4, width: 64, fontSize: '0.85rem',
   },
   rejectInput: {
-    background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.4rem 0.6rem', borderRadius: 4, flex: 1, fontSize: '0.85rem',
   },
   select: {
-    background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.4rem 0.6rem', borderRadius: 4, fontSize: '0.85rem',
   },
   empty: { textAlign: 'center', color: '#718096', padding: '3rem' },
@@ -55,7 +55,7 @@ const s = {
     fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase',
   },
   tileBtn: {
-    background: '#0f2040', border: '1px solid #2d3748', borderRadius: 6,
+    background: '#0f2040', border: '1px solid var(--c-2d3748)', borderRadius: 6,
     padding: '0.6rem 0.8rem', cursor: 'pointer', textAlign: 'left', width: '100%', marginBottom: '0.4rem',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
   },
@@ -532,8 +532,8 @@ function MyTeamTab({ user }) {
   if (loading) return <p style={{ color: '#718096' }}>Loading…</p>;
   if (!team) return <div style={s.empty}><p>You are not assigned to a team.</p></div>;
 
-  const th = { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid #2d3748', fontSize: '0.82rem' };
-  const td = { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid #1a1a2e', fontSize: '0.85rem' };
+  const th = { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)', fontSize: '0.82rem' };
+  const td = { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid var(--c-1a1a2e)', fontSize: '0.85rem' };
 
   return (
     <div>

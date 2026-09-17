@@ -24,6 +24,7 @@ A self-hosted bingo event manager for Old School RuneScape clans. Teams submit d
 - **Admin panel** — manage events, tiles, teams, users, and settings; full audit log
 - **Configurable board size** — 3×3 up to 12×12
 - **Changelog page** — public record of app updates at `/changelog`
+- **Pixel-art theme** — the default look, with a nav toggle for anyone to switch back to the classic theme (remembered per browser)
 
 ## Tech stack
 

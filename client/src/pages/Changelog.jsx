@@ -19,7 +19,7 @@ const s = {
   },
   dateText: { fontSize: '0.88rem', fontWeight: 700, color: '#a0aec0', whiteSpace: 'nowrap' },
   dateLine: { flex: 1, height: 1, background: '#1e2a3a' },
-  entry:   { display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.55rem 0', borderBottom: '1px solid #1a1a2e' },
+  entry:   { display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.55rem 0', borderBottom: '1px solid var(--c-1a1a2e)' },
   badge:   { flexShrink: 0, padding: '0.15rem 0.55rem', borderRadius: 3, fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 },
   desc:    { fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.55 },
 };

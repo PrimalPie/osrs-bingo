@@ -5,11 +5,11 @@ import { useAuth } from '../App';
 
 const s = {
   page: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '2rem' },
-  box: { background: '#16213e', border: '1px solid #0f3460', borderRadius: 8, padding: '2rem', width: '100%', maxWidth: 380 },
+  box: { background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '2rem', width: '100%', maxWidth: 380 },
   title: { fontSize: '1.3rem', fontWeight: 700, color: '#e94560', marginBottom: '1.5rem', textAlign: 'center' },
   label: { display: 'block', fontSize: '0.8rem', color: '#a0aec0', marginBottom: '0.3rem' },
   input: {
-    width: '100%', background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    width: '100%', background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.6rem 0.8rem', borderRadius: 4, fontSize: '0.9rem', marginBottom: '1rem',
   },
   btn: {

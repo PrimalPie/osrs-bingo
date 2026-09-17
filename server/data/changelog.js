@@ -1,5 +1,12 @@
 const CHANGELOG = [
   {
+    date: '2026-09-17',
+    entries: [
+      { type: 'feature', description: 'New pixel-art theme is now the default look for the site — a floating nav bar, a Hallowfell crossed-swords icon, and a fully re-themed dark palette across the board, captain dashboard, and admin panel. A toggle in the nav lets anyone switch back to the classic theme at any time; the choice is remembered per browser.' },
+      { type: 'improvement', description: 'Bingo tile text (labels, KC/XP progress counts, column and row headers) sized up for readability in the new theme.' },
+    ],
+  },
+  {
     date: '2026-08-24',
     entries: [
       { type: 'feature', description: 'Boss icon added for TzKal-Zuk (Inferno).' },

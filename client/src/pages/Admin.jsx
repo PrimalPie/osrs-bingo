@@ -11,23 +11,23 @@ function coord(row, col) { return `${COLS[col - 1]}${row}`; }
 const s = {
   page: { padding: '1.5rem', maxWidth: 1100, margin: '0 auto' },
   title: { fontSize: '1.3rem', fontWeight: 700, color: '#e94560', marginBottom: '1.5rem' },
-  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid #0f3460' },
+  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid var(--c-0f3460)' },
   tab: {
     background: 'none', border: 'none', color: '#a0aec0',
     padding: '0.6rem 1.2rem', cursor: 'pointer', fontSize: '0.9rem',
     borderBottom: '2px solid transparent', marginBottom: -2,
   },
   activeTab: { color: '#e94560', borderBottomColor: '#e94560' },
-  section: { background: '#16213e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.25rem', marginBottom: '1.25rem' },
+  section: { background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.25rem', marginBottom: '1.25rem' },
   sectionTitle: { fontSize: '0.95rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '1rem' },
   row: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '0.75rem' },
   label: { fontSize: '0.78rem', color: '#718096', display: 'block', marginBottom: '0.25rem' },
   input: {
-    background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.5rem 0.7rem', borderRadius: 4, fontSize: '0.85rem', minWidth: 140,
   },
   select: {
-    background: '#0f3460', border: '1px solid #2d3748', color: '#e2e8f0',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
     padding: '0.5rem 0.7rem', borderRadius: 4, fontSize: '0.85rem',
   },
   primaryBtn: {
@@ -43,12 +43,12 @@ const s = {
     padding: '0.3rem 0.7rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
   },
   ghostBtn: {
-    background: 'none', border: '1px solid #2d3748', color: '#a0aec0',
+    background: 'none', border: '1px solid var(--c-2d3748)', color: '#a0aec0',
     padding: '0.3rem 0.7rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' },
-  th: { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid #2d3748' },
-  td: { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid #1a1a2e' },
+  th: { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)' },
+  td: { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid var(--c-1a1a2e)' },
   msg: { fontSize: '0.82rem', padding: '0.5rem 0', color: '#68d391' },
   errMsg: { fontSize: '0.82rem', padding: '0.5rem 0', color: '#fc8181' },
 };
@@ -125,7 +125,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
       onClick={onClose}
     >
       <div
-        style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.5rem', width: 420, maxWidth: '92vw' }}
+        style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.5rem', width: 420, maxWidth: '92vw' }}
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -166,7 +166,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
             <label style={s.label}>{isXp ? 'XP Goal' : 'Target'}</label>
             {isXp ? (
               <input
-                style={{ ...s.input, width: '100%', minWidth: 0, borderColor: targetValid ? '#2d3748' : '#742a2a' }}
+                style={{ ...s.input, width: '100%', minWidth: 0, borderColor: targetValid ? 'var(--c-2d3748)' : '#742a2a' }}
                 value={form.targetRaw}
                 onChange={e => set('targetRaw', e.target.value)}
                 placeholder="50m"
@@ -205,7 +205,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               <span style={{ fontSize: '0.78rem', color: '#718096', whiteSpace: 'nowrap' }}>2nd Target</span>
               <input
                 type="number" min={1}
-                style={{ ...s.input, width: 110, minWidth: 0, borderColor: target2Valid ? '#2d3748' : '#742a2a' }}
+                style={{ ...s.input, width: 110, minWidth: 0, borderColor: target2Valid ? 'var(--c-2d3748)' : '#742a2a' }}
                 value={form.target2Raw}
                 onChange={e => set('target2Raw', e.target.value)}
                 placeholder="e.g. 100"
@@ -298,11 +298,11 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
         <table style={{ borderCollapse: 'collapse', tableLayout: 'fixed', width: '100%' }}>
           <thead>
             <tr>
-              <th style={{ width: 28, background: '#0a0a1a', border: '1px solid #1a2a3a' }} />
+              <th style={{ width: 28, background: '#0a0a1a', border: '1px solid var(--c-1a2a3a)' }} />
               {Array.from({ length: boardSize }, (_, i) => (
                 <th key={i} style={{
-                  background: '#0f3460', color: '#a0aec0', fontSize: '0.72rem',
-                  padding: '0.3rem', textAlign: 'center', border: '1px solid #1a2a3a', fontWeight: 600,
+                  background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.72rem',
+                  padding: '0.3rem', textAlign: 'center', border: '1px solid var(--c-1a2a3a)', fontWeight: 600,
                 }}>
                   {COLS[i]}
                 </th>
@@ -315,8 +315,8 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
               return (
                 <tr key={row}>
                   <td style={{
-                    background: '#0f3460', color: '#a0aec0', fontSize: '0.72rem',
-                    textAlign: 'center', fontWeight: 600, border: '1px solid #1a2a3a', padding: '0.3rem',
+                    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.72rem',
+                    textAlign: 'center', fontWeight: 600, border: '1px solid var(--c-1a2a3a)', padding: '0.3rem',
                   }}>
                     {row}
                   </td>
@@ -345,7 +345,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
                         onDoubleClick={() => onCellDoubleClick(c, col, row, tile)}
                         title={tile ? `${c}: ${tile.label} (${tile.type}, ${tile.target})` : `${c}: empty — double-click to add`}
                         style={{
-                          border: isDragTarget ? '2px solid #e94560' : '1px solid #1a2a3a',
+                          border: isDragTarget ? '2px solid #e94560' : '1px solid var(--c-1a2a3a)',
                           background: isDragSource ? '#0a1520' : tile ? '#0f2035' : '#12121f',
                           cursor: readonly ? 'default' : tile ? 'grab' : 'pointer',
                           verticalAlign: 'top',
@@ -382,7 +382,7 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
                         ) : (
                           <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            height: '100%', minHeight: 52, color: '#2d3748', fontSize: '1.2rem',
+                            height: '100%', minHeight: 52, color: 'var(--c-2d3748)', fontSize: '1.2rem',
                             userSelect: 'none',
                           }}>
                             +
@@ -409,7 +409,7 @@ function BoardModal({ event, onClose }) {
   }, [event.id]);
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', zIndex: 1000, padding: '1rem' }} onClick={onClose}>
-      <div style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.25rem', flex: 1, overflowY: 'auto', maxWidth: 1100, width: '100%', margin: '0 auto' }} onClick={e => e.stopPropagation()}>
+      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.25rem', flex: 1, overflowY: 'auto', maxWidth: 1100, width: '100%', margin: '0 auto' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
             <h2 style={{ color: '#e94560', margin: 0, fontSize: '1.1rem' }}>{event.name}</h2>
@@ -431,12 +431,12 @@ function DeleteEventModal({ event, onConfirm, onClose }) {
   const isActive = event.status === 'active';
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ background: '#1a1a2e', border: '1px solid #742a2a', borderRadius: 8, padding: '1.5rem', maxWidth: 440, width: '90%' }} onClick={e => e.stopPropagation()}>
+      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid #742a2a', borderRadius: 8, padding: '1.5rem', maxWidth: 440, width: '90%' }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fc8181', marginBottom: '0.75rem' }}>
           Delete event permanently?
         </div>
 
-        <div style={{ background: '#0f1a2e', border: '1px solid #2d3748', borderRadius: 6, padding: '0.75rem 1rem', marginBottom: '1rem' }}>
+        <div style={{ background: '#0f1a2e', border: '1px solid var(--c-2d3748)', borderRadius: 6, padding: '0.75rem 1rem', marginBottom: '1rem' }}>
           <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: '0.25rem' }}>{event.name}</div>
           <div style={{ fontSize: '0.78rem', color: event.status === 'active' ? '#fc8181' : '#718096' }}>
             {event.board_size}×{event.board_size} · {event.status}
@@ -502,7 +502,7 @@ function EventEditModal({ event, onSave, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ background: '#1a1a2e', border: '1px solid #0f3460', borderRadius: 8, padding: '1.5rem', width: 500, maxWidth: '94vw' }} onClick={e => e.stopPropagation()}>
+      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.5rem', width: 500, maxWidth: '94vw' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <span style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0' }}>Edit Event</span>
           <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
@@ -529,7 +529,7 @@ function EventEditModal({ event, onSave, onClose }) {
                 style={{
                   padding: '0.45rem 0.9rem', borderRadius: 4, cursor: 'pointer',
                   fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                  background: form.mode === val ? '#e94560' : '#0f3460',
+                  background: form.mode === val ? '#e94560' : 'var(--c-0f3460)',
                   color: form.mode === val ? '#fff' : '#a0aec0',
                 }}
               >
@@ -896,7 +896,7 @@ function EventsTab() {
                     style={{
                       padding: '0.45rem 0.8rem', borderRadius: 4, cursor: 'pointer',
                       fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                      background: form.board_size === size ? '#e94560' : '#0f3460',
+                      background: form.board_size === size ? '#e94560' : 'var(--c-0f3460)',
                       color: form.board_size === size ? '#fff' : '#a0aec0',
                     }}
                   >
@@ -916,7 +916,7 @@ function EventsTab() {
                     style={{
                       padding: '0.45rem 0.8rem', borderRadius: 4, cursor: 'pointer',
                       fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                      background: form.mode === val ? '#e94560' : '#0f3460',
+                      background: form.mode === val ? '#e94560' : 'var(--c-0f3460)',
                       color: form.mode === val ? '#fff' : '#a0aec0',
                     }}
                   >
@@ -973,7 +973,7 @@ function EventsTab() {
                 <td style={s.td}>
                   <span style={{
                     fontSize: '0.75rem', fontWeight: 700, padding: '0.1rem 0.5rem', borderRadius: 10,
-                    background: (ev.mode || 'blackout') === 'points' ? '#2d3748' : '#1a2a3a',
+                    background: (ev.mode || 'blackout') === 'points' ? 'var(--c-2d3748)' : 'var(--c-1a2a3a)',
                     color: (ev.mode || 'blackout') === 'points' ? '#f6ad55' : '#63b3ed',
                     textTransform: 'uppercase', letterSpacing: '0.05em',
                   }}>
@@ -1156,13 +1156,13 @@ function TilesTab() {
                   <button
                     onClick={handleSaveLayout}
                     disabled={saving}
-                    style={{ background: '#0f3460', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                    style={{ background: 'var(--c-0f3460)', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
                   >
                     {saving ? 'Saving…' : 'Save Layout'}
                   </button>
                   <button
                     onClick={() => { setLocalTiles(savedTiles); setLayoutMsg(null); }}
-                    style={{ background: 'none', border: '1px solid #2d3748', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
+                    style={{ background: 'none', border: '1px solid var(--c-2d3748)', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
                   >
                     Reset
                   </button>
@@ -1537,7 +1537,7 @@ function AuditTab() {
         {visible.map(row => {
           const meta = ACTION_LABELS[row.action] || { label: row.action, color: '#a0aec0' };
           return (
-            <div key={row.id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.55rem 0', borderBottom: '1px solid #1a1a2e' }}>
+            <div key={row.id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.55rem 0', borderBottom: '1px solid var(--c-1a1a2e)' }}>
               <span style={{ fontSize: '0.72rem', color: '#4a5568', whiteSpace: 'nowrap', width: 130, flexShrink: 0, marginTop: 2 }}>
                 {new Date(row.created_at).toLocaleString()}
               </span>

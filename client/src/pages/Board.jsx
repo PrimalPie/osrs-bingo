@@ -182,7 +182,7 @@ function Scoreboard({ scores, mode, totalTiles, selectedTeamId, onSelectTeam }) 
               onClick={() => onSelectTeam(entry.team.id)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.5rem',
-                background: isSelected ? entry.team.color + '22' : '#16213e',
+                background: isSelected ? entry.team.color + '22' : 'var(--c-16213e)',
                 border: `2px solid ${isSelected ? entry.team.color : isLeading ? entry.team.color + '55' : 'transparent'}`,
                 padding: '0.5rem 1rem', borderRadius: 6, cursor: 'pointer',
                 fontSize: '0.85rem', transition: 'border-color 0.15s, background 0.15s',
@@ -226,7 +226,7 @@ function TeamRosters({ teams }) {
   if (teamsWithMembers.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '1.5rem', borderTop: '1px solid #1a2a3a', paddingTop: '1.25rem' }}>
+    <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--c-1a2a3a)', paddingTop: '1.25rem' }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{
@@ -249,7 +249,7 @@ function TeamRosters({ teams }) {
               : team.members;
             return (
               <div key={team.id} style={{
-                background: '#16213e', border: `1px solid ${team.color}44`,
+                background: 'var(--c-16213e)', border: `1px solid ${team.color}44`,
                 borderRadius: 8, padding: '0.75rem 1rem', minWidth: 180,
               }}>
                 <div style={{ fontWeight: 700, color: team.color, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
@@ -332,7 +332,7 @@ function PreviousBoard({ event }) {
           <button
             onClick={() => downloadCsv(board.event, tiles, scores)}
             style={{
-              background: '#16213e', border: '1px solid #2d3748', color: '#a0aec0',
+              background: 'var(--c-16213e)', border: '1px solid var(--c-2d3748)', color: '#a0aec0',
               padding: '0.4rem 0.9rem', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem',
               flexShrink: 0,
             }}
@@ -473,7 +473,7 @@ export default function Board() {
             <>
               <p style={{ marginBottom: '1.5rem' }}>Next event: <strong style={{ color: '#e2e8f0' }}>{upcoming.name}</strong></p>
               {upcoming.start_date ? (
-                <div style={{ display: 'inline-block', background: '#16213e', border: '1px solid #0f3460', borderRadius: 10, padding: '1.25rem 2.5rem' }}>
+                <div style={{ display: 'inline-block', background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 10, padding: '1.25rem 2.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
                     Starts {fmtDate(upcoming.start_date)} · Local Time ({gmtOffset()})
                   </div>
@@ -489,7 +489,7 @@ export default function Board() {
                   <button
                     onClick={() => loadPreview(upcoming.id)}
                     style={{
-                      background: '#16213e', border: '1px solid #f6ad55', color: '#f6ad55',
+                      background: 'var(--c-16213e)', border: '1px solid #f6ad55', color: '#f6ad55',
                       padding: '0.5rem 1.25rem', borderRadius: 6, cursor: 'pointer',
                       fontSize: '0.85rem', fontWeight: 600,
                     }}
@@ -505,7 +505,7 @@ export default function Board() {
         </div>
 
         {lastCompleted && (
-          <div style={{ borderTop: '1px solid #1a2a3a', paddingTop: '2rem' }}>
+          <div style={{ borderTop: '1px solid var(--c-1a2a3a)', paddingTop: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.2rem' }}>
@@ -521,8 +521,8 @@ export default function Board() {
               <button
                 onClick={() => setShowPrev(p => !p)}
                 style={{
-                  background: showPrev ? '#0f3460' : '#16213e',
-                  border: '1px solid #0f3460', color: '#e2e8f0',
+                  background: showPrev ? 'var(--c-0f3460)' : 'var(--c-16213e)',
+                  border: '1px solid var(--c-0f3460)', color: '#e2e8f0',
                   padding: '0.5rem 1.25rem', borderRadius: 6, cursor: 'pointer',
                   fontSize: '0.85rem', fontWeight: 600,
                 }}
@@ -574,7 +574,7 @@ export default function Board() {
         <button
           onClick={() => downloadCsv(event, tiles, scores)}
           style={{
-            background: '#16213e', border: '1px solid #2d3748', color: '#718096',
+            background: 'var(--c-16213e)', border: '1px solid var(--c-2d3748)', color: '#718096',
             padding: '0.35rem 0.9rem', borderRadius: 6, cursor: 'pointer', fontSize: '0.78rem',
           }}
         >
@@ -585,7 +585,7 @@ export default function Board() {
         <span style={s.live} />
         Live · {tiles.length} tiles ·{' '}
         <span style={{
-          background: mode === 'points' ? '#2d3748' : '#1a2a3a',
+          background: mode === 'points' ? 'var(--c-2d3748)' : 'var(--c-1a2a3a)',
           color: mode === 'points' ? '#f6ad55' : '#63b3ed',
           fontSize: '0.75rem', fontWeight: 700, padding: '0.1rem 0.5rem',
           borderRadius: 10, textTransform: 'uppercase', letterSpacing: '0.05em',

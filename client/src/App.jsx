@@ -7,6 +7,7 @@ import CaptainPage from './pages/Captain';
 import AdminPage from './pages/Admin';
 import ChangelogPage from './pages/Changelog';
 import GeneratePage from './pages/Generate';
+import hallowfellIcon from './assets/hallowfell-icon.png';
 
 export const AuthContext = createContext(null);
 export const ThemeContext = createContext({ beta: false, toggleBeta: () => {} });
@@ -32,9 +33,15 @@ const styles = {
 function Nav() {
   const { user, logout } = useAuth();
   const { beta, toggleBeta } = useTheme();
+
   return (
     <nav style={styles.nav}>
-      <Link to="/" style={styles.navTitle}>⚔️ OSRS Bingo</Link>
+      <Link to="/" style={{ ...styles.navTitle, display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
+        {beta
+          ? <img src={hallowfellIcon} alt="" style={{ width: '1.3em', height: '1.3em', objectFit: 'contain' }} />
+          : '⚔️'}
+        OSRS Bingo
+      </Link>
       <Link to="/" style={styles.navLink}>Board</Link>
       {user && (user.role === 'captain' || user.role === 'admin') && (
         <Link to="/captain" style={styles.navLink}>Captain</Link>
@@ -47,23 +54,21 @@ function Nav() {
       )}
       <Link to="/changelog" style={styles.navLink}>Changelog</Link>
       <div style={styles.navRight}>
-        {user?.role === 'admin' && (
-          <button
-            onClick={toggleBeta}
-            title={beta ? 'Switch to classic theme' : 'Preview beta theme'}
-            style={{
-              background: beta ? '#2d3748' : 'none',
-              border: `1px solid ${beta ? '#68d391' : '#4a5568'}`,
-              color: beta ? '#68d391' : '#4a5568',
-              padding: '0.2rem 0.55rem',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontFamily: 'monospace',
-              letterSpacing: '0.05em',
-            }}
-          >β</button>
-        )}
+        <button
+          onClick={toggleBeta}
+          title={beta ? 'Switch to classic theme' : 'Switch to new theme'}
+          style={{
+            background: beta ? '#2d3748' : 'none',
+            border: `1px solid ${beta ? '#68d391' : '#4a5568'}`,
+            color: beta ? '#68d391' : '#4a5568',
+            padding: '0.2rem 0.55rem',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '0.75rem',
+            fontFamily: 'monospace',
+            letterSpacing: '0.05em',
+          }}
+        >{beta ? 'Classic' : 'New Theme'}</button>
         {user ? (
           <>
             <span style={{ color: '#68d391', fontSize: '0.85rem' }}>{user.username} ({user.role})</span>
@@ -89,7 +94,7 @@ function ProtectedRoute({ children, role }) {
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [beta, setBeta] = useState(() => localStorage.getItem('beta-theme') === 'true');
+  const [beta, setBeta] = useState(() => localStorage.getItem('beta-theme-v2') !== 'false');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -105,7 +110,7 @@ export default function App() {
 
   useEffect(() => {
     document.body.classList.toggle('beta-theme', beta);
-    localStorage.setItem('beta-theme', String(beta));
+    localStorage.setItem('beta-theme-v2', String(beta));
   }, [beta]);
 
   function toggleBeta() { setBeta(b => !b); }
