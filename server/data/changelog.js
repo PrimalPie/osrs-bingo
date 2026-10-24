@@ -1,5 +1,11 @@
 const CHANGELOG = [
   {
+    date: '2026-10-14',
+    entries: [
+      { type: 'fix', description: 'Fixed blank item icons for drops whose names need capitalization beyond the first word (e.g. "Blood Moon helm", "Tome of Fire (empty)") — the icon lookup was forcing every word after the first to lowercase, which broke the OSRS Wiki image link for these items.' },
+    ],
+  },
+  {
     date: '2026-09-17',
     entries: [
       { type: 'feature', description: 'New pixel-art theme is now the default look for the site — a floating nav bar, a Hallowfell crossed-swords icon, and a fully re-themed dark palette across the board, captain dashboard, and admin panel. A toggle in the nav lets anyone switch back to the classic theme at any time; the choice is remembered per browser.' },

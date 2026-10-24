@@ -9,9 +9,9 @@ const MAPPING_URL = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
 const WIKI_FILE_BASE = 'https://oldschool.runescape.wiki/w/Special:FilePath';
 
 function wikiIconUrl(name) {
-  // Sentence-case the name to match wiki filename conventions, then URL-encode
-  const sentence = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-  return `${WIKI_FILE_BASE}/${encodeURIComponent(sentence.replace(/ /g, '_'))}.png`;
+  // Wiki filenames preserve the item's own capitalization (e.g. "Blood Moon helm",
+  // "Tome of Fire (empty)") — just swap spaces for underscores and URL-encode.
+  return `${WIKI_FILE_BASE}/${encodeURIComponent(name.replace(/ /g, '_'))}.png`;
 }
 
 const untradableFormatted = UNTRADABLE_ITEMS.map(item => ({
