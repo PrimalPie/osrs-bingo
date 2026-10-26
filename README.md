@@ -2,7 +2,8 @@
 
 A self-hosted bingo event manager for Old School RuneScape clans. Teams submit drops and boss kills via Discord, captains review them in a web dashboard, and everyone watches the board update live.
 
-<img width="1423" height="854" alt="image" src="https://github.com/user-attachments/assets/83db75aa-a5e1-4cec-b7d1-bc408fdf8011" />
+<img width="1641" height="1243" alt="image" src="https://github.com/user-attachments/assets/ac1c4fb9-0305-4e0c-ae4c-e7b571cb270e" />
+
 
 
 ## Features
