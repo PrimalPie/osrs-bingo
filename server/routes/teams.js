@@ -45,26 +45,25 @@ router.get('/event/:eventId', (req, res) => {
 });
 
 router.post('/event/:eventId', requireAdmin, (req, res) => {
-  const { name, color, discord_channel_id } = req.body;
+  const { name, discord_channel_id } = req.body;
   if (!name) return res.status(400).json({ error: 'Name required' });
   const db = getDb();
   const result = db.prepare(
-    'INSERT INTO teams (event_id, name, color, discord_channel_id) VALUES (?, ?, ?, ?)'
-  ).run(req.params.eventId, name, color || '#e84141', discord_channel_id || null);
+    'INSERT INTO teams (event_id, name, discord_channel_id) VALUES (?, ?, ?)'
+  ).run(req.params.eventId, name, discord_channel_id || null);
   res.json({ id: result.lastInsertRowid, name, event_id: parseInt(req.params.eventId) });
 });
 
 router.patch('/:id', requireAdmin, (req, res) => {
   const db = getDb();
-  const { name, color, discord_channel_id, captain_id } = req.body;
+  const { name, discord_channel_id, captain_id } = req.body;
   db.prepare(
     `UPDATE teams SET
       name = COALESCE(?, name),
-      color = COALESCE(?, color),
       discord_channel_id = COALESCE(?, discord_channel_id),
       captain_id = COALESCE(?, captain_id)
     WHERE id = ?`
-  ).run(name, color, discord_channel_id, captain_id, req.params.id);
+  ).run(name, discord_channel_id, captain_id, req.params.id);
   res.json(db.prepare('SELECT * FROM teams WHERE id = ?').get(req.params.id));
 });
 

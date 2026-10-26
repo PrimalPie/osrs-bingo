@@ -15,7 +15,6 @@ const schema = `
     mode TEXT NOT NULL DEFAULT 'blackout',
     board_size INTEGER NOT NULL DEFAULT 9,
     wom_competition_id INTEGER,
-    winner_team_id INTEGER,
     start_date TEXT,
     end_date TEXT,
     started_at DATETIME,
@@ -44,7 +43,6 @@ const schema = `
     name TEXT NOT NULL,
     captain_id INTEGER REFERENCES users(id),
     discord_channel_id TEXT,
-    color TEXT DEFAULT '#e84141',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -74,15 +72,6 @@ const schema = `
     entity_type TEXT,
     entity_id INTEGER,
     details TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-
-  CREATE TABLE IF NOT EXISTS changelog (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    version TEXT,
-    type TEXT NOT NULL DEFAULT 'feature',
-    description TEXT NOT NULL,
-    created_by TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 

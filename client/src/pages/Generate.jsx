@@ -13,15 +13,15 @@ const DIFF_STYLE = {
 const CAT_ICON = { pvm: '⚔️', skilling: '📚', collection: '🎁' };
 
 const S = {
-  page:    { padding: '2rem', maxWidth: '1200px', margin: '0 auto', color: '#e0e0ff', fontFamily: 'inherit' },
-  card:    { background: 'var(--c-1a1a2e)', border: '1px solid #2d2d4e', borderRadius: '8px', padding: '1.5rem' },
+  page:    { padding: '48px 16px 64px', maxWidth: 1200 + 32, margin: '0 auto', color: 'var(--osrs-text)', fontFamily: 'inherit' },
+  card:    { background: 'var(--osrs-panel)', border: '1px solid var(--osrs-border-dark)', boxShadow: 'inset 0 0 0 1px var(--osrs-border)', borderRadius: 0, padding: '1.5rem' },
   row:     { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' },
-  label:   { width: 150, color: '#a0aec0', fontSize: '0.85rem', flexShrink: 0 },
-  input:   { background: '#0f0f1a', border: '1px solid #2d2d4e', color: '#e0e0ff', padding: '0.3rem 0.5rem', borderRadius: '4px' },
-  numInput:{ background: '#0f0f1a', border: '1px solid #2d2d4e', color: '#e0e0ff', padding: '0.3rem 0.5rem', borderRadius: '4px', width: 64 },
-  btn:     { border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 500, padding: '0.4rem 1rem' },
-  th:      { padding: '0.5rem', textAlign: 'left', color: '#a0aec0', fontWeight: 500 },
-  td:      { padding: '0.4rem 0.5rem', color: '#e0e0ff' },
+  label:   { width: 150, color: 'var(--osrs-subtle)', fontSize: '0.85rem', flexShrink: 0 },
+  input:   { background: 'var(--osrs-sunken)', border: '1px solid var(--osrs-border)', color: 'var(--osrs-text)', padding: '0.3rem 0.5rem', borderRadius: 0 },
+  numInput:{ background: 'var(--osrs-sunken)', border: '1px solid var(--osrs-border)', color: 'var(--osrs-text)', padding: '0.3rem 0.5rem', borderRadius: 0, width: 64 },
+  btn:     { border: 'none', borderRadius: 0, cursor: 'pointer', fontWeight: 500, padding: '0.4rem 1rem' },
+  th:      { padding: '0.5rem', textAlign: 'left', color: 'var(--osrs-subtle)', fontWeight: 500 },
+  td:      { padding: '0.4rem 0.5rem', color: 'var(--osrs-text)' },
 };
 
 const CONTENT_KEYS = ['label', 'type', 'target', 'wom_metric', 'icon_url', 'difficulty', 'category'];
@@ -38,7 +38,7 @@ function ParamRow({ label, children }) {
 function DiffBadge({ diff }) {
   const s = DIFF_STYLE[diff];
   return (
-    <span style={{ background: s.badge, color: s.badgeText, padding: '0.15rem 0.45rem', borderRadius: 3, fontSize: '0.75rem' }}>
+    <span style={{ background: s.badge, color: s.badgeText, padding: '0.15rem 0.45rem', borderRadius: 0, fontSize: '0.75rem' }}>
       {diff}
     </span>
   );
@@ -46,12 +46,11 @@ function DiffBadge({ diff }) {
 
 function SumWarning({ sum }) {
   if (sum === 100) return null;
-  return <p style={{ color: '#e94560', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>Sum: {sum}% — must be 100</p>;
+  return <p style={{ color: 'var(--osrs-accent)', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>Sum: {sum}% — must be 100</p>;
 }
 
 export default function GeneratePage() {
   const { user } = useAuth();
-  if (!user || user.role !== 'admin') return <Navigate to="/" replace />;
 
   const [params, setParams] = useState({
     totalPlayers: 50, numTeams: 5, boardSize: 5, durationDays: 7,
@@ -137,10 +136,12 @@ export default function GeneratePage() {
 
   const selectedEvent = events.find(e => String(e.id) === String(applyId));
 
+  if (!user || user.role !== 'admin') return <Navigate to="/" replace />;
+
   return (
     <div style={S.page}>
-      <h1 style={{ color: '#e94560', margin: '0 0 0.25rem' }}>Board Generator</h1>
-      <p style={{ color: '#a0aec0', margin: '0 0 2rem', fontSize: '0.9rem' }}>
+      <h1 style={{ fontFamily: "'RuneScape Quill', serif", fontSize: 40, lineHeight: 1, fontWeight: 400, color: 'var(--osrs-accent)', margin: '0 0 0.5rem' }}>Board Generator</h1>
+      <p style={{ color: 'var(--osrs-subtle)', margin: '0 0 2rem', fontSize: '0.9rem' }}>
         Sandbox tool. Tune parameters, preview the generated board, then apply it to an event.
       </p>
 
@@ -148,8 +149,8 @@ export default function GeneratePage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
 
         {/* Left: players & board */}
-        <div style={S.card}>
-          <h3 style={{ margin: '0 0 1rem', color: '#e0e0ff' }}>Players &amp; Board</h3>
+        <div className="osrs-card" style={S.card}>
+          <h3 style={{ margin: '0 0 1rem', color: 'var(--osrs-text)' }}>Players &amp; Board</h3>
 
           <ParamRow label="Total players">
             <input type="range" min={10} max={200} value={params.totalPlayers}
@@ -163,19 +164,19 @@ export default function GeneratePage() {
           </ParamRow>
 
           <ParamRow label="Team size">
-            <span style={{ color: '#68d391' }}>{teamSize} players / team</span>
+            <span style={{ color: 'var(--osrs-green)' }}>{teamSize} players / team</span>
           </ParamRow>
 
           <ParamRow label="Board size">
             {[5, 7].map(n => (
               <button key={n} style={{
                 ...S.btn,
-                background: params.boardSize === n ? 'var(--c-0f3460)' : 'var(--c-16213e)',
-                border: `1px solid ${params.boardSize === n ? '#e94560' : '#2d2d4e'}`,
-                color: '#e0e0ff',
+                background: params.boardSize === n ? 'var(--c-0f3460)' : 'none',
+                border: `1px solid ${params.boardSize === n ? 'var(--osrs-accent)' : 'var(--osrs-border)'}`,
+                color: 'var(--osrs-text)',
               }} onClick={() => set('boardSize', n)}>{n}×{n}</button>
             ))}
-            <span style={{ color: '#4a5568', fontSize: '0.8rem' }}>
+            <span style={{ color: 'var(--osrs-border)', fontSize: '0.8rem' }}>
               ({params.boardSize * params.boardSize} tiles)
             </span>
           </ParamRow>
@@ -189,30 +190,30 @@ export default function GeneratePage() {
           <ParamRow label="WOM-tracked only">
             <input type="checkbox" checked={params.womOnly}
               onChange={e => set('womOnly', e.target.checked)} />
-            <span style={{ color: '#a0aec0', fontSize: '0.8rem' }}>Exclude manual drop tiles</span>
+            <span style={{ color: 'var(--osrs-subtle)', fontSize: '0.8rem' }}>Exclude manual drop tiles</span>
           </ParamRow>
         </div>
 
         {/* Right: difficulty & category mix */}
-        <div style={S.card}>
-          <h3 style={{ margin: '0 0 0.5rem', color: '#e0e0ff' }}>Difficulty Mix</h3>
-          <p style={{ color: '#4a5568', fontSize: '0.8rem', margin: '0 0 0.75rem' }}>Each group must total 100%.</p>
+        <div className="osrs-card" style={S.card}>
+          <h3 style={{ margin: '0 0 0.5rem', color: 'var(--osrs-text)' }}>Difficulty Mix</h3>
+          <p style={{ color: 'var(--osrs-border)', fontSize: '0.8rem', margin: '0 0 0.75rem' }}>Each group must total 100%.</p>
 
           {[['easyPct','Easy','easy'], ['mediumPct','Medium','medium'], ['hardPct','Hard','hard']].map(([key, name, diff]) => (
             <ParamRow key={key} label={<DiffBadge diff={diff} />}>
               <input type="number" min={0} max={100} value={params[key]}
                 onChange={e => set(key, +e.target.value)} style={S.numInput} />
-              <span style={{ color: '#a0aec0' }}>%</span>
+              <span style={{ color: 'var(--osrs-subtle)' }}>%</span>
             </ParamRow>
           ))}
           <SumWarning sum={diffSum} />
 
-          <h3 style={{ margin: '1.25rem 0 0.75rem', color: '#e0e0ff' }}>Category Mix</h3>
+          <h3 style={{ margin: '1.25rem 0 0.75rem', color: 'var(--osrs-text)' }}>Category Mix</h3>
           {[['pvmPct','PvM ⚔️'], ['skillingPct','Skilling 📚'], ['collectionPct','Collection 🎁']].map(([key, name]) => (
             <ParamRow key={key} label={name}>
               <input type="number" min={0} max={100} value={params[key]}
                 onChange={e => set(key, +e.target.value)} style={S.numInput} />
-              <span style={{ color: '#a0aec0' }}>%</span>
+              <span style={{ color: 'var(--osrs-subtle)' }}>%</span>
             </ParamRow>
           ))}
           <SumWarning sum={catSum} />
@@ -224,31 +225,31 @@ export default function GeneratePage() {
         <button
           onClick={handleGenerate}
           disabled={generating || diffSum !== 100 || catSum !== 100}
-          style={{ ...S.btn, background: '#e94560', color: '#fff', padding: '0.7rem 2.5rem', fontSize: '1rem',
+          className="osrs-stone" style={{ ...S.btn, background: 'var(--osrs-accent)', color: '#fff', padding: '0.7rem 2.5rem', fontSize: '1rem',
             opacity: (diffSum !== 100 || catSum !== 100) ? 0.5 : 1 }}
         >
           {generating ? 'Generating…' : '🎲 Generate Preview'}
         </button>
-        {genError && <p style={{ color: '#e94560', marginTop: '0.5rem' }}>{genError}</p>}
+        {genError && <p style={{ color: 'var(--osrs-accent)', marginTop: '0.5rem' }}>{genError}</p>}
       </div>
 
       {/* ── Preview ── */}
       {preview && (
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
-            <h2 style={{ color: '#e0e0ff', margin: 0 }}>
+            <h2 style={{ color: 'var(--osrs-text)', margin: 0 }}>
               Preview — {params.boardSize}×{params.boardSize} ({preview.length} tiles)
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               {isRearranged && (
-                <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--osrs-yellow)', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 0 }}>
                   Rearranged
                 </span>
               )}
               {isRearranged && (
                 <button
                   onClick={() => setPreview(originalPreview)}
-                  style={{ ...S.btn, background: 'var(--c-16213e)', border: '1px solid #2d2d4e', color: '#a0aec0', fontSize: '0.82rem' }}
+                  className="osrs-stone osrs-stone--ghost" style={{ ...S.btn, background: 'var(--c-16213e)', border: '1px solid var(--osrs-border)', color: 'var(--osrs-subtle)', fontSize: '0.82rem' }}
                 >
                   Reset Order
                 </button>
@@ -256,7 +257,7 @@ export default function GeneratePage() {
             </div>
           </div>
 
-          <p style={{ color: '#4a5568', fontSize: '0.8rem', margin: '0 0 0.75rem' }}>
+          <p style={{ color: 'var(--osrs-border)', fontSize: '0.8rem', margin: '0 0 0.75rem' }}>
             Drag tiles to swap their positions. Changes are applied when you click Apply to Event below.
           </p>
 
@@ -265,15 +266,15 @@ export default function GeneratePage() {
             {['easy','medium','hard'].map(d => (
               <span key={d} style={{
                 background: DIFF_STYLE[d].badge, color: DIFF_STYLE[d].badgeText,
-                padding: '0.2rem 0.7rem', borderRadius: 4, fontSize: '0.8rem',
+                padding: '0.2rem 0.7rem', borderRadius: 0, fontSize: '0.8rem',
               }}>
                 {d}: {preview.filter(t => t.difficulty === d).length}
               </span>
             ))}
             {['pvm','skilling','collection'].map(c => (
               <span key={c} style={{
-                background: 'var(--c-16213e)', color: '#a0aec0', border: '1px solid #2d2d4e',
-                padding: '0.2rem 0.7rem', borderRadius: 4, fontSize: '0.8rem',
+                background: 'var(--c-16213e)', color: 'var(--osrs-subtle)', border: '1px solid var(--osrs-border)',
+                padding: '0.2rem 0.7rem', borderRadius: 0, fontSize: '0.8rem',
               }}>
                 {CAT_ICON[c]} {c}: {preview.filter(t => t.category === c).length}
               </span>
@@ -318,9 +319,9 @@ export default function GeneratePage() {
                   style={{
                     background: ds.bg,
                     border: isDragTarget
-                      ? '2px solid #e94560'
+                      ? '2px solid var(--osrs-accent)'
                       : `1px solid ${ds.border}`,
-                    borderRadius: 4,
+                    borderRadius: 0,
                     padding: '0.5rem',
                     minHeight: 90,
                     display: 'flex',
@@ -346,13 +347,13 @@ export default function GeneratePage() {
 
           {/* Tile list (collapsible) */}
           <details style={{ marginBottom: '2rem' }}>
-            <summary style={{ cursor: 'pointer', color: '#a0aec0', marginBottom: '0.5rem', userSelect: 'none' }}>
+            <summary style={{ cursor: 'pointer', color: 'var(--osrs-subtle)', marginBottom: '0.5rem', userSelect: 'none' }}>
               Full tile list
             </summary>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #2d2d4e' }}>
+                  <tr style={{ borderBottom: '1px solid var(--osrs-border)' }}>
                     {['Coord','Label','Type','Target','WOM Metric','Difficulty','Category'].map(h => (
                       <th key={h} style={S.th}>{h}</th>
                     ))}
@@ -360,12 +361,12 @@ export default function GeneratePage() {
                 </thead>
                 <tbody>
                   {preview.map(tile => (
-                    <tr key={tile.coord} style={{ borderBottom: '1px solid #12122a' }}>
+                    <tr key={tile.coord} style={{ borderBottom: '1px solid var(--osrs-panel-dark)' }}>
                       <td style={S.td}>{tile.coord}</td>
                       <td style={S.td}>{tile.label}</td>
                       <td style={S.td}>{tileTypeLabel(tile.type, tile.wom_metric)}</td>
                       <td style={S.td}>{formatTarget(tile.type, tile.target)}</td>
-                      <td style={{ ...S.td, color: '#a0aec0', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                      <td style={{ ...S.td, color: 'var(--osrs-subtle)', fontFamily: 'monospace', fontSize: '0.8rem' }}>
                         {tile.wom_metric || '—'}
                       </td>
                       <td style={S.td}><DiffBadge diff={tile.difficulty} /></td>
@@ -378,8 +379,8 @@ export default function GeneratePage() {
           </details>
 
           {/* Apply section */}
-          <div style={S.card}>
-            <h3 style={{ margin: '0 0 1rem', color: '#e0e0ff' }}>Apply to Event</h3>
+          <div className="osrs-card" style={S.card}>
+            <h3 style={{ margin: '0 0 1rem', color: 'var(--osrs-text)' }}>Apply to Event</h3>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
               <select value={applyId} onChange={e => { setApplyId(e.target.value); setApplyMsg(null); }}
@@ -392,32 +393,32 @@ export default function GeneratePage() {
                 ))}
               </select>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#a0aec0', fontSize: '0.9rem', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--osrs-subtle)', fontSize: '0.9rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={clearExisting} onChange={e => setClear(e.target.checked)} />
                 Clear existing tiles first
               </label>
 
               <button onClick={handleApply} disabled={applying || !applyId}
-                style={{ ...S.btn, background: 'var(--c-0f3460)', color: '#e0e0ff', border: '1px solid #2d2d4e',
+                className="osrs-stone" style={{ ...S.btn, background: 'var(--c-0f3460)', color: 'var(--osrs-text)', border: '1px solid var(--osrs-border)',
                   opacity: !applyId ? 0.5 : 1 }}>
                 {applying ? 'Applying…' : isRearranged ? 'Apply Rearranged Board' : 'Apply to Event'}
               </button>
             </div>
 
             {applyMsg && (
-              <p style={{ color: applyMsg.ok ? '#68d391' : '#e94560', margin: '0.5rem 0 0' }}>
+              <p style={{ color: applyMsg.ok ? 'var(--osrs-green)' : 'var(--osrs-accent)', margin: '0.5rem 0 0' }}>
                 {applyMsg.text}
               </p>
             )}
 
             {selectedEvent && selectedEvent.board_size < params.boardSize && (
-              <p style={{ color: '#ed8936', fontSize: '0.82rem', margin: '0.5rem 0 0' }}>
+              <p style={{ color: 'var(--osrs-yellow)', fontSize: '0.82rem', margin: '0.5rem 0 0' }}>
                 ⚠️ Event board size ({selectedEvent.board_size}×{selectedEvent.board_size}) is smaller than generated
                 board ({params.boardSize}×{params.boardSize}) — applying will fail.
               </p>
             )}
             {selectedEvent && selectedEvent.board_size >= params.boardSize && (
-              <p style={{ color: '#4a5568', fontSize: '0.8rem', margin: '0.5rem 0 0' }}>
+              <p style={{ color: 'var(--osrs-border)', fontSize: '0.8rem', margin: '0.5rem 0 0' }}>
                 Event: {selectedEvent.name} ({selectedEvent.board_size}×{selectedEvent.board_size})
               </p>
             )}

@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { formatTarget, tileTypeLabel } from '../utils';
-import { useTheme } from '../App';
 
 const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
 const s = {
   wrapper: { overflowX: 'auto' },
   headerCell: {
-    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.75rem',
+    background: 'var(--c-0f3460)', color: 'var(--osrs-subtle)', fontSize: '0.75rem',
     padding: '0.4rem', textAlign: 'center', fontWeight: 600,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   rowNum: {
-    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.75rem',
+    background: 'var(--c-0f3460)', color: 'var(--osrs-subtle)', fontSize: '0.75rem',
     fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   tileInner: {
@@ -20,64 +19,53 @@ const s = {
     alignItems: 'center', justifyContent: 'center', textAlign: 'center',
     cursor: 'pointer', position: 'relative', gap: '0.2rem', overflow: 'hidden',
   },
-  coord: { fontSize: '0.6rem', color: '#718096', position: 'absolute', top: 3, left: 4 },
+  coord: { fontSize: '0.6rem', color: 'var(--osrs-muted)', position: 'absolute', top: 3, left: 4 },
   label: {
-    fontSize: '0.68rem', color: '#e2e8f0', lineHeight: 1.3,
+    fontSize: '0.68rem', color: 'var(--osrs-text)', lineHeight: 1.3,
     overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
   },
-  type: { fontSize: '0.55rem', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  progressBar: { width: '80%', height: 3, background: 'var(--c-2d3748)', borderRadius: 2, marginTop: 1, flexShrink: 0 },
-  progressFill: { height: '100%', borderRadius: 2, transition: 'width 0.4s ease' },
-  progressText: { fontSize: '0.58rem', color: '#a0aec0' },
+  type: { fontSize: '0.55rem', color: 'var(--osrs-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  progressBar: { width: '80%', height: 3, background: 'var(--c-2d3748)', borderRadius: 0, marginTop: 1, flexShrink: 0 },
+  progressFill: { height: '100%', borderRadius: 0, transition: 'width 0.4s ease' },
+  progressText: { fontSize: '0.58rem', color: 'var(--osrs-subtle)' },
   modal: {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
   },
   modalBox: {
-    background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8,
+    background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 0,
     padding: '1.5rem', maxWidth: 480, width: '90%', maxHeight: '80vh', overflowY: 'auto',
   },
-  modalTitle: { fontSize: '1rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '0.5rem' },
+  modalTitle: { fontSize: '1rem', fontWeight: 700, color: 'var(--osrs-text)', marginBottom: '0.5rem' },
   teamRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' },
   closeBtn: {
-    marginTop: '1rem', background: 'var(--c-0f3460)', border: 'none', color: '#e2e8f0',
-    padding: '0.5rem 1rem', borderRadius: 4, cursor: 'pointer',
+    marginTop: '1rem', background: 'var(--c-0f3460)', border: 'none', color: 'var(--osrs-text)',
+    padding: '0.5rem 1rem', borderRadius: 0, cursor: 'pointer',
   },
 };
 
 function typeColor(type) {
-  if (type === 'xp') return '#68d391';
-  if (type === 'kc') return '#f6ad55';
-  return '#63b3ed';
+  if (type === 'xp') return 'var(--osrs-green)';
+  if (type === 'kc') return 'var(--osrs-yellow)';
+  return 'var(--osrs-blue)';
 }
 
-function getTileBg(tile, selectedTeam, beta, tileGreen, tileBg) {
-  if (beta) {
-    if (!tile) return tileBg;
-    const completed = selectedTeam && tile.progress?.[selectedTeam.id]?.completed_at;
-    return completed ? tileGreen : tileBg;
-  }
-  if (!tile || !selectedTeam) return '#1e2a3a';
+function getTileBg(tile, selectedTeam) {
+  if (!tile || !selectedTeam) return 'var(--osrs-sunken)';
   const completed = tile.progress?.[selectedTeam.id]?.completed_at;
-  return completed ? selectedTeam.color + '44' : '#1e2a3a';
+  return completed ? 'var(--osrs-success-bg)' : 'var(--osrs-sunken)';
 }
 
 export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam = null }) {
   const [selected, setSelected] = useState(null);
-  const { beta } = useTheme();
 
-  const headerBg    = beta ? 'transparent' : 'var(--c-0f3460)';
-  const gridGapPx   = beta ? 8            : 1;
-  const gridContBg  = beta ? '#000'        : 'var(--c-2d3748)';
-  const emptyBg     = beta ? '#1e2029'     : '#12121f';
-  const modalBg     = beta ? '#1e2029'     : 'var(--c-1a1a2e)';
-  const modalBdr    = beta ? '#444'        : 'var(--c-0f3460)';
-  const progTrack   = beta ? '#111'        : 'var(--c-2d3748)';
-  const progFill    = (teamColor) => beta ? '#48bb78' : teamColor;
-  const tileBg      = beta ? '#2d3040'     : '#1e2a3a';
-  const tileGreen   = '#4cae50';
-  const tileRadius  = beta ? 10 : 0;
-  const fs = (base) => beta ? `${parseFloat(base) * 1.15}rem` : base;
+  const headerBg    = 'var(--c-0f3460)';
+  const gridGapPx   = 1;
+  const gridContBg  = 'var(--c-2d3748)';
+  const emptyBg     = 'var(--osrs-sunken)';
+  const progTrack   = 'var(--c-2d3748)';
+  const progFill    = 'var(--osrs-green)';
+  const tileRadius  = 0;
 
   const tileMap = {};
   for (const t of tiles) tileMap[`${t.col}-${t.row}`] = t;
@@ -88,7 +76,7 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
     <div style={s.wrapper}>
       {selected && (
         <div style={s.modal} onClick={() => setSelected(null)}>
-          <div style={{ ...s.modalBox, background: modalBg, border: `1px solid ${modalBdr}` }} onClick={e => e.stopPropagation()}>
+          <div className="osrs-card" style={s.modalBox} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
               {selected.icon_url && (
                 <img
@@ -100,9 +88,9 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
               )}
               <div style={s.modalTitle}>{selected.coord} — {selected.label}</div>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#718096', marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--osrs-muted)', marginBottom: '1rem' }}>
               Type: {tileTypeLabel(selected.type, selected.wom_metric)} · Target: {formatTarget(selected.type, selected.target)}
-              {selected.target2 != null && <> <span style={{ color: '#4a5568' }}>OR</span> {selected.target2}</>}
+              {selected.target2 != null && <> <span style={{ color: 'var(--osrs-border)' }}>OR</span> {selected.target2}</>}
             </div>
 
             {(() => {
@@ -122,8 +110,8 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                   <div key={team.id} style={{ ...s.teamRow, opacity: dimmed ? 0.45 : 1, marginBottom: isSelected ? '0.9rem' : '0.4rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', flex: 1, marginRight: '1rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: team.color, fontWeight: isSelected ? 700 : 400 }}>{team.name}</span>
-                        <span style={{ color: p?.completed_at ? '#68d391' : '#a0aec0' }}>
+                        <span style={{ color: 'var(--osrs-text)', fontWeight: isSelected ? 700 : 400 }}>{team.name}</span>
+                        <span style={{ color: p?.completed_at ? 'var(--osrs-green)' : 'var(--osrs-subtle)' }}>
                           {isOr
                             ? `${current}/${selected.target} or ${current2}/${selected.target2}`
                             : `${formatTarget(selected.type, current)}/${formatTarget(selected.type, selected.target)}`}
@@ -133,17 +121,17 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                       {isSelected && isOr && (
                         <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
                           <div style={{ ...s.progressBar, flex: 1, margin: 0, background: progTrack }}>
-                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(team.color) }} />
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill }} />
                           </div>
-                          <span style={{ fontSize: '0.55rem', color: '#4a5568' }}>or</span>
+                          <span style={{ fontSize: '0.55rem', color: 'var(--osrs-border)' }}>or</span>
                           <div style={{ ...s.progressBar, flex: 1, margin: 0, background: progTrack }}>
-                            <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill(team.color) }} />
+                            <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill }} />
                           </div>
                         </div>
                       )}
                       {isSelected && !isOr && (
                         <div style={{ ...s.progressBar, width: '100%', margin: 0, background: progTrack }}>
-                          <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(team.color) }} />
+                          <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill }} />
                         </div>
                       )}
                     </div>
@@ -161,7 +149,7 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
       <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGapPx, background: gridContBg, marginBottom: gridGapPx }}>
         <div style={{ ...s.headerCell, background: headerBg }} />
         {COLS.slice(0, boardSize).map(c => (
-          <div key={c} style={{ ...s.headerCell, background: headerBg, fontSize: fs('0.75rem') }}>{c}</div>
+          <div key={c} style={{ ...s.headerCell, background: headerBg }}>{c}</div>
         ))}
       </div>
 
@@ -170,33 +158,33 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
         {Array.from({ length: boardSize }, (_, ri) => {
           const row = ri + 1;
           return [
-            <div key={`r${row}`} style={{ ...s.rowNum, background: headerBg, fontSize: fs('0.75rem') }}>{row}</div>,
+            <div key={`r${row}`} style={{ ...s.rowNum, background: headerBg }}>{row}</div>,
             ...COLS.slice(0, boardSize).map((_, ci) => {
               const col = ci + 1;
               const tile = tileMap[`${col}-${row}`];
-              const bg = getTileBg(tile, selectedTeam, beta, tileGreen, tileBg);
+              const bg = getTileBg(tile, selectedTeam);
 
               if (!tile) {
                 return (
                   <div key={`${col}-${row}`} style={{ ...s.tileInner, background: emptyBg, borderRadius: tileRadius, opacity: 0.3, cursor: 'default' }}>
-                    {!beta && <span style={s.coord}>{COLS[ci]}{row}</span>}
+                    <span style={s.coord}>{COLS[ci]}{row}</span>
                   </div>
                 );
               }
 
               return (
                 <div key={`${col}-${row}`} style={{ ...s.tileInner, background: bg, borderRadius: tileRadius }} onClick={() => setSelected(tile)}>
-                  {!beta && <span style={{ ...s.coord, fontSize: fs('0.6rem') }}>{tile.coord}</span>}
+                  <span style={s.coord}>{tile.coord}</span>
                   {tile.icon_url && (
                     <img
                       src={tile.icon_url}
                       alt=""
-                      style={{ width: beta ? 34 : 28, height: beta ? 34 : 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+                      style={{ width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
                       onError={e => { e.target.style.display = 'none'; }}
                     />
                   )}
-                  {!beta && <span style={{ ...s.type, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>}
-                  <span style={{ ...s.label, fontSize: fs('0.68rem'), textTransform: beta ? 'uppercase' : 'none' }}>{tile.label}</span>
+                  <span style={{ ...s.type, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
+                  <span style={s.label}>{tile.label}</span>
 
                   {selectedTeam && (() => {
                     const p = tile.progress?.[selectedTeam.id];
@@ -206,45 +194,23 @@ export default function BingoBoard({ tiles, teams, boardSize = 9, selectedTeam =
                     const pct = Math.min((current / tile.target) * 100, 100);
                     const pct2 = isOr ? Math.min((current2 / tile.target2) * 100, 100) : 0;
 
-                    if (beta) {
-                      return (
-                        <>
-                          <div style={{ ...s.progressText, fontSize: fs('0.58rem'), color: '#ccc' }}>
-                            {isOr
-                              ? `${current}/${tile.target} OR ${current2}/${tile.target2}`
-                              : `${formatTarget(tile.type, current)}/${formatTarget(tile.type, tile.target)}`}
-                          </div>
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: progTrack, borderRadius: `0 0 ${tileRadius}px ${tileRadius}px` }}>
-                            {isOr ? (
-                              <div style={{ display: 'flex', height: '100%' }}>
-                                <div style={{ width: `${pct / 2}%`, height: '100%', background: '#48bb78' }} />
-                                <div style={{ width: `${pct2 / 2}%`, height: '100%', background: '#68d391', marginLeft: 1 }} />
-                              </div>
-                            ) : (
-                              <div style={{ width: `${pct}%`, height: '100%', background: '#48bb78', borderRadius: `0 0 0 ${tileRadius}px` }} />
-                            )}
-                          </div>
-                        </>
-                      );
-                    }
-
                     return (
                       <>
                         {isOr ? (
                           <div style={{ display: 'flex', gap: '0.15rem', width: '80%' }}>
                             <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1, background: progTrack }}>
-                              <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(selectedTeam.color) }} />
+                              <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill }} />
                             </div>
                             <div style={{ ...s.progressBar, flex: 1, width: 'auto', marginTop: 1, background: progTrack }}>
-                              <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill(selectedTeam.color) }} />
+                              <div style={{ ...s.progressFill, width: `${pct2}%`, background: progFill }} />
                             </div>
                           </div>
                         ) : (
                           <div style={{ ...s.progressBar, background: progTrack }}>
-                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill(selectedTeam.color) }} />
+                            <div style={{ ...s.progressFill, width: `${pct}%`, background: progFill }} />
                           </div>
                         )}
-                        <div style={{ ...s.progressText, fontSize: fs('0.58rem') }}>
+                        <div style={s.progressText}>
                           {isOr
                             ? `${current}/${tile.target} or ${current2}/${tile.target2}`
                             : `${formatTarget(tile.type, current)}/${formatTarget(tile.type, tile.target)}`}

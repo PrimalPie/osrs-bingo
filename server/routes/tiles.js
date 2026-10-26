@@ -16,6 +16,20 @@ function rowColToCoord(row, col) {
   return `${COLS[col - 1]}${row}`;
 }
 
+// Tile layout/definition edits are locked once an event goes active, to protect in-progress
+// standings — only team progress (via /:tileId/progress/:teamId) may still change then.
+function eventIsActive(db, eventId) {
+  return db.prepare('SELECT status FROM events WHERE id = ?').get(eventId)?.status === 'active';
+}
+
+function blockIfEventActive(db, eventId, res) {
+  if (eventIsActive(db, eventId)) {
+    res.status(409).json({ error: 'Tiles are locked while the event is active' });
+    return true;
+  }
+  return false;
+}
+
 router.get('/event/:eventId', (req, res) => {
   const db = getDb();
   const tiles = db.prepare('SELECT * FROM tiles WHERE event_id = ? ORDER BY row, col').all(req.params.eventId);
@@ -30,6 +44,7 @@ router.post('/event/:eventId', requireAdmin, (req, res) => {
   if (!pos) return res.status(400).json({ error: 'Invalid coord (e.g. A1, B3)' });
 
   const db = getDb();
+  if (blockIfEventActive(db, req.params.eventId, res)) return;
   try {
     const result = db.prepare(
       'INSERT INTO tiles (event_id, row, col, label, type, target, target2, wom_metric, wom_competition_id, icon_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -46,6 +61,7 @@ router.put('/event/:eventId/bulk', requireAdmin, (req, res) => {
   if (!Array.isArray(tiles)) return res.status(400).json({ error: 'tiles must be an array' });
 
   const db = getDb();
+  if (blockIfEventActive(db, req.params.eventId, res)) return;
   const insert = db.prepare(
     'INSERT OR REPLACE INTO tiles (event_id, row, col, label, type, target, wom_metric) VALUES (?, ?, ?, ?, ?, ?, ?)'
   );
@@ -71,6 +87,8 @@ router.patch('/reorder', requireAdmin, (req, res) => {
   if (!Array.isArray(tiles) || !tiles.length)
     return res.status(400).json({ error: 'tiles[] required' });
   const db = getDb();
+  const firstTile = db.prepare('SELECT event_id FROM tiles WHERE id = ?').get(tiles[0].id);
+  if (firstTile && blockIfEventActive(db, firstTile.event_id, res)) return;
   const update = db.prepare('UPDATE tiles SET row = ?, col = ? WHERE id = ?');
   db.transaction(() => {
     // Move all to temp negative positions first to avoid unique(event_id, row, col) conflicts
@@ -82,6 +100,9 @@ router.patch('/reorder', requireAdmin, (req, res) => {
 
 router.patch('/:id', requireAdmin, (req, res) => {
   const db = getDb();
+  const existingTile = db.prepare('SELECT event_id FROM tiles WHERE id = ?').get(req.params.id);
+  if (!existingTile) return res.status(404).json({ error: 'Tile not found' });
+  if (blockIfEventActive(db, existingTile.event_id, res)) return;
   const { label, type, target, target2, wom_metric, wom_competition_id, icon_url } = req.body;
   const hasIcon = Object.prototype.hasOwnProperty.call(req.body, 'icon_url');
   const hasWomComp = Object.prototype.hasOwnProperty.call(req.body, 'wom_competition_id');
@@ -105,7 +126,7 @@ router.get('/event/:eventId/wom-progress', requireAdmin, (req, res) => {
   const db = getDb();
   const rows = db.prepare(`
     SELECT t.id as tile_id, t.row, t.col, t.label, t.type, t.wom_metric, t.target,
-           te.id as team_id, te.name as team_name, te.color as team_color,
+           te.id as team_id, te.name as team_name,
            COALESCE(tp.current, 0) as current,
            tp.completed_at,
            COALESCE(tp.wom_override, 0) as wom_override
@@ -147,6 +168,9 @@ router.patch('/:tileId/progress/:teamId', requireAdmin, (req, res) => {
 
 router.delete('/:id', requireAdmin, (req, res) => {
   const db = getDb();
+  const tileToDelete = db.prepare('SELECT event_id FROM tiles WHERE id = ?').get(req.params.id);
+  if (!tileToDelete) return res.status(404).json({ error: 'Tile not found' });
+  if (blockIfEventActive(db, tileToDelete.event_id, res)) return;
   db.prepare('DELETE FROM tiles WHERE id = ?').run(req.params.id);
   res.json({ ok: true });
 });

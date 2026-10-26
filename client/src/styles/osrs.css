@@ -1,0 +1,137 @@
+@font-face {
+  font-family: 'RuneScape Bold';
+  src: url('../assets/fonts/RuneScape-Bold-12.woff2') format('woff2'),
+       url('../assets/fonts/RuneScape-Bold-12.woff') format('woff');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RuneScape Plain';
+  src: url('../assets/fonts/RuneScape-Plain-12.woff2') format('woff2'),
+       url('../assets/fonts/RuneScape-Plain-12.woff') format('woff');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RuneScape Quill';
+  src: url('../assets/fonts/RuneScape-Quill.woff2') format('woff2'),
+       url('../assets/fonts/RuneScape-Quill.woff') format('woff');
+  font-display: swap;
+}
+
+/* One family for body text: Plain for regular weights, Bold for 600+. */
+@font-face {
+  font-family: 'RuneScape';
+  src: url('../assets/fonts/RuneScape-Plain-12.woff2') format('woff2'),
+       url('../assets/fonts/RuneScape-Plain-12.woff') format('woff');
+  font-weight: 100 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RuneScape';
+  src: url('../assets/fonts/RuneScape-Bold-12.woff2') format('woff2'),
+       url('../assets/fonts/RuneScape-Bold-12.woff') format('woff');
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+:root {
+  --osrs-page: #241f19;
+  --osrs-panel: #554c41;
+  --osrs-panel-dark: #3e3529;
+  --osrs-sunken: #2d2a22;
+  --osrs-border: #726451;
+  --osrs-border-dark: #2d2a22;
+  --osrs-text: #ffffff;
+  --osrs-muted: #9d9488;
+  --osrs-subtle: #9c8e7c;
+  --osrs-accent: #fe971f;
+  --osrs-green: #2edb45;
+  --osrs-red: #ff5f4f;
+  --osrs-yellow: #ffd34d;
+  --osrs-blue: #6fb7ff;
+  --osrs-success-bg: #179127;
+  --osrs-danger-bg: #6a2318;
+  --osrs-warn-bg: #6b4a12;
+  --osrs-info-bg: #234a6b;
+
+  /* Legacy palette variables still used by older components. */
+  --c-16213e: var(--osrs-panel);
+  --c-0f3460: var(--osrs-sunken);
+  --c-2d3748: var(--osrs-border);
+  --c-1a2a3a: var(--osrs-panel-dark);
+  --c-1a1a2e: var(--osrs-page);
+}
+
+html { font-size: 18px; }
+body {
+  background: var(--osrs-page);
+  color: var(--osrs-text);
+  font-family: 'RuneScape', monospace;
+}
+input, select, textarea, button { font-family: inherit; }
+input[type="checkbox"], input[type="radio"], input[type="range"] { accent-color: var(--osrs-accent); }
+input, select, textarea { border-radius: 0 !important; }
+input::placeholder, textarea::placeholder { color: var(--osrs-muted); }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 1px solid var(--osrs-accent); outline-offset: 0; }
+
+::selection { background: #000000; }
+
+/* 9-slice skins for pages that still use inline style objects (10px corners, tiled middles). */
+.osrs-stone {
+  border: 10px solid transparent !important;
+  border-image: url('../assets/ui/9-slice/btn.png') 10 fill / 10px repeat !important;
+  border-radius: 0 !important;
+  background: none !important;
+  color: var(--osrs-accent) !important;
+  font-family: 'RuneScape Bold', monospace !important;
+  font-weight: 400 !important;
+  padding: 0 6px !important;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+.osrs-stone:hover { color: #ffb75e !important; filter: brightness(1.1); }
+.osrs-stone:active { filter: brightness(0.9); }
+.osrs-stone:disabled { opacity: 0.5; cursor: default; filter: none; }
+.osrs-stone--success { color: var(--osrs-green) !important; }
+.osrs-stone--danger { color: var(--osrs-red) !important; }
+.osrs-stone--ghost { color: var(--osrs-subtle) !important; border-image-source: url('../assets/ui/9-slice/btn-minimal.png') !important; }
+
+.osrs-card {
+  border: 10px solid transparent !important;
+  border-image: url('../assets/ui/9-slice/panel.png') 10 fill / 10px repeat !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  image-rendering: pixelated;
+}
+.osrs-card img { image-rendering: auto; }
+
+.osrs-link { transition: color 0.1s; }
+.osrs-link:hover { color: #ffb75e !important; }
+
+.osrs-row { cursor: pointer; }
+.osrs-row:hover > .osrs-panel-fill { filter: brightness(1.08); }
+.osrs-row:focus-visible { outline: 2px solid #fe971f; outline-offset: 2px; }
+
+/* Row labels sit in the left gutter on wide screens; keep them on-screen when narrow. */
+.osrs-board-scroll { margin-left: -25px; }
+.osrs-header-row { overflow-x: auto; scrollbar-width: none; }
+.osrs-header-row::-webkit-scrollbar { display: none; }
+
+@media (max-width: 720px) {
+  .osrs-board-scroll { margin-left: 0; }
+}
+
+.osrs-button:hover { color: #ffb75e !important; }
+.osrs-button:hover .osrs-nine-slice { filter: brightness(1.12); }
+.osrs-button:active .osrs-nine-slice { filter: brightness(0.9); }
+.osrs-button:active > span:last-child { transform: translateY(1px); }
+.osrs-button:focus-visible { outline: 2px solid #fe971f; outline-offset: 2px; }
+.osrs-button:disabled { cursor: default; opacity: 0.5; }
+.osrs-button:disabled .osrs-nine-slice { filter: none; }
+
+.osrs-tile { cursor: pointer; padding: 0; border: none; background: none; color: inherit; font: inherit; text-align: inherit; }
+.osrs-tile:hover > .osrs-panel-fill { filter: brightness(1.1); }
+.osrs-tile:focus-visible { outline: 2px solid #fe971f; outline-offset: 2px; }

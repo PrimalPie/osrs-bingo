@@ -1,60 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import Panel, { OSRS, FONT } from '../components/osrs/Panel';
+import { ui } from '../components/osrs/styles';
 
 const typeColors = {
-  feature:     { bg: '#276749', text: '#9ae6b4' },
-  fix:         { bg: '#742a2a', text: '#feb2b2' },
-  improvement: { bg: '#2c5282', text: '#90cdf4' },
+  feature: 'var(--osrs-green)',
+  fix: 'var(--osrs-red)',
+  improvement: 'var(--osrs-blue)',
 };
 
 const typeOrder = { feature: 0, improvement: 1, fix: 2 };
 
 const s = {
-  page:    { padding: '1.5rem', maxWidth: 760, margin: '0 auto' },
-  title:   { fontSize: '1.5rem', fontWeight: 700, color: '#e94560', marginBottom: '0.25rem' },
-  sub:     { fontSize: '0.85rem', color: '#718096', marginBottom: '2rem' },
-  group:   { marginBottom: '2.5rem' },
-  dateBar: {
-    display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem',
+  page: { ...ui.page, maxWidth: 760 + 32 },
+  group: { marginTop: 32 },
+  date: { fontFamily: FONT.bold, fontSize: 18, lineHeight: 1, color: OSRS.rank, padding: '16px 24px' },
+  entry: {
+    display: 'grid', gridTemplateColumns: '112px 1fr', gap: 16, alignItems: 'baseline',
+    padding: '12px 24px', borderTop: '1px solid var(--osrs-border)',
   },
-  dateText: { fontSize: '0.88rem', fontWeight: 700, color: '#a0aec0', whiteSpace: 'nowrap' },
-  dateLine: { flex: 1, height: 1, background: '#1e2a3a' },
-  entry:   { display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.55rem 0', borderBottom: '1px solid var(--c-1a1a2e)' },
-  badge:   { flexShrink: 0, padding: '0.15rem 0.55rem', borderRadius: 3, fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 },
-  desc:    { fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.55 },
+  badge: { fontFamily: FONT.bold, fontSize: 16, lineHeight: 1, textTransform: 'uppercase' },
+  desc: { fontFamily: FONT.plain, fontSize: 18, lineHeight: 1.25, color: '#fff' },
 };
 
 export default function Changelog() {
   const [data, setData] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    api.get('/audit/changelog').then(r => setData(r.data)).catch(() => {});
+    api.get('/audit/changelog')
+      .then(r => setData(r.data))
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
   return (
-    <div style={s.page}>
-      <h1 style={s.title}>Changelog</h1>
-      <p style={s.sub}>A record of all features, fixes, and improvements.</p>
+    <main style={s.page}>
+      <h1 style={ui.title}>Changelog</h1>
+      <p style={ui.sub}>A record of all features, fixes, and improvements.</p>
+
+      {loaded && data.length === 0 && <p style={{ ...ui.body, marginTop: 32 }}>Nothing here yet.</p>}
 
       {data.map(group => (
-        <div key={group.date} style={s.group}>
-          <div style={s.dateBar}>
-            <span style={s.dateText}>{new Date(group.date + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-            <div style={s.dateLine} />
-          </div>
-          {[...group.entries].sort((a, b) => (typeOrder[a.type] ?? 9) - (typeOrder[b.type] ?? 9)).map((entry, i) => {
-            const colors = typeColors[entry.type] || typeColors.improvement;
-            return (
-              <div key={i} style={s.entry}>
-                <span style={{ ...s.badge, background: colors.bg, color: colors.text }}>
-                  {entry.type}
-                </span>
-                <span style={s.desc}>{entry.description}</span>
-              </div>
-            );
-          })}
-        </div>
+        <Panel key={group.date} variant="panel" style={s.group}>
+          <h2 style={{ ...s.date, fontWeight: 400 }}>
+            {new Date(group.date + 'T12:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+          </h2>
+          {[...group.entries].sort((a, b) => (typeOrder[a.type] ?? 9) - (typeOrder[b.type] ?? 9)).map((entry, i) => (
+            <div key={i} style={s.entry}>
+              <span style={{ ...s.badge, color: typeColors[entry.type] || typeColors.improvement }}>{entry.type}</span>
+              <span style={s.desc}>{entry.description}</span>
+            </div>
+          ))}
+          <div style={{ height: 8 }} />
+        </Panel>
       ))}
-    </div>
+    </main>
   );
 }

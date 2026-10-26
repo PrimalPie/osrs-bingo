@@ -14,8 +14,8 @@ const WOM_HEADERS = {
 
 async function fetchCompetitionParticipants(competitionId, metric) {
   const url = metric
-    ? `${WOM_BASE}/competitions/${competitionId}?metric=${metric}`
-    : `${WOM_BASE}/competitions/${competitionId}`;
+    ? `${WOM_BASE}/competitions/${encodeURIComponent(competitionId)}?metric=${encodeURIComponent(metric)}`
+    : `${WOM_BASE}/competitions/${encodeURIComponent(competitionId)}`;
   const res = await fetch(url, { headers: WOM_HEADERS });
   if (!res.ok) throw new Error(`WOM API error ${res.status} for competition ${competitionId}${metric ? ` (metric: ${metric})` : ''}`);
   const data = await res.json();
@@ -88,34 +88,38 @@ async function syncWomTiles(io) {
         }
       }
 
+      // OR-condition tiles (target2) share this same wom_metric, so both conditions track
+      // against the same gained total — whichever target is reached first completes the tile.
       const capped = Math.min(totalGained, tile.target);
+      const capped2 = tile.target2 != null ? Math.min(totalGained, tile.target2) : null;
       const existing = db.prepare(
         'SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?'
       ).get(tile.id, team.id);
 
       if (existing) {
         if (existing.wom_override) continue;
-        if (existing.current === capped) continue;
-        const completedAt = capped >= tile.target
+        const newCurrent2 = capped2 != null ? capped2 : (existing.current2 ?? 0);
+        if (existing.current === capped && (existing.current2 ?? 0) === newCurrent2) continue;
+        const completed = capped >= tile.target || (capped2 != null && newCurrent2 >= tile.target2);
+        const completedAt = completed
           ? (existing.completed_at || new Date().toISOString())
           : null;
         db.prepare(
-          'UPDATE tile_progress SET current = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
-        ).run(capped, completedAt, tile.id, team.id);
+          'UPDATE tile_progress SET current = ?, current2 = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
+        ).run(capped, newCurrent2, completedAt, tile.id, team.id);
+        if (io) {
+          io.emit('progress_update', { team_id: team.id, tile_id: tile.id, current: capped, current2: newCurrent2, completed });
+        }
       } else {
-        const completedAt = capped >= tile.target ? new Date().toISOString() : null;
+        const newCurrent2 = capped2 != null ? capped2 : 0;
+        const completed = capped >= tile.target || (capped2 != null && newCurrent2 >= tile.target2);
+        const completedAt = completed ? new Date().toISOString() : null;
         db.prepare(
-          'INSERT INTO tile_progress (tile_id, team_id, current, completed_at) VALUES (?, ?, ?, ?)'
-        ).run(tile.id, team.id, capped, completedAt);
-      }
-
-      if (io) {
-        io.emit('progress_update', {
-          team_id: team.id,
-          tile_id: tile.id,
-          current: capped,
-          completed: capped >= tile.target,
-        });
+          'INSERT INTO tile_progress (tile_id, team_id, current, current2, completed_at) VALUES (?, ?, ?, ?, ?)'
+        ).run(tile.id, team.id, capped, newCurrent2, completedAt);
+        if (io) {
+          io.emit('progress_update', { team_id: team.id, tile_id: tile.id, current: capped, current2: newCurrent2, completed });
+        }
       }
     }
   }

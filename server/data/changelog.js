@@ -1,5 +1,18 @@
 const CHANGELOG = [
   {
+    date: '2026-10-27',
+    entries: [
+      { type: 'feature', description: 'UI revamp — a clan member redesigned the site to fix readability complaints from the last event. The pixel-art theme has had a full visual pass (board, admin, captain, login, and changelog pages), and the Classic theme has been retired now that everyone\'s moved to the new look.' },
+      { type: 'feature', description: 'End-of-event countdown — the board now shows "Ends in" with a live countdown to the event\'s end date, next to the tile count and last WOM sync time.' },
+      { type: 'improvement', description: 'Unselected board tiles now show their target (e.g. "5m XP", "250 KC", "1x Drop") instead of blank space until a team is picked.' },
+      { type: 'fix', description: 'Admin > Tiles grid — tile borders were invisible against the filled-tile background; tiles are now sized up with clearer borders and icons.' },
+      { type: 'fix', description: 'Board layout — the standings panel could wrap below the board on wider boards and was misaligned with the tile grid; both are now fixed and the page stays centered at any board size.' },
+      { type: 'fix', description: 'OR-condition tiles tracked via WiseOldMan — the second condition could get permanently stuck at 0 progress; WOM sync now updates both conditions correctly.' },
+      { type: 'fix', description: 'Reverting an approved submission now restores the exact progress amount that was credited, instead of occasionally under-crediting a team when the original approval had been capped at the tile target.' },
+      { type: 'improvement', description: 'Various backend reliability and security hardening fixes.' },
+    ],
+  },
+  {
     date: '2026-10-14',
     entries: [
       { type: 'fix', description: 'Fixed blank item icons for drops whose names need capitalization beyond the first word (e.g. "Blood Moon helm", "Tome of Fire (empty)") — the icon lookup was forcing every word after the first to lowercase, which broke the OSRS Wiki image link for these items.' },
@@ -8,7 +21,7 @@ const CHANGELOG = [
   {
     date: '2026-09-17',
     entries: [
-      { type: 'feature', description: 'New pixel-art theme is now the default look for the site — a floating nav bar, a Hallowfell crossed-swords icon, and a fully re-themed dark palette across the board, captain dashboard, and admin panel. A toggle in the nav lets anyone switch back to the classic theme at any time; the choice is remembered per browser.' },
+      { type: 'feature', description: 'New pixel-art theme is now the default look for the site — a floating nav bar, a Hallowfell crossed-swords icon, and a fully re-themed dark palette across the board, captain dashboard, and admin panel.' },
       { type: 'improvement', description: 'Bingo tile text (labels, KC/XP progress counts, column and row headers) sized up for readability in the new theme.' },
     ],
   },
@@ -53,7 +66,7 @@ const CHANGELOG = [
     entries: [
       { type: 'feature', description: 'Clue scroll tile support — KC tiles with a clue_scrolls_* WOM metric now display a specific label (e.g. "Medium Clues", "Hard Clues") instead of "KC" throughout the board, captain view, and admin panel.' },
       { type: 'feature', description: 'Reward casket icons — the tile icon picker shows all six reward caskets (beginner through master) when editing a clue scroll tile, replacing the boss list.' },
-      { type: 'feature', description: 'Board preview for admins — a Preview Board button appears on the countdown page when a setup event exists, letting admins verify the tile layout and team colours before the event goes live.' },
+      { type: 'feature', description: 'Board preview for admins — a Preview Board button appears on the countdown page when a setup event exists, letting admins verify the tile layout before the event goes live.' },
       { type: 'improvement', description: 'Setup event boards are now private — the board endpoint returns 403 for unauthenticated requests while an event is in setup. The layout is only visible to admins until the event is activated.' },
     ],
   },

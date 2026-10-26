@@ -6,32 +6,32 @@ const s = {
   row: { display: 'flex', alignItems: 'center', gap: '0.5rem' },
   input: {
     flex: 1,
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.5rem 0.7rem', borderRadius: 4, fontSize: '0.85rem',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.5rem 0.7rem', borderRadius: 0, fontSize: '0.85rem',
   },
   preview: {
     width: 32, height: 32, objectFit: 'contain',
     imageRendering: 'pixelated', flexShrink: 0,
-    border: '1px solid var(--c-2d3748)', borderRadius: 4, background: '#0a0a1a',
+    border: '1px solid var(--c-2d3748)', borderRadius: 0, background: 'var(--osrs-sunken)',
   },
   clearBtn: {
-    background: 'none', border: '1px solid var(--c-2d3748)', color: '#718096',
-    padding: '0.3rem 0.5rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.75rem', flexShrink: 0,
+    background: 'none', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-muted)',
+    padding: '0.3rem 0.5rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.75rem', flexShrink: 0,
   },
   dropdown: {
     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 200,
-    background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 4,
+    background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 0,
     maxHeight: 240, overflowY: 'auto', marginTop: 2,
     boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
   },
   item: {
     display: 'flex', alignItems: 'center', gap: '0.6rem',
-    padding: '0.4rem 0.6rem', cursor: 'pointer', fontSize: '0.85rem', color: '#e2e8f0',
+    padding: '0.4rem 0.6rem', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--osrs-text)',
   },
   itemHover: { background: 'var(--c-0f3460)' },
   itemIcon: { width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 },
-  noResults: { padding: '0.6rem', fontSize: '0.82rem', color: '#718096', textAlign: 'center' },
-  loading: { padding: '0.6rem', fontSize: '0.82rem', color: '#718096', textAlign: 'center' },
+  noResults: { padding: '0.6rem', fontSize: '0.82rem', color: 'var(--osrs-muted)', textAlign: 'center' },
+  loading: { padding: '0.6rem', fontSize: '0.82rem', color: 'var(--osrs-muted)', textAlign: 'center' },
 };
 
 export default function ItemSearch({ value, onChange }) {

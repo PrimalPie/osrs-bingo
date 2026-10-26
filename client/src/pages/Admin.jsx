@@ -9,48 +9,48 @@ const COLS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 function coord(row, col) { return `${COLS[col - 1]}${row}`; }
 
 const s = {
-  page: { padding: '1.5rem', maxWidth: 1100, margin: '0 auto' },
-  title: { fontSize: '1.3rem', fontWeight: 700, color: '#e94560', marginBottom: '1.5rem' },
-  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid var(--c-0f3460)' },
+  page: { padding: '48px 16px 64px', maxWidth: 1100 + 32, margin: '0 auto' },
+  title: { fontFamily: "'RuneScape Quill', serif", fontSize: 40, lineHeight: 1, fontWeight: 400, color: 'var(--osrs-accent)', marginBottom: '1.5rem' },
+  tabs: { display: 'flex', flexWrap: 'wrap', gap: 0, marginBottom: '1.5rem', borderBottom: '1px solid var(--osrs-border)' },
   tab: {
-    background: 'none', border: 'none', color: '#a0aec0',
-    padding: '0.6rem 1.2rem', cursor: 'pointer', fontSize: '0.9rem',
-    borderBottom: '2px solid transparent', marginBottom: -2,
+    background: 'none', border: 'none', color: 'var(--osrs-accent)',
+    padding: '0.6rem 1.2rem', cursor: 'pointer', fontFamily: "'RuneScape Bold', monospace", fontSize: 18,
+    borderBottom: '3px solid transparent', marginBottom: -1,
   },
-  activeTab: { color: '#e94560', borderBottomColor: '#e94560' },
-  section: { background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.25rem', marginBottom: '1.25rem' },
-  sectionTitle: { fontSize: '0.95rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '1rem' },
+  activeTab: { color: 'var(--osrs-accent)', borderBottom: '3px solid var(--osrs-accent)' },
+  section: { background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', boxShadow: 'inset 0 0 0 1px var(--osrs-border)', borderRadius: 0, padding: '1.25rem', marginBottom: '1.25rem' },
+  sectionTitle: { fontSize: '1.1rem', fontWeight: 700, color: 'var(--osrs-text)', marginBottom: '1rem' },
   row: { display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '0.75rem' },
-  label: { fontSize: '0.78rem', color: '#718096', display: 'block', marginBottom: '0.25rem' },
+  label: { fontSize: '0.78rem', color: 'var(--osrs-muted)', display: 'block', marginBottom: '0.25rem' },
   input: {
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.5rem 0.7rem', borderRadius: 4, fontSize: '0.85rem', minWidth: 140,
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.5rem 0.7rem', borderRadius: 0, fontSize: '0.85rem', minWidth: 140,
   },
   select: {
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.5rem 0.7rem', borderRadius: 4, fontSize: '0.85rem',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.5rem 0.7rem', borderRadius: 0, fontSize: '0.85rem',
   },
   primaryBtn: {
-    background: '#e94560', border: 'none', color: '#fff',
-    padding: '0.5rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600,
+    background: 'var(--osrs-accent)', border: 'none', color: '#fff',
+    padding: '0.5rem 1rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600,
   },
   dangerBtn: {
-    background: '#742a2a', border: 'none', color: '#fff',
-    padding: '0.3rem 0.7rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
+    background: 'var(--osrs-danger-bg)', border: 'none', color: '#fff',
+    padding: '0.3rem 0.7rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.78rem',
   },
   successBtn: {
-    background: '#276749', border: 'none', color: '#fff',
-    padding: '0.3rem 0.7rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
+    background: 'var(--osrs-success-bg)', border: 'none', color: '#fff',
+    padding: '0.3rem 0.7rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.78rem',
   },
   ghostBtn: {
-    background: 'none', border: '1px solid var(--c-2d3748)', color: '#a0aec0',
-    padding: '0.3rem 0.7rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.78rem',
+    background: 'none', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-subtle)',
+    padding: '0.3rem 0.7rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.78rem',
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' },
-  th: { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)' },
-  td: { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid var(--c-1a1a2e)' },
-  msg: { fontSize: '0.82rem', padding: '0.5rem 0', color: '#68d391' },
-  errMsg: { fontSize: '0.82rem', padding: '0.5rem 0', color: '#fc8181' },
+  th: { textAlign: 'left', color: 'var(--osrs-muted)', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)' },
+  td: { padding: '0.4rem 0.6rem', color: 'var(--osrs-text)', borderBottom: '1px solid var(--c-1a1a2e)' },
+  msg: { fontSize: '0.82rem', padding: '0.5rem 0', color: 'var(--osrs-green)' },
+  errMsg: { fontSize: '0.82rem', padding: '0.5rem 0', color: 'var(--osrs-red)' },
 };
 
 // ─── WOM metric helpers ───────────────────────────────────────────────────────
@@ -125,17 +125,18 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
       onClick={onClose}
     >
       <div
-        style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.5rem', width: 420, maxWidth: '92vw' }}
+        className="osrs-card"
+        style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 0, padding: '1.5rem', width: 420, maxWidth: '92vw' }}
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div>
-            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#e94560' }}>{cell}</span>
-            <span style={{ fontSize: '0.8rem', color: '#718096', marginLeft: '0.5rem' }}>
+            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--osrs-accent)' }}>{cell}</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--osrs-muted)', marginLeft: '0.5rem' }}>
               {existing ? 'Edit tile' : 'New tile'}
             </span>
           </div>
-          <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
+          <button style={{ background: 'none', border: 'none', color: 'var(--osrs-muted)', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
         </div>
 
         <div style={{ marginBottom: '0.9rem' }}>
@@ -166,7 +167,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
             <label style={s.label}>{isXp ? 'XP Goal' : 'Target'}</label>
             {isXp ? (
               <input
-                style={{ ...s.input, width: '100%', minWidth: 0, borderColor: targetValid ? 'var(--c-2d3748)' : '#742a2a' }}
+                style={{ ...s.input, width: '100%', minWidth: 0, borderColor: targetValid ? 'var(--c-2d3748)' : 'var(--osrs-danger-bg)' }}
                 value={form.targetRaw}
                 onChange={e => set('targetRaw', e.target.value)}
                 placeholder="50m"
@@ -183,7 +184,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
         </div>
 
         {isXp && (
-          <div style={{ marginBottom: '0.9rem', fontSize: '0.75rem', color: targetValid ? '#68d391' : '#fc8181', paddingLeft: 2 }}>
+          <div style={{ marginBottom: '0.9rem', fontSize: '0.75rem', color: targetValid ? 'var(--osrs-green)' : 'var(--osrs-red)', paddingLeft: 2 }}>
             {targetValid
               ? `= ${parsedTarget.toLocaleString()} xp`
               : 'Enter a value like 50m, 500k, or 1.5m'}
@@ -196,21 +197,21 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               type="checkbox"
               checked={form.orCondition}
               onChange={e => set('orCondition', e.target.checked)}
-              style={{ accentColor: '#e94560', width: 14, height: 14 }}
+              style={{ accentColor: 'var(--osrs-accent)', width: 14, height: 14 }}
             />
-            <span style={{ fontSize: '0.78rem', color: '#a0aec0' }}>OR condition — tile completes when <em>either</em> target is met</span>
+            <span style={{ fontSize: '0.78rem', color: 'var(--osrs-subtle)' }}>OR condition — tile completes when <em>either</em> target is met</span>
           </label>
           {form.orCondition && (
             <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '0.78rem', color: '#718096', whiteSpace: 'nowrap' }}>2nd Target</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', whiteSpace: 'nowrap' }}>2nd Target</span>
               <input
                 type="number" min={1}
-                style={{ ...s.input, width: 110, minWidth: 0, borderColor: target2Valid ? 'var(--c-2d3748)' : '#742a2a' }}
+                style={{ ...s.input, width: 110, minWidth: 0, borderColor: target2Valid ? 'var(--c-2d3748)' : 'var(--osrs-danger-bg)' }}
                 value={form.target2Raw}
                 onChange={e => set('target2Raw', e.target.value)}
                 placeholder="e.g. 100"
               />
-              {!target2Valid && <span style={{ fontSize: '0.72rem', color: '#fc8181' }}>Required</span>}
+              {!target2Valid && <span style={{ fontSize: '0.72rem', color: 'var(--osrs-red)' }}>Required</span>}
             </div>
           )}
         </div>
@@ -227,8 +228,8 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               placeholder={form.type === 'xp' ? 'fletching' : 'zulrah'}
             />
             {form.wom_metric && (
-              <div style={{ fontSize: '0.72rem', color: '#718096', marginTop: '0.25rem' }}>
-                Uses event competition with <code style={{ color: '#a0aec0' }}>?metric={form.wom_metric}</code>
+              <div style={{ fontSize: '0.72rem', color: 'var(--osrs-muted)', marginTop: '0.25rem' }}>
+                Uses event competition with <code style={{ color: 'var(--osrs-subtle)' }}>?metric={form.wom_metric}</code>
               </div>
             )}
           </div>
@@ -243,7 +244,7 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
               onChange={e => set('wom_competition_id', e.target.value)}
               placeholder="e.g. 131025"
             />
-            <div style={{ fontSize: '0.72rem', color: '#718096', marginTop: '0.25rem' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--osrs-muted)', marginTop: '0.25rem' }}>
               Leave blank to use the event's main WOM competition with the metric above. Set this only if this tile needs a different competition.
             </div>
           </div>
@@ -252,13 +253,13 @@ function TileModal({ cell, existing, onSave, onDelete, onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.25rem' }}>
           <div>
             {existing && (
-              <button style={s.dangerBtn} onClick={() => onDelete()}>Delete tile</button>
+              <button className="osrs-stone osrs-stone--danger" style={s.dangerBtn} onClick={() => onDelete()}>Delete tile</button>
             )}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button style={s.ghostBtn} onClick={onClose}>Cancel</button>
+            <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={onClose}>Cancel</button>
             <button
-              style={s.primaryBtn}
+              className="osrs-stone" style={s.primaryBtn}
               disabled={!form.label.trim() || !targetValid || !target2Valid}
               onClick={handleSave}
             >
@@ -284,25 +285,25 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
   const total = boardSize * boardSize;
 
   function typeColor(type) {
-    if (type === 'xp') return '#68d391';
-    if (type === 'kc') return '#f6ad55';
-    return '#63b3ed';
+    if (type === 'xp') return 'var(--osrs-green)';
+    if (type === 'kc') return 'var(--osrs-yellow)';
+    return 'var(--osrs-blue)';
   }
 
   return (
     <div>
-      <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
+      <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginBottom: '0.75rem' }}>
         {filled}/{total} tiles filled{!readonly && ' · Double-click to edit · Drag to swap positions'}
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ borderCollapse: 'collapse', tableLayout: 'fixed', width: '100%' }}>
           <thead>
             <tr>
-              <th style={{ width: 28, background: '#0a0a1a', border: '1px solid var(--c-1a2a3a)' }} />
+              <th style={{ width: 34, background: 'var(--osrs-sunken)', border: '1px solid var(--c-1a2a3a)' }} />
               {Array.from({ length: boardSize }, (_, i) => (
                 <th key={i} style={{
-                  background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.72rem',
-                  padding: '0.3rem', textAlign: 'center', border: '1px solid var(--c-1a2a3a)', fontWeight: 600,
+                  background: 'var(--c-0f3460)', color: 'var(--osrs-subtle)', fontSize: '0.82rem',
+                  padding: '0.4rem', textAlign: 'center', border: '1px solid var(--c-1a2a3a)', fontWeight: 600,
                 }}>
                   {COLS[i]}
                 </th>
@@ -315,8 +316,8 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
               return (
                 <tr key={row}>
                   <td style={{
-                    background: 'var(--c-0f3460)', color: '#a0aec0', fontSize: '0.72rem',
-                    textAlign: 'center', fontWeight: 600, border: '1px solid var(--c-1a2a3a)', padding: '0.3rem',
+                    background: 'var(--c-0f3460)', color: 'var(--osrs-subtle)', fontSize: '0.82rem',
+                    textAlign: 'center', fontWeight: 600, border: '1px solid var(--c-1a2a3a)', padding: '0.4rem',
                   }}>
                     {row}
                   </td>
@@ -345,12 +346,12 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
                         onDoubleClick={() => onCellDoubleClick(c, col, row, tile)}
                         title={tile ? `${c}: ${tile.label} (${tile.type}, ${tile.target})` : `${c}: empty — double-click to add`}
                         style={{
-                          border: isDragTarget ? '2px solid #e94560' : '1px solid var(--c-1a2a3a)',
-                          background: isDragSource ? '#0a1520' : tile ? '#0f2035' : '#12121f',
+                          border: isDragTarget ? '2px solid var(--osrs-accent)' : '1px solid var(--osrs-border)',
+                          background: isDragSource ? 'var(--osrs-panel-dark)' : tile ? 'var(--osrs-panel-dark)' : 'var(--osrs-sunken)',
                           cursor: readonly ? 'default' : tile ? 'grab' : 'pointer',
                           verticalAlign: 'top',
-                          padding: '0.3rem 0.4rem',
-                          minHeight: 64,
+                          padding: '0.5rem 0.55rem',
+                          minHeight: 84,
                           position: 'relative',
                           opacity: isDragSource ? 0.35 : 1,
                           transition: 'opacity 0.1s',
@@ -364,25 +365,25 @@ function TileGrid({ boardSize, tiles, onCellDoubleClick, onSwap, readonly = fals
                                 <img
                                   src={tile.icon_url}
                                   alt=""
-                                  style={{ width: 20, height: 20, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+                                  style={{ width: 26, height: 26, objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
                                   onError={e => { e.target.style.display = 'none'; }}
                                 />
                               )}
                               <span style={{
-                                fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase',
+                                fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase',
                                 color: typeColor(tile.type), letterSpacing: '0.04em',
                               }}>
                                 {tileTypeLabel(tile.type, tile.wom_metric)} ×{formatTarget(tile.type, tile.target)}
                               </span>
                             </div>
-                            <span style={{ fontSize: '0.72rem', color: '#e2e8f0', lineHeight: 1.3 }}>
+                            <span style={{ fontSize: '0.82rem', color: 'var(--osrs-text)', lineHeight: 1.3 }}>
                               {tile.label}
                             </span>
                           </div>
                         ) : (
                           <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            height: '100%', minHeight: 52, color: 'var(--c-2d3748)', fontSize: '1.2rem',
+                            height: '100%', minHeight: 68, color: 'var(--c-2d3748)', fontSize: '1.4rem',
                             userSelect: 'none',
                           }}>
                             +
@@ -409,16 +410,16 @@ function BoardModal({ event, onClose }) {
   }, [event.id]);
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', zIndex: 1000, padding: '1rem' }} onClick={onClose}>
-      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.25rem', flex: 1, overflowY: 'auto', maxWidth: 1100, width: '100%', margin: '0 auto' }} onClick={e => e.stopPropagation()}>
+      <div className="osrs-card" style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 0, padding: '1.25rem', flex: 1, overflowY: 'auto', maxWidth: 1100, width: '100%', margin: '0 auto' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
-            <h2 style={{ color: '#e94560', margin: 0, fontSize: '1.1rem' }}>{event.name}</h2>
-            <span style={{ fontSize: '0.78rem', color: '#718096' }}>{event.board_size}×{event.board_size} · {event.status}</span>
+            <h2 style={{ color: 'var(--osrs-accent)', margin: 0, fontSize: '1.1rem' }}>{event.name}</h2>
+            <span style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)' }}>{event.board_size}×{event.board_size} · {event.status}</span>
           </div>
-          <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.3rem' }} onClick={onClose}>✕</button>
+          <button style={{ background: 'none', border: 'none', color: 'var(--osrs-muted)', cursor: 'pointer', fontSize: '1.3rem' }} onClick={onClose}>✕</button>
         </div>
         {!data
-          ? <p style={{ color: '#718096' }}>Loading…</p>
+          ? <p style={{ color: 'var(--osrs-muted)' }}>Loading…</p>
           : <BingoBoard tiles={data.tiles} teams={data.teams} boardSize={event.board_size || 9} />
         }
       </div>
@@ -431,39 +432,39 @@ function DeleteEventModal({ event, onConfirm, onClose }) {
   const isActive = event.status === 'active';
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid #742a2a', borderRadius: 8, padding: '1.5rem', maxWidth: 440, width: '90%' }} onClick={e => e.stopPropagation()}>
-        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fc8181', marginBottom: '0.75rem' }}>
+      <div className="osrs-card" style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--osrs-danger-bg)', borderRadius: 0, padding: '1.5rem', maxWidth: 440, width: '90%' }} onClick={e => e.stopPropagation()}>
+        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--osrs-red)', marginBottom: '0.75rem' }}>
           Delete event permanently?
         </div>
 
-        <div style={{ background: '#0f1a2e', border: '1px solid var(--c-2d3748)', borderRadius: 6, padding: '0.75rem 1rem', marginBottom: '1rem' }}>
-          <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: '0.25rem' }}>{event.name}</div>
-          <div style={{ fontSize: '0.78rem', color: event.status === 'active' ? '#fc8181' : '#718096' }}>
+        <div style={{ background: 'var(--osrs-panel-dark)', border: '1px solid var(--c-2d3748)', borderRadius: 0, padding: '0.75rem 1rem', marginBottom: '1rem' }}>
+          <div style={{ fontWeight: 700, color: 'var(--osrs-text)', marginBottom: '0.25rem' }}>{event.name}</div>
+          <div style={{ fontSize: '0.78rem', color: event.status === 'active' ? 'var(--osrs-red)' : 'var(--osrs-muted)' }}>
             {event.board_size}×{event.board_size} · {event.status}
           </div>
         </div>
 
         {isActive && (
-          <div style={{ background: '#742a2a33', border: '1px solid #742a2a', borderRadius: 4, padding: '0.5rem 0.75rem', marginBottom: '1rem', fontSize: '0.82rem', color: '#fc8181' }}>
+          <div style={{ background: '#742a2a33', border: '1px solid var(--osrs-danger-bg)', borderRadius: 0, padding: '0.5rem 0.75rem', marginBottom: '1rem', fontSize: '0.82rem', color: 'var(--osrs-red)' }}>
             Warning: this event is currently active.
           </div>
         )}
 
-        <p style={{ fontSize: '0.85rem', color: '#a0aec0', marginBottom: '0.5rem' }}>This will permanently delete:</p>
-        <ul style={{ fontSize: '0.83rem', color: '#718096', paddingLeft: '1.25rem', marginBottom: '1rem', lineHeight: 1.8 }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--osrs-subtle)', marginBottom: '0.5rem' }}>This will permanently delete:</p>
+        <ul style={{ fontSize: '0.83rem', color: 'var(--osrs-muted)', paddingLeft: '1.25rem', marginBottom: '1rem', lineHeight: 1.8 }}>
           <li>All tiles and board configuration</li>
           <li>All teams and their rosters</li>
           <li>All submissions and uploaded screenshots</li>
           <li>All progress records</li>
         </ul>
-        <p style={{ fontSize: '0.82rem', color: '#fc8181', marginBottom: '1.25rem', fontWeight: 600 }}>
+        <p style={{ fontSize: '0.82rem', color: 'var(--osrs-red)', marginBottom: '1.25rem', fontWeight: 600 }}>
           This cannot be undone.
         </p>
 
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-          <button style={s.ghostBtn} onClick={onClose}>Cancel</button>
+          <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={onClose}>Cancel</button>
           <button
-            style={{ ...s.dangerBtn, padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 700 }}
+            className="osrs-stone osrs-stone--danger" style={{ ...s.dangerBtn, padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 700 }}
             onClick={onConfirm}
           >
             Delete permanently
@@ -502,10 +503,10 @@ function EventEditModal({ event, onSave, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={onClose}>
-      <div style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 8, padding: '1.5rem', width: 500, maxWidth: '94vw' }} onClick={e => e.stopPropagation()}>
+      <div className="osrs-card" style={{ background: 'var(--c-1a1a2e)', border: '1px solid var(--c-0f3460)', borderRadius: 0, padding: '1.5rem', width: 500, maxWidth: '94vw' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <span style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0' }}>Edit Event</span>
-          <button style={{ background: 'none', border: 'none', color: '#718096', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--osrs-text)' }}>Edit Event</span>
+          <button style={{ background: 'none', border: 'none', color: 'var(--osrs-muted)', cursor: 'pointer', fontSize: '1.1rem' }} onClick={onClose}>✕</button>
         </div>
 
         <div style={{ marginBottom: '0.9rem' }}>
@@ -527,10 +528,10 @@ function EventEditModal({ event, onSave, onClose }) {
                 type="button"
                 onClick={() => setForm(f => ({ ...f, mode: val }))}
                 style={{
-                  padding: '0.45rem 0.9rem', borderRadius: 4, cursor: 'pointer',
+                  padding: '0.45rem 0.9rem', borderRadius: 0, cursor: 'pointer',
                   fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                  background: form.mode === val ? '#e94560' : 'var(--c-0f3460)',
-                  color: form.mode === val ? '#fff' : '#a0aec0',
+                  background: form.mode === val ? 'var(--osrs-accent)' : 'none',
+                  color: form.mode === val ? '#fff' : 'var(--osrs-subtle)',
                 }}
               >
                 {label}
@@ -552,8 +553,8 @@ function EventEditModal({ event, onSave, onClose }) {
         {err && <div style={{ ...s.errMsg, marginBottom: '0.75rem' }}>{err}</div>}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-          <button style={s.ghostBtn} onClick={onClose}>Cancel</button>
-          <button style={s.primaryBtn} onClick={handleSave}>Save changes</button>
+          <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={onClose}>Cancel</button>
+          <button className="osrs-stone" style={s.primaryBtn} onClick={handleSave}>Save changes</button>
         </div>
       </div>
     </div>
@@ -640,13 +641,13 @@ function WomOverridePanel({ event }) {
   }
 
   if (!rows.length) return (
-    <div style={{ fontSize: '0.82rem', color: '#4a5568' }}>No WOM-tracked tiles found for this event.</div>
+    <div style={{ fontSize: '0.82rem', color: 'var(--osrs-border)' }}>No WOM-tracked tiles found for this event.</div>
   );
 
   return (
     <div>
-      <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
-        Check <strong style={{ color: '#f6ad55' }}>Override</strong> to disable WOM sync for a team's tile and set the value manually.
+      <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginBottom: '0.75rem' }}>
+        Check <strong style={{ color: 'var(--osrs-yellow)' }}>Override</strong> to disable WOM sync for a team's tile and set the value manually.
         WOM sync will not overwrite any row with override enabled.
       </div>
       <table style={{ ...s.table, fontSize: '0.8rem' }}>
@@ -670,25 +671,25 @@ function WomOverridePanel({ event }) {
             const isFirst = rows.findIndex(r => r.tile_id === row.tile_id) === rows.indexOf(row);
             const tileRowCount = rows.filter(r => r.tile_id === row.tile_id).length;
             return (
-              <tr key={key} style={{ background: draft.wom_override ? '#1a1500' : 'transparent' }}>
+              <tr key={key} style={{ background: draft.wom_override ? 'var(--osrs-warn-bg)' : 'transparent' }}>
                 {isFirst && (
-                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontWeight: 600, color: '#e2e8f0' }} rowSpan={tileRowCount}>
-                    <span style={{ fontSize: '0.72rem', color: '#718096', display: 'block' }}>
+                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontWeight: 600, color: 'var(--osrs-text)' }} rowSpan={tileRowCount}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--osrs-muted)', display: 'block' }}>
                       {COLS[row.col - 1]}{row.row}
                     </span>
                     {row.label}
                   </td>
                 )}
                 {isFirst && (
-                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontFamily: 'monospace', fontSize: '0.75rem', color: '#a0aec0' }} rowSpan={tileRowCount}>
+                  <td style={{ ...s.td, verticalAlign: 'top', paddingTop: '0.6rem', fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--osrs-subtle)' }} rowSpan={tileRowCount}>
                     {row.wom_metric}
                   </td>
                 )}
                 <td style={s.td}>
-                  <span style={{ color: row.team_color, fontWeight: 600 }}>{row.team_name}</span>
+                  <span style={{ color: 'var(--osrs-text)', fontWeight: 600 }}>{row.team_name}</span>
                 </td>
                 <td style={s.td}>
-                  <span style={{ color: row.completed_at ? '#68d391' : '#a0aec0' }}>
+                  <span style={{ color: row.completed_at ? 'var(--osrs-green)' : 'var(--osrs-subtle)' }}>
                     {row.current}/{row.target}
                     {row.completed_at ? ' ✓' : ''}
                   </span>
@@ -698,7 +699,7 @@ function WomOverridePanel({ event }) {
                     type="checkbox"
                     checked={draft.wom_override}
                     onChange={e => setDraft(row.tile_id, row.team_id, 'wom_override', e.target.checked)}
-                    style={{ accentColor: '#f6ad55', width: 14, height: 14, cursor: 'pointer' }}
+                    style={{ accentColor: 'var(--osrs-yellow)', width: 14, height: 14, cursor: 'pointer' }}
                   />
                 </td>
                 <td style={s.td}>
@@ -709,23 +710,23 @@ function WomOverridePanel({ event }) {
                       max={row.target}
                       value={draft.current}
                       onChange={e => setDraft(row.tile_id, row.team_id, 'current', parseInt(e.target.value) || 0)}
-                      style={{ ...s.input, width: 70, minWidth: 0, padding: '0.25rem 0.4rem', borderColor: '#744210' }}
+                      style={{ ...s.input, width: 70, minWidth: 0, padding: '0.25rem 0.4rem', borderColor: 'var(--osrs-warn-bg)' }}
                     />
                   ) : (
-                    <span style={{ color: '#4a5568', fontSize: '0.75rem' }}>—</span>
+                    <span style={{ color: 'var(--osrs-border)', fontSize: '0.75rem' }}>—</span>
                   )}
                 </td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     <button
-                      style={{ ...s.ghostBtn, padding: '0.2rem 0.6rem', opacity: isSaving ? 0.5 : 1 }}
+                      className="osrs-stone osrs-stone--ghost" style={{ ...s.ghostBtn, padding: '0.2rem 0.6rem', opacity: isSaving ? 0.5 : 1 }}
                       disabled={isSaving}
                       onClick={() => save(row.tile_id, row.team_id)}
                     >
                       {isSaving ? '…' : 'Save'}
                     </button>
-                    {msg === 'ok' && <span style={{ color: '#68d391', fontSize: '0.75rem' }}>✓</span>}
-                    {msg === 'err' && <span style={{ color: '#fc8181', fontSize: '0.75rem' }}>✗</span>}
+                    {msg === 'ok' && <span style={{ color: 'var(--osrs-green)', fontSize: '0.75rem' }}>✓</span>}
+                    {msg === 'err' && <span style={{ color: 'var(--osrs-red)', fontSize: '0.75rem' }}>✗</span>}
                   </div>
                 </td>
               </tr>
@@ -741,17 +742,17 @@ function WomOverridePanel({ event }) {
 function WomOverrideSection({ event }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={s.section}>
+    <div className="osrs-card" style={s.section}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-          padding: 0, color: '#e2e8f0',
+          padding: 0, color: 'var(--osrs-text)',
         }}
       >
         <span style={s.sectionTitle}>WOM Progress Overrides</span>
-        <span style={{ fontSize: '0.8rem', color: '#718096' }}>{open ? '▲ collapse' : '▼ expand'}</span>
+        <span style={{ fontSize: '0.8rem', color: 'var(--osrs-muted)' }}>{open ? '▲ collapse' : '▼ expand'}</span>
       </button>
       {open && (
         <div style={{ marginTop: '0.75rem' }}>
@@ -848,18 +849,18 @@ function EventsTab() {
         />
       )}
 
-      <div style={{ ...s.section, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+      <div className="osrs-card" style={{ ...s.section, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <div style={s.sectionTitle}>WiseOldMan Sync</div>
-          <div style={{ fontSize: '0.8rem', color: '#718096' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--osrs-muted)' }}>
             Auto-syncs every 2 hours.{' '}
             {womStatus.lastSync
-              ? <>Last synced: <span style={{ color: '#a0aec0' }}>{new Date(womStatus.lastSync).toLocaleString()}</span></>
-              : <span style={{ color: '#a0aec0' }}>Not yet synced this session.</span>}
+              ? <>Last synced: <span style={{ color: 'var(--osrs-subtle)' }}>{new Date(womStatus.lastSync).toLocaleString()}</span></>
+              : <span style={{ color: 'var(--osrs-subtle)' }}>Not yet synced this session.</span>}
           </div>
         </div>
         <button
-          style={{ ...s.primaryBtn, opacity: womSyncing ? 0.6 : 1 }}
+          className="osrs-stone" style={{ ...s.primaryBtn, opacity: womSyncing ? 0.6 : 1 }}
           onClick={forceWomSync}
           disabled={womSyncing}
         >
@@ -871,7 +872,7 @@ function EventsTab() {
         <WomOverrideSection event={events.find(e => e.status === 'active')} />
       )}
 
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.sectionTitle}>Create Event</div>
         <form onSubmit={create}>
           <div style={s.row}>
@@ -894,10 +895,10 @@ function EventsTab() {
                     type="button"
                     onClick={() => setForm(f => ({ ...f, board_size: size }))}
                     style={{
-                      padding: '0.45rem 0.8rem', borderRadius: 4, cursor: 'pointer',
+                      padding: '0.45rem 0.8rem', borderRadius: 0, cursor: 'pointer',
                       fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                      background: form.board_size === size ? '#e94560' : 'var(--c-0f3460)',
-                      color: form.board_size === size ? '#fff' : '#a0aec0',
+                      background: form.board_size === size ? 'var(--osrs-accent)' : 'none',
+                      color: form.board_size === size ? '#fff' : 'var(--osrs-subtle)',
                     }}
                   >
                     {size}×{size}
@@ -914,10 +915,10 @@ function EventsTab() {
                     type="button"
                     onClick={() => setForm(f => ({ ...f, mode: val }))}
                     style={{
-                      padding: '0.45rem 0.8rem', borderRadius: 4, cursor: 'pointer',
+                      padding: '0.45rem 0.8rem', borderRadius: 0, cursor: 'pointer',
                       fontSize: '0.85rem', fontWeight: 600, border: 'none',
-                      background: form.mode === val ? '#e94560' : 'var(--c-0f3460)',
-                      color: form.mode === val ? '#fff' : '#a0aec0',
+                      background: form.mode === val ? 'var(--osrs-accent)' : 'none',
+                      color: form.mode === val ? '#fff' : 'var(--osrs-subtle)',
                     }}
                   >
                     {label}
@@ -944,7 +945,7 @@ function EventsTab() {
               <label style={s.label}>End Date/Time (UTC, optional)</label>
               <input type="datetime-local" style={{ ...s.input, colorScheme: 'dark' }} value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
             </div>
-            <button type="submit" style={{ ...s.primaryBtn, alignSelf: 'flex-end' }}>Create</button>
+            <button type="submit" className="osrs-stone" style={{ ...s.primaryBtn, alignSelf: 'flex-end' }}>Create</button>
           </div>
           {msg && <div style={s.msg}>{msg}</div>}
         </form>
@@ -952,7 +953,7 @@ function EventsTab() {
 
       {err && <div style={{ ...s.errMsg, marginBottom: '1rem' }}>{err}</div>}
 
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.sectionTitle}>All Events</div>
         <table style={s.table}>
           <thead>
@@ -972,16 +973,16 @@ function EventsTab() {
                 <td style={s.td}>{ev.board_size}×{ev.board_size}</td>
                 <td style={s.td}>
                   <span style={{
-                    fontSize: '0.75rem', fontWeight: 700, padding: '0.1rem 0.5rem', borderRadius: 10,
+                    fontSize: '0.75rem', fontWeight: 700, padding: '0.1rem 0.5rem', borderRadius: 0,
                     background: (ev.mode || 'blackout') === 'points' ? 'var(--c-2d3748)' : 'var(--c-1a2a3a)',
-                    color: (ev.mode || 'blackout') === 'points' ? '#f6ad55' : '#63b3ed',
+                    color: (ev.mode || 'blackout') === 'points' ? 'var(--osrs-yellow)' : 'var(--osrs-blue)',
                     textTransform: 'uppercase', letterSpacing: '0.05em',
                   }}>
                     {ev.mode || 'blackout'}
                   </span>
                 </td>
                 <td style={s.td}>
-                  <span style={{ color: ev.status === 'active' ? '#68d391' : ev.status === 'completed' ? '#718096' : '#f6ad55' }}>
+                  <span style={{ color: ev.status === 'active' ? 'var(--osrs-green)' : ev.status === 'completed' ? 'var(--osrs-muted)' : 'var(--osrs-yellow)' }}>
                     {ev.status}
                   </span>
                 </td>
@@ -989,17 +990,17 @@ function EventsTab() {
                   <span style={{ fontSize: '0.8rem' }}>
                     {ev.start_date || ev.end_date
                       ? <>{fmtDate(ev.start_date)} – {fmtDate(ev.end_date)}</>
-                      : <span style={{ color: '#4a5568' }}>—</span>}
+                      : <span style={{ color: 'var(--osrs-border)' }}>—</span>}
                   </span>
                 </td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {ev.status === 'setup' && <button style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Activate</button>}
-                    {ev.status === 'active' && <button style={s.dangerBtn} onClick={() => setStatus(ev.id, 'completed')}>End</button>}
-                    {ev.status === 'completed' && <button style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Reactivate</button>}
-                    <button style={s.ghostBtn} onClick={() => setEditTarget(ev)}>Edit</button>
-                    <button style={s.ghostBtn} onClick={() => setBoardEvent(ev)}>View Board</button>
-                    <button style={s.dangerBtn} onClick={() => setDeleteTarget(ev)}>Delete</button>
+                    {ev.status === 'setup' && <button className="osrs-stone osrs-stone--success" style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Activate</button>}
+                    {ev.status === 'active' && <button className="osrs-stone osrs-stone--danger" style={s.dangerBtn} onClick={() => setStatus(ev.id, 'completed')}>End</button>}
+                    {ev.status === 'completed' && <button className="osrs-stone osrs-stone--success" style={s.successBtn} onClick={() => setStatus(ev.id, 'active')}>Reactivate</button>}
+                    <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={() => setEditTarget(ev)}>Edit</button>
+                    <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={() => setBoardEvent(ev)}>View Board</button>
+                    <button className="osrs-stone osrs-stone--danger" style={s.dangerBtn} onClick={() => setDeleteTarget(ev)}>Delete</button>
                   </div>
                 </td>
               </tr>
@@ -1124,7 +1125,7 @@ function TilesTab() {
         />
       )}
 
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.row}>
           <div>
             <label style={s.label}>Event</label>
@@ -1140,9 +1141,9 @@ function TilesTab() {
       </div>
 
       {selectedEvent && (
-        <div style={s.section}>
+        <div className="osrs-card" style={s.section}>
           {selectedEvent.status === 'active' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#3d1f0022', border: '1px solid #744210', borderRadius: 6, padding: '0.6rem 1rem', marginBottom: '0.75rem', fontSize: '0.82rem', color: '#f6ad55' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#3d1f0022', border: '1px solid var(--osrs-warn-bg)', borderRadius: 0, padding: '0.6rem 1rem', marginBottom: '0.75rem', fontSize: '0.82rem', color: 'var(--osrs-yellow)' }}>
               <span>⚠</span>
               <span>Tile editing and reordering are disabled while an event is active. End the event first.</span>
             </div>
@@ -1150,31 +1151,31 @@ function TilesTab() {
             <>
               {hasLayoutChanges && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.78rem', color: '#f6ad55', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 4 }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--osrs-yellow)', background: '#f6ad5522', border: '1px solid #f6ad5544', padding: '0.2rem 0.6rem', borderRadius: 0 }}>
                     Unsaved layout changes
                   </span>
                   <button
                     onClick={handleSaveLayout}
                     disabled={saving}
-                    style={{ background: 'var(--c-0f3460)', border: '1px solid #2d5086', color: '#e2e8f0', padding: '0.35rem 1rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                    style={{ background: 'var(--c-0f3460)', border: '1px solid var(--osrs-info-bg)', color: 'var(--osrs-text)', padding: '0.35rem 1rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
                   >
                     {saving ? 'Saving…' : 'Save Layout'}
                   </button>
                   <button
                     onClick={() => { setLocalTiles(savedTiles); setLayoutMsg(null); }}
-                    style={{ background: 'none', border: '1px solid var(--c-2d3748)', color: '#718096', padding: '0.35rem 0.75rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.85rem' }}
+                    style={{ background: 'none', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-muted)', padding: '0.35rem 0.75rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.85rem' }}
                   >
                     Reset
                   </button>
                   {layoutMsg && (
-                    <span style={{ fontSize: '0.82rem', color: layoutMsg.ok ? '#68d391' : '#fc8181' }}>
+                    <span style={{ fontSize: '0.82rem', color: layoutMsg.ok ? 'var(--osrs-green)' : 'var(--osrs-red)' }}>
                       {layoutMsg.text}
                     </span>
                   )}
                 </div>
               )}
               {!hasLayoutChanges && layoutMsg && (
-                <p style={{ fontSize: '0.82rem', color: '#68d391', marginBottom: '0.5rem' }}>{layoutMsg.text}</p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--osrs-green)', marginBottom: '0.5rem' }}>{layoutMsg.text}</p>
               )}
             </>
           )}
@@ -1196,7 +1197,7 @@ function TeamsTab() {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [teams, setTeams] = useState([]);
-  const [teamForm, setTeamForm] = useState({ name: '', color: '#e84141', discord_channel_id: '' });
+  const [teamForm, setTeamForm] = useState({ name: '', discord_channel_id: '' });
   const [memberForms, setMemberForms] = useState({});
   const [msg, setMsg] = useState('');
 
@@ -1214,7 +1215,7 @@ function TeamsTab() {
   async function createTeam(e) {
     e.preventDefault();
     await api.post(`/teams/event/${selectedEvent}`, teamForm);
-    setTeamForm({ name: '', color: '#e84141', discord_channel_id: '' });
+    setTeamForm({ name: '', discord_channel_id: '' });
     loadTeams();
     setMsg('Team created'); setTimeout(() => setMsg(''), 3000);
   }
@@ -1238,7 +1239,7 @@ function TeamsTab() {
 
   return (
     <div>
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.row}>
           <div>
             <label style={s.label}>Event</label>
@@ -1249,7 +1250,7 @@ function TeamsTab() {
         </div>
       </div>
 
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.sectionTitle}>Create Team</div>
         <form onSubmit={createTeam}>
           <div style={s.row}>
@@ -1261,20 +1262,16 @@ function TeamsTab() {
               <label style={s.label}>Discord Channel ID</label>
               <input style={s.input} value={teamForm.discord_channel_id} onChange={e => setTeamForm(f => ({ ...f, discord_channel_id: e.target.value }))} placeholder="1234567890" />
             </div>
-            <div>
-              <label style={s.label}>Colour</label>
-              <input type="color" style={{ ...s.input, width: 60, padding: '0.2rem', cursor: 'pointer' }} value={teamForm.color} onChange={e => setTeamForm(f => ({ ...f, color: e.target.value }))} />
-            </div>
-            <button type="submit" style={s.primaryBtn}>Create</button>
+            <button type="submit" className="osrs-stone" style={s.primaryBtn}>Create</button>
           </div>
           {msg && <div style={s.msg}>{msg}</div>}
         </form>
       </div>
 
       {teams.map(team => (
-        <div key={team.id} style={{ ...s.section, borderLeft: `3px solid ${team.color}` }}>
+        <div key={team.id} className="osrs-card" style={s.section}>
           <div style={s.sectionTitle}>{team.name}</div>
-          <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
+          <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginBottom: '0.75rem' }}>
             Channel ID: {team.discord_channel_id || '(not set)'}
           </div>
           <table style={s.table}>
@@ -1290,7 +1287,7 @@ function TeamsTab() {
                 <tr key={m.id}>
                   <td style={s.td}>{m.osrs_name}</td>
                   <td style={s.td}>{m.discord_username || '—'}</td>
-                  <td style={s.td}><button style={s.dangerBtn} onClick={() => removeMember(team.id, m.id)}>Remove</button></td>
+                  <td style={s.td}><button className="osrs-stone osrs-stone--danger" style={s.dangerBtn} onClick={() => removeMember(team.id, m.id)}>Remove</button></td>
                 </tr>
               ))}
               <tr>
@@ -1300,7 +1297,7 @@ function TeamsTab() {
                 <td style={s.td}>
                   <input style={{ ...s.input, width: '100%' }} placeholder="discord username (optional)" value={memberForms[team.id]?.discord_username || ''} onChange={e => setMemberField(team.id, 'discord_username', e.target.value)} />
                 </td>
-                <td style={s.td}><button style={s.successBtn} onClick={() => addMember(team.id)}>Add</button></td>
+                <td style={s.td}><button className="osrs-stone osrs-stone--success" style={s.successBtn} onClick={() => addMember(team.id)}>Add</button></td>
               </tr>
             </tbody>
           </table>
@@ -1377,7 +1374,7 @@ function UsersTab() {
 
   return (
     <div>
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.sectionTitle}>User Accounts</div>
         {msg && <div style={{ ...s.msg, marginBottom: '0.5rem' }}>{msg}</div>}
         {err && <div style={{ ...s.errMsg, marginBottom: '0.5rem' }}>{err}</div>}
@@ -1398,7 +1395,7 @@ function UsersTab() {
                 <tr key={u.id}>
                   <td style={s.td} colSpan={3}>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{u.username}</span>
+                      <span style={{ color: 'var(--osrs-text)', fontWeight: 600 }}>{u.username}</span>
                       <select style={s.select} value={editing.role} onChange={e => setEditing(ed => ({ ...ed, role: e.target.value }))}>
                         <option value="captain">Captain</option>
                         <option value="admin">Admin</option>
@@ -1415,21 +1412,21 @@ function UsersTab() {
                   <td style={s.td} />
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button style={s.successBtn} onClick={saveEdit}>Save</button>
-                      <button style={s.ghostBtn} onClick={() => setEditing(null)}>Cancel</button>
+                      <button className="osrs-stone osrs-stone--success" style={s.successBtn} onClick={saveEdit}>Save</button>
+                      <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={() => setEditing(null)}>Cancel</button>
                     </div>
                   </td>
                 </tr>
               ) : (
                 <tr key={u.id}>
                   <td style={s.td}>{u.username}</td>
-                  <td style={s.td}><span style={{ color: u.role === 'admin' ? '#e94560' : '#f6ad55' }}>{u.role}</span></td>
+                  <td style={s.td}><span style={{ color: u.role === 'admin' ? 'var(--osrs-accent)' : 'var(--osrs-yellow)' }}>{u.role}</span></td>
                   <td style={s.td}>{u.team_name || '—'}</td>
-                  <td style={s.td}><span style={{ color: '#718096' }}>{u.event_name || '—'}</span></td>
+                  <td style={s.td}><span style={{ color: 'var(--osrs-muted)' }}>{u.event_name || '—'}</span></td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      {!isOtherAdmin && <button style={s.ghostBtn} onClick={() => setEditing({ ...u, newPassword: '' })}>Edit</button>}
-                      {!isOtherAdmin && <button style={s.dangerBtn} onClick={() => deleteUser(u.id, u.username)}>Delete</button>}
+                      {!isOtherAdmin && <button className="osrs-stone osrs-stone--ghost" style={s.ghostBtn} onClick={() => setEditing({ ...u, newPassword: '' })}>Edit</button>}
+                      {!isOtherAdmin && <button className="osrs-stone osrs-stone--danger" style={s.dangerBtn} onClick={() => deleteUser(u.id, u.username)}>Delete</button>}
                     </div>
                   </td>
                 </tr>
@@ -1439,7 +1436,7 @@ function UsersTab() {
         </table>
       </div>
 
-      <div style={s.section}>
+      <div className="osrs-card" style={s.section}>
         <div style={s.sectionTitle}>Create User</div>
         <div style={{ ...s.row, marginBottom: '0.75rem' }}>
           <div>
@@ -1475,7 +1472,7 @@ function UsersTab() {
                 </select>
               </div>
             )}
-            <button type="submit" style={s.primaryBtn}>Create</button>
+            <button type="submit" className="osrs-stone" style={s.primaryBtn}>Create</button>
           </div>
         </form>
       </div>
@@ -1485,17 +1482,17 @@ function UsersTab() {
 
 // ─── Audit Tab ────────────────────────────────────────────────────────────────
 const ACTION_LABELS = {
-  submission_approved: { label: 'Approved', color: '#68d391' },
-  submission_rejected: { label: 'Rejected', color: '#fc8181' },
-  user_created:        { label: 'User Created', color: '#63b3ed' },
-  user_updated:        { label: 'User Updated', color: '#f6ad55' },
-  user_deleted:        { label: 'User Deleted', color: '#fc8181' },
+  submission_approved: { label: 'Approved', color: 'var(--osrs-green)' },
+  submission_rejected: { label: 'Rejected', color: 'var(--osrs-red)' },
+  user_created:        { label: 'User Created', color: 'var(--osrs-blue)' },
+  user_updated:        { label: 'User Updated', color: 'var(--osrs-yellow)' },
+  user_deleted:        { label: 'User Deleted', color: 'var(--osrs-red)' },
   event_created:       { label: 'Event Created', color: '#b794f4' },
   event_updated:       { label: 'Event Updated', color: '#b794f4' },
   event_status_changed:{ label: 'Event Status', color: '#b794f4' },
-  event_deleted:       { label: 'Event Deleted', color: '#fc8181' },
-  member_added:        { label: 'Member Added', color: '#68d391' },
-  member_removed:      { label: 'Member Removed', color: '#f6ad55' },
+  event_deleted:       { label: 'Event Deleted', color: 'var(--osrs-red)' },
+  member_added:        { label: 'Member Added', color: 'var(--osrs-green)' },
+  member_removed:      { label: 'Member Removed', color: 'var(--osrs-yellow)' },
 };
 
 function AuditTab() {
@@ -1519,7 +1516,7 @@ function AuditTab() {
     ? log
     : log.filter(r => (categories.find(c => c.key === filter)?.actions || []).includes(r.action));
 
-  if (loading) return <p style={{ color: '#718096' }}>Loading…</p>;
+  if (loading) return <p style={{ color: 'var(--osrs-muted)' }}>Loading…</p>;
 
   return (
     <div>
@@ -1529,25 +1526,25 @@ function AuditTab() {
             {c.label}
           </button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#718096' }}>{visible.length} record{visible.length !== 1 ? 's' : ''}</span>
+        <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--osrs-muted)' }}>{visible.length} record{visible.length !== 1 ? 's' : ''}</span>
       </div>
 
-      <div style={s.section}>
-        {visible.length === 0 && <p style={{ color: '#718096', fontSize: '0.85rem' }}>No records.</p>}
+      <div className="osrs-card" style={s.section}>
+        {visible.length === 0 && <p style={{ color: 'var(--osrs-muted)', fontSize: '0.85rem' }}>No records.</p>}
         {visible.map(row => {
-          const meta = ACTION_LABELS[row.action] || { label: row.action, color: '#a0aec0' };
+          const meta = ACTION_LABELS[row.action] || { label: row.action, color: 'var(--osrs-subtle)' };
           return (
             <div key={row.id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.55rem 0', borderBottom: '1px solid var(--c-1a1a2e)' }}>
-              <span style={{ fontSize: '0.72rem', color: '#4a5568', whiteSpace: 'nowrap', width: 130, flexShrink: 0, marginTop: 2 }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--osrs-border)', whiteSpace: 'nowrap', width: 130, flexShrink: 0, marginTop: 2 }}>
                 {new Date(row.created_at).toLocaleString()}
               </span>
-              <span style={{ fontSize: '0.8rem', color: '#a0aec0', whiteSpace: 'nowrap', width: 90, flexShrink: 0, marginTop: 2 }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--osrs-subtle)', whiteSpace: 'nowrap', width: 90, flexShrink: 0, marginTop: 2 }}>
                 {row.actor_username}
               </span>
-              <span style={{ ...s.badge, background: meta.color + '22', color: meta.color, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 1 }}>
+              <span style={{ ...s.badge, background: `color-mix(in srgb, ${meta.color} 13%, transparent)`, color: meta.color, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 1 }}>
                 {meta.label}
               </span>
-              <span style={{ fontSize: '0.84rem', color: '#e2e8f0', flex: 1 }}>{row.details}</span>
+              <span style={{ fontSize: '0.84rem', color: 'var(--osrs-text)', flex: 1 }}>{row.details}</span>
             </div>
           );
         })}
@@ -1576,7 +1573,7 @@ function SettingsTab() {
   }
 
   return (
-    <div style={s.section}>
+    <div className="osrs-card" style={s.section}>
       <div style={s.sectionTitle}>Discord Settings</div>
       <div style={s.row}>
         <div>
@@ -1588,9 +1585,9 @@ function SettingsTab() {
             placeholder="e.g. 1500033987815411785"
           />
         </div>
-        <button style={s.primaryBtn} onClick={save}>Save</button>
+        <button className="osrs-stone" style={s.primaryBtn} onClick={save}>Save</button>
       </div>
-      <div style={{ fontSize: '0.78rem', color: '#4a5568', marginTop: '0.25rem' }}>
+      <div style={{ fontSize: '0.78rem', color: 'var(--osrs-border)', marginTop: '0.25rem' }}>
         When set, the bot will post a completion message here every time a team finishes a tile.
       </div>
       {saved && <div style={s.msg}>Saved.</div>}

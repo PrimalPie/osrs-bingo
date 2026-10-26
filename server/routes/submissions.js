@@ -45,7 +45,7 @@ router.get('/history', requireCaptainOrAdmin, (req, res) => {
   if (req.user.role === 'admin') {
     const rows = db.prepare(`
       SELECT s.*, t.label as tile_label, t.type as tile_type, t.row, t.col,
-             t.wom_metric as tile_wom_metric, tm.name as team_name, tm.color as team_color
+             t.wom_metric as tile_wom_metric, tm.name as team_name
       FROM submissions s
       JOIN tiles t ON s.tile_id = t.id
       JOIN teams tm ON s.team_id = tm.id
@@ -79,7 +79,7 @@ router.get('/pending', requireAdmin, (req, res) => {
   const rows = db.prepare(`
     SELECT s.*, t.label as tile_label, t.type as tile_type, t.target as tile_target,
            t.target2 as tile_target2, t.row, t.col, t.wom_metric as tile_wom_metric,
-           tm.name as team_name, tm.color as team_color
+           tm.name as team_name
     FROM submissions s
     JOIN tiles t ON s.tile_id = t.id
     JOIN teams tm ON s.team_id = tm.id
@@ -110,44 +110,49 @@ router.post('/:id/approve', requireCaptainOrAdmin, (req, res) => {
   const activeTarget = (isOr && cond === 2) ? tile.target2 : tile.target;
 
   const approveAndProgress = db.transaction(() => {
-    db.prepare(
-      "UPDATE submissions SET status = 'approved', count = ?, condition = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?"
-    ).run(approvedCount, cond, req.user.id, new Date().toISOString(), sub.id);
-
     const existing = db.prepare(
       'SELECT * FROM tile_progress WHERE tile_id = ? AND team_id = ?'
     ).get(sub.tile_id, sub.team_id);
 
-    let newCurrent, newCurrent2;
+    let newCurrent, newCurrent2, appliedCount;
     if (existing) {
       newCurrent = existing.current;
       newCurrent2 = existing.current2 ?? 0;
       if (isOr && cond === 2) {
         newCurrent2 = Math.min(newCurrent2 + approvedCount, tile.target2);
+        appliedCount = newCurrent2 - (existing.current2 ?? 0);
       } else {
         newCurrent = Math.min(newCurrent + approvedCount, tile.target);
+        appliedCount = newCurrent - existing.current;
       }
       const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
       const completedAt = completed ? (existing.completed_at || new Date().toISOString()) : null;
       db.prepare(
         'UPDATE tile_progress SET current = ?, current2 = ?, completed_at = ? WHERE tile_id = ? AND team_id = ?'
       ).run(newCurrent, newCurrent2, completedAt, sub.tile_id, sub.team_id);
-      return { newCurrent, newCurrent2, completed };
     } else {
       newCurrent = 0;
       newCurrent2 = 0;
       if (isOr && cond === 2) {
         newCurrent2 = Math.min(approvedCount, tile.target2);
+        appliedCount = newCurrent2;
       } else {
         newCurrent = Math.min(approvedCount, tile.target);
+        appliedCount = newCurrent;
       }
       const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
       const completedAt = completed ? new Date().toISOString() : null;
       db.prepare(
         'INSERT INTO tile_progress (tile_id, team_id, current, current2, completed_at) VALUES (?, ?, ?, ?, ?)'
       ).run(sub.tile_id, sub.team_id, newCurrent, newCurrent2, completedAt);
-      return { newCurrent, newCurrent2, completed };
     }
+
+    const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
+    db.prepare(
+      "UPDATE submissions SET status = 'approved', count = ?, condition = ?, applied_count = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?"
+    ).run(approvedCount, cond, appliedCount, req.user.id, new Date().toISOString(), sub.id);
+
+    return { newCurrent, newCurrent2, completed };
   });
 
   const result = approveAndProgress();
@@ -280,6 +285,10 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
 
   const isOr = tile.target2 != null;
   const subCond = sub.condition === 2 ? 2 : 1;
+  // applied_count is the amount actually credited at approval time (may be less than sub.count
+  // if the approval was capped at the tile target); older rows predating this column fall back
+  // to sub.count, which can under/over-correct if that approval happened to be capped.
+  const revertAmount = sub.applied_count ?? sub.count;
 
   const revertAndRollback = db.transaction(() => {
     db.prepare(
@@ -295,9 +304,9 @@ router.post('/:id/revert', requireAdmin, (req, res) => {
       newCurrent = progress.current;
       newCurrent2 = progress.current2 ?? 0;
       if (isOr && subCond === 2) {
-        newCurrent2 = Math.max(0, newCurrent2 - sub.count);
+        newCurrent2 = Math.max(0, newCurrent2 - revertAmount);
       } else {
-        newCurrent = Math.max(0, newCurrent - sub.count);
+        newCurrent = Math.max(0, newCurrent - revertAmount);
       }
       const completed = newCurrent >= tile.target || (isOr && newCurrent2 >= tile.target2);
       const completedAt = completed ? progress.completed_at : null;

@@ -24,7 +24,11 @@ A self-hosted bingo event manager for Old School RuneScape clans. Teams submit d
 - **Admin panel** — manage events, tiles, teams, users, and settings; full audit log
 - **Configurable board size** — 3×3 up to 12×12
 - **Changelog page** — public record of app updates at `/changelog`
-- **Pixel-art theme** — the default look, with a nav toggle for anyone to switch back to the classic theme (remembered per browser)
+- **Pixel-art theme** — a 9-slice OSRS-styled UI across the board, captain, and admin pages
+- **OR-condition tiles** — a tile can have two separate completion targets; either one completing it finishes the tile
+- **WOM progress overrides** — admins can manually correct a team's progress on any WOM-tracked tile and lock it against the next sync
+- **Automated database backups** — daily snapshots while an event is active, plus one on every event start/end and before every deploy
+- **End-of-event countdown** — the board shows a live "Ends in" countdown once an event is active
 
 ## Tech stack
 

@@ -3,24 +3,24 @@ import api from '../api';
 import ItemSearch from './ItemSearch';
 
 const s = {
-  label: { fontSize: '0.78rem', color: '#718096', display: 'block', marginBottom: '0.4rem' },
+  label: { fontSize: '0.78rem', color: 'var(--osrs-muted)', display: 'block', marginBottom: '0.4rem' },
   grid: { display: 'flex', flexWrap: 'wrap', gap: '0.3rem', maxHeight: 200, overflowY: 'auto', padding: '0.25rem 0' },
   iconBtn: {
-    background: 'var(--c-0f3460)', border: '2px solid transparent', borderRadius: 4,
+    background: 'var(--c-0f3460)', border: '2px solid transparent', borderRadius: 0,
     cursor: 'pointer', padding: '0.3rem', display: 'flex', flexDirection: 'column',
     alignItems: 'center', gap: '0.2rem', transition: 'border-color 0.15s', minWidth: 50,
   },
-  iconBtnActive: { borderColor: '#e94560' },
-  iconBtnHover: { borderColor: '#4a5568' },
+  iconBtnActive: { borderColor: 'var(--osrs-accent)' },
+  iconBtnHover: { borderColor: 'var(--osrs-border)' },
   icon: { width: 32, height: 32, objectFit: 'contain', imageRendering: 'pixelated' },
-  placeholder: { width: 32, height: 32, background: 'var(--c-1a2a3a)', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: '#4a5568' },
-  name: { fontSize: '0.52rem', color: '#a0aec0', textAlign: 'center', lineHeight: 1.2, maxWidth: 50, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
-  filter: { background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0', padding: '0.4rem 0.6rem', borderRadius: 4, fontSize: '0.82rem', width: '100%', marginBottom: '0.5rem' },
+  placeholder: { width: 32, height: 32, background: 'var(--c-1a2a3a)', borderRadius: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: 'var(--osrs-border)' },
+  name: { fontSize: '0.52rem', color: 'var(--osrs-subtle)', textAlign: 'center', lineHeight: 1.2, maxWidth: 50, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
+  filter: { background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)', padding: '0.4rem 0.6rem', borderRadius: 0, fontSize: '0.82rem', width: '100%', marginBottom: '0.5rem' },
   previewRow: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' },
-  previewImg: { width: 32, height: 32, objectFit: 'contain', imageRendering: 'pixelated', border: '1px solid var(--c-2d3748)', borderRadius: 4, background: '#0a0a1a' },
-  previewName: { fontSize: '0.8rem', color: '#e2e8f0', flex: 1 },
-  clearBtn: { background: 'none', border: '1px solid var(--c-2d3748)', color: '#718096', padding: '0.25rem 0.5rem', borderRadius: 4, cursor: 'pointer', fontSize: '0.75rem' },
-  loading: { fontSize: '0.8rem', color: '#718096', padding: '0.5rem 0' },
+  previewImg: { width: 32, height: 32, objectFit: 'contain', imageRendering: 'pixelated', border: '1px solid var(--c-2d3748)', borderRadius: 0, background: 'var(--osrs-sunken)' },
+  previewName: { fontSize: '0.8rem', color: 'var(--osrs-text)', flex: 1 },
+  clearBtn: { background: 'none', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-muted)', padding: '0.25rem 0.5rem', borderRadius: 0, cursor: 'pointer', fontSize: '0.75rem' },
+  loading: { fontSize: '0.8rem', color: 'var(--osrs-muted)', padding: '0.5rem 0' },
 };
 
 function IconGrid({ entries, value, onChange, filterable }) {
@@ -58,7 +58,7 @@ function IconGrid({ entries, value, onChange, filterable }) {
             <span style={s.name}>{entry.name}</span>
           </button>
         ))}
-        {visible.length === 0 && <span style={{ fontSize: '0.8rem', color: '#718096', padding: '0.5rem' }}>No results</span>}
+        {visible.length === 0 && <span style={{ fontSize: '0.8rem', color: 'var(--osrs-muted)', padding: '0.5rem' }}>No results</span>}
       </div>
     </>
   );
@@ -136,10 +136,10 @@ export default function IconPicker({ type, womMetric, value, label, onChange }) 
       )}
 
       {showSuggestion && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', padding: '0.4rem 0.6rem', background: '#0f2a1e', border: '1px solid #276749', borderRadius: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', padding: '0.4rem 0.6rem', background: 'var(--osrs-success-bg)', border: '1px solid var(--osrs-success-bg)', borderRadius: 0 }}>
           <img src={suggestion.icon} alt={suggestion.name} style={{ width: 24, height: 24, objectFit: 'contain', imageRendering: 'pixelated' }} onError={e => { e.target.style.display = 'none'; }} />
-          <span style={{ fontSize: '0.8rem', color: '#68d391', flex: 1 }}>Suggested: <strong>{suggestion.name}</strong></span>
-          <button type="button" style={{ ...s.clearBtn, borderColor: '#276749', color: '#68d391' }} onClick={() => onChange(suggestion.icon)}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--osrs-green)', flex: 1 }}>Suggested: <strong>{suggestion.name}</strong></span>
+          <button type="button" style={{ ...s.clearBtn, borderColor: 'var(--osrs-success-bg)', color: 'var(--osrs-green)' }} onClick={() => onChange(suggestion.icon)}>
             Use this
           </button>
         </div>

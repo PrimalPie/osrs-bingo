@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'local-dev-secret';
-
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('[Auth] JWT_SECRET is not set. Refusing to start in production with an insecure default secret.');
+}
 if (!process.env.JWT_SECRET) {
   console.warn('[Auth] WARNING: JWT_SECRET is not set — using insecure default. Set JWT_SECRET env var in production!');
 }
+const JWT_SECRET = process.env.JWT_SECRET || 'local-dev-secret';
 
 function requireAuth(req, res, next) {
   const header = req.headers.authorization;

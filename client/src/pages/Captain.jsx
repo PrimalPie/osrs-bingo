@@ -8,70 +8,70 @@ const COLS = ['A','B','C','D','E','F','G','H','I'];
 function coord(row, col) { return `${COLS[col-1]}${row}`; }
 
 const s = {
-  page: { padding: '1.5rem', maxWidth: 900, margin: '0 auto' },
-  title: { fontSize: '1.3rem', fontWeight: 700, color: '#e94560', marginBottom: '0.25rem' },
-  subtitle: { fontSize: '0.85rem', color: '#718096', marginBottom: '1rem' },
-  tabs: { display: 'flex', gap: 0, marginBottom: '1.5rem', borderBottom: '2px solid var(--c-0f3460)' },
+  page: { padding: '48px 16px 64px', maxWidth: 900 + 32, margin: '0 auto' },
+  title: { fontFamily: "'RuneScape Quill', serif", fontSize: 40, lineHeight: 1, fontWeight: 400, color: 'var(--osrs-accent)', marginBottom: '1rem' },
+  subtitle: { fontSize: '0.85rem', color: 'var(--osrs-muted)', marginBottom: '1rem' },
+  tabs: { display: 'flex', flexWrap: 'wrap', gap: 0, marginBottom: '1.5rem', borderBottom: '1px solid var(--osrs-border)' },
   tab: {
-    background: 'none', border: 'none', color: '#a0aec0',
-    padding: '0.6rem 1.2rem', cursor: 'pointer', fontSize: '0.9rem',
-    borderBottom: '2px solid transparent', marginBottom: -2,
+    background: 'none', border: 'none', color: 'var(--osrs-accent)',
+    padding: '0.6rem 1.2rem', cursor: 'pointer', fontFamily: "'RuneScape Bold', monospace", fontSize: 18,
+    borderBottom: '3px solid transparent', marginBottom: -1,
   },
-  activeTab: { color: '#e94560', borderBottomColor: '#e94560' },
+  activeTab: { color: 'var(--osrs-accent)', borderBottom: '3px solid var(--osrs-accent)' },
   card: {
-    background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', borderRadius: 8,
+    background: 'var(--c-16213e)', border: '1px solid var(--c-0f3460)', boxShadow: 'inset 0 0 0 1px var(--osrs-border)', borderRadius: 0,
     padding: '1rem', marginBottom: '1rem',
   },
   cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' },
-  tileLabel: { fontWeight: 600, color: '#e2e8f0', fontSize: '0.95rem' },
-  meta: { fontSize: '0.78rem', color: '#718096', marginTop: '0.2rem' },
-  submittedBy: { fontSize: '0.8rem', color: '#a0aec0' },
-  note: { fontSize: '0.82rem', color: '#cbd5e0', marginBottom: '0.75rem', fontStyle: 'italic' },
-  img: { maxWidth: '100%', maxHeight: 320, borderRadius: 6, marginBottom: '0.75rem', border: '1px solid var(--c-2d3748)' },
+  tileLabel: { fontWeight: 600, color: 'var(--osrs-text)', fontSize: '0.95rem' },
+  meta: { fontSize: '0.78rem', color: 'var(--osrs-muted)', marginTop: '0.2rem' },
+  submittedBy: { fontSize: '0.8rem', color: 'var(--osrs-subtle)' },
+  note: { fontSize: '0.82rem', color: 'var(--osrs-text)', marginBottom: '0.75rem', fontStyle: 'italic' },
+  img: { maxWidth: '100%', maxHeight: 320, borderRadius: 0, marginBottom: '0.75rem', border: '1px solid var(--c-2d3748)' },
   actions: { display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' },
   approveBtn: {
-    background: '#276749', border: 'none', color: '#fff',
-    padding: '0.5rem 1.2rem', borderRadius: 4, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+    background: 'var(--osrs-success-bg)', border: 'none', color: '#fff',
+    padding: '0.5rem 1.2rem', borderRadius: 0, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
   },
   rejectBtn: {
-    background: '#742a2a', border: 'none', color: '#fff',
-    padding: '0.5rem 1.2rem', borderRadius: 4, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+    background: 'var(--osrs-danger-bg)', border: 'none', color: '#fff',
+    padding: '0.5rem 1.2rem', borderRadius: 0, cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
   },
   countInput: {
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.4rem 0.6rem', borderRadius: 4, width: 64, fontSize: '0.85rem',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.4rem 0.6rem', borderRadius: 0, width: 64, fontSize: '0.85rem',
   },
   rejectInput: {
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.4rem 0.6rem', borderRadius: 4, flex: 1, fontSize: '0.85rem',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.4rem 0.6rem', borderRadius: 0, flex: 1, fontSize: '0.85rem',
   },
   select: {
-    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: '#e2e8f0',
-    padding: '0.4rem 0.6rem', borderRadius: 4, fontSize: '0.85rem',
+    background: 'var(--c-0f3460)', border: '1px solid var(--c-2d3748)', color: 'var(--osrs-text)',
+    padding: '0.4rem 0.6rem', borderRadius: 0, fontSize: '0.85rem',
   },
-  empty: { textAlign: 'center', color: '#718096', padding: '3rem' },
+  empty: { textAlign: 'center', color: 'var(--osrs-muted)', padding: '3rem' },
   badge: {
-    display: 'inline-block', padding: '0.15rem 0.5rem', borderRadius: 3,
+    display: 'inline-block', padding: '0.15rem 0.5rem', borderRadius: 0,
     fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase',
   },
   tileBtn: {
-    background: '#0f2040', border: '1px solid var(--c-2d3748)', borderRadius: 6,
+    background: 'var(--osrs-sunken)', border: '1px solid var(--c-2d3748)', borderRadius: 0,
     padding: '0.6rem 0.8rem', cursor: 'pointer', textAlign: 'left', width: '100%', marginBottom: '0.4rem',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
   },
-  tileBtnActive: { borderColor: '#e94560', background: '#1a1030' },
+  tileBtnActive: { borderColor: 'var(--osrs-accent)', background: 'var(--osrs-panel-dark)' },
 };
 
 function typeColor(type) {
-  if (type === 'xp') return '#68d391';
-  if (type === 'kc') return '#f6ad55';
-  return '#63b3ed';
+  if (type === 'xp') return 'var(--osrs-green)';
+  if (type === 'kc') return 'var(--osrs-yellow)';
+  return 'var(--osrs-blue)';
 }
 
 function statusColor(status) {
-  if (status === 'approved') return '#68d391';
-  if (status === 'rejected') return '#fc8181';
-  return '#f6ad55';
+  if (status === 'approved') return 'var(--osrs-green)';
+  if (status === 'rejected') return 'var(--osrs-red)';
+  return 'var(--osrs-yellow)';
 }
 
 function Lightbox({ src, onClose }) {
@@ -83,7 +83,7 @@ function Lightbox({ src, onClose }) {
       <img
         src={src}
         alt="screenshot"
-        style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: 6, boxShadow: '0 8px 40px rgba(0,0,0,0.8)' }}
+        style={{ maxWidth: '95vw', maxHeight: '95vh', objectFit: 'contain', borderRadius: 0, boxShadow: '0 8px 40px rgba(0,0,0,0.8)' }}
         onClick={e => e.stopPropagation()}
       />
       <button
@@ -104,29 +104,29 @@ function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
   const isOr = sub.tile_target2 != null;
 
   return (
-    <div style={s.card}>
+    <div className="osrs-card" style={s.card}>
       {lightbox && <Lightbox src={`/uploads/${sub.screenshot_path}`} onClose={() => setLightbox(false)} />}
       <div style={s.cardHeader}>
         <div>
           <div style={s.tileLabel}>
-            <span style={{ color: '#718096', marginRight: 6 }}>{c}</span>
+            <span style={{ color: 'var(--osrs-muted)', marginRight: 6 }}>{c}</span>
             {sub.tile_label}
             {showTeam && sub.team_name && (
-              <span style={{ marginLeft: 8, fontSize: '0.78rem', color: sub.team_color || '#a0aec0' }}>
+              <span style={{ marginLeft: 8, fontSize: '0.78rem', color: 'var(--osrs-subtle)' }}>
                 [{sub.team_name}]
               </span>
             )}
           </div>
           <div style={s.meta}>
-            <span style={{ ...s.badge, background: typeColor(sub.tile_type) + '33', color: typeColor(sub.tile_type) }}>
+            <span style={{ ...s.badge, background: `color-mix(in srgb, ${typeColor(sub.tile_type)} 20%, transparent)`, color: typeColor(sub.tile_type) }}>
               {tileTypeLabel(sub.tile_type, sub.tile_wom_metric)}
             </span>
             {' '}Count: {sub.count}
           </div>
         </div>
         <div style={s.submittedBy}>
-          by <strong style={{ color: '#e2e8f0' }}>{sub.submitted_by}</strong>
-          <div style={{ fontSize: '0.72rem', color: '#4a5568' }}>
+          by <strong style={{ color: 'var(--osrs-text)' }}>{sub.submitted_by}</strong>
+          <div style={{ fontSize: '0.72rem', color: 'var(--osrs-border)' }}>
             {new Date(sub.created_at).toLocaleString()}
           </div>
         </div>
@@ -146,26 +146,26 @@ function SubmissionCard({ sub, onApprove, onReject, showTeam }) {
 
       {isOr && (
         <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.78rem', color: '#718096', alignSelf: 'center' }}>Condition:</span>
+          <span style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', alignSelf: 'center' }}>Condition:</span>
           {[1, 2].map(c => (
-            <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontSize: '0.82rem', color: condition === c ? '#e2e8f0' : '#718096' }}>
-              <input type="radio" name={`cond-${sub.id}`} checked={condition === c} onChange={() => setCondition(c)} style={{ accentColor: '#e94560' }} />
+            <label key={c} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontSize: '0.82rem', color: condition === c ? 'var(--osrs-text)' : 'var(--osrs-muted)' }}>
+              <input type="radio" name={`cond-${sub.id}`} checked={condition === c} onChange={() => setCondition(c)} style={{ accentColor: 'var(--osrs-accent)' }} />
               Cond. {c} (target: {c === 1 ? sub.tile_target : sub.tile_target2})
             </label>
           ))}
         </div>
       )}
       <div style={s.actions}>
-        <label style={{ fontSize: '0.8rem', color: '#a0aec0' }}>Count:</label>
+        <label style={{ fontSize: '0.8rem', color: 'var(--osrs-subtle)' }}>Count:</label>
         <input type="number" min={1} style={s.countInput} value={count} onChange={e => setCount(parseInt(e.target.value) || 1)} />
-        <button style={s.approveBtn} onClick={() => onApprove(sub.id, count, condition)}>✓ Approve</button>
-        <button style={s.rejectBtn} onClick={() => setShowReject(v => !v)}>✗ Reject</button>
+        <button className="osrs-stone osrs-stone--success" style={s.approveBtn} onClick={() => onApprove(sub.id, count, condition)}>✓ Approve</button>
+        <button className="osrs-stone osrs-stone--danger" style={s.rejectBtn} onClick={() => setShowReject(v => !v)}>✗ Reject</button>
       </div>
 
       {showReject && (
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
           <input style={s.rejectInput} placeholder="Reason (optional)" value={rejectReason} onChange={e => setRejectReason(e.target.value)} />
-          <button style={s.rejectBtn} onClick={() => onReject(sub.id, rejectReason)}>Confirm Reject</button>
+          <button className="osrs-stone osrs-stone--danger" style={s.rejectBtn} onClick={() => onReject(sub.id, rejectReason)}>Confirm Reject</button>
         </div>
       )}
     </div>
@@ -178,37 +178,37 @@ function HistoryCard({ sub, showTeam, onRevert }) {
   const approved = sub.status === 'approved';
 
   return (
-    <div style={{ ...s.card, borderLeft: `3px solid ${statusColor(sub.status)}` }}>
+    <div className="osrs-card" style={{ ...s.card, borderLeft: `3px solid ${statusColor(sub.status)}` }}>
       {lightbox && <Lightbox src={`/uploads/${sub.screenshot_path}`} onClose={() => setLightbox(false)} />}
       <div style={s.cardHeader}>
         <div>
           <div style={s.tileLabel}>
-            <span style={{ ...s.badge, background: statusColor(sub.status) + '22', color: statusColor(sub.status), marginRight: 8 }}>
+            <span style={{ ...s.badge, background: `color-mix(in srgb, ${statusColor(sub.status)} 13%, transparent)`, color: statusColor(sub.status), marginRight: 8 }}>
               {sub.status}
             </span>
-            <span style={{ color: '#718096', marginRight: 6 }}>{c}</span>
+            <span style={{ color: 'var(--osrs-muted)', marginRight: 6 }}>{c}</span>
             {sub.tile_label}
             {showTeam && sub.team_name && (
-              <span style={{ marginLeft: 8, fontSize: '0.78rem', color: sub.team_color || '#a0aec0' }}>
+              <span style={{ marginLeft: 8, fontSize: '0.78rem', color: 'var(--osrs-subtle)' }}>
                 [{sub.team_name}]
               </span>
             )}
           </div>
           <div style={s.meta}>
-            by <strong style={{ color: '#a0aec0' }}>{sub.submitted_by}</strong>
+            by <strong style={{ color: 'var(--osrs-subtle)' }}>{sub.submitted_by}</strong>
             {' · '}Count: {sub.count}
             {!approved && sub.rejection_reason && (
-              <span style={{ color: '#fc8181', marginLeft: 6 }}>· {sub.rejection_reason}</span>
+              <span style={{ color: 'var(--osrs-red)', marginLeft: 6 }}>· {sub.rejection_reason}</span>
             )}
           </div>
         </div>
         <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-          <div style={{ fontSize: '0.72rem', color: '#4a5568' }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--osrs-border)' }}>
             Reviewed {sub.reviewed_at ? new Date(sub.reviewed_at).toLocaleString() : '—'}
           </div>
           {sub.screenshot_path && (
             <button
-              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: '#63b3ed' }}
+              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: 'var(--osrs-blue)' }}
               onClick={() => setLightbox(true)}
             >
               View screenshot
@@ -216,7 +216,7 @@ function HistoryCard({ sub, showTeam, onRevert }) {
           )}
           {approved && onRevert && (
             <button
-              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: '#fc8181' }}
+              style={{ ...s.tab, padding: '0.2rem 0.5rem', fontSize: '0.72rem', color: 'var(--osrs-red)' }}
               onClick={() => {
                 if (confirm(`Revert approval for "${sub.tile_label}"? It will return to pending for re-review.`)) onRevert(sub.id);
               }}
@@ -265,8 +265,8 @@ function PendingTab({ user }) {
     setSubmissions(p => p.filter(s => s.id !== id));
   }
 
-  if (loading) return <p style={{ color: '#718096' }}>Loading...</p>;
-  if (!user.team_id && user.role !== 'admin') return <p style={{ color: '#fc8181' }}>You are not assigned to a team.</p>;
+  if (loading) return <p style={{ color: 'var(--osrs-muted)' }}>Loading...</p>;
+  if (!user.team_id && user.role !== 'admin') return <p style={{ color: 'var(--osrs-red)' }}>You are not assigned to a team.</p>;
 
   return (
     <>
@@ -316,7 +316,7 @@ function HistoryTab({ user }) {
 
   const visible = filter === 'all' ? history : history.filter(s => s.status === filter);
 
-  if (loading) return <p style={{ color: '#718096' }}>Loading...</p>;
+  if (loading) return <p style={{ color: 'var(--osrs-muted)' }}>Loading...</p>;
 
   return (
     <>
@@ -327,13 +327,13 @@ function HistoryTab({ user }) {
             {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
           </select>
         )}
-        <span style={{ fontSize: '0.82rem', color: '#718096' }}>Filter:</span>
+        <span style={{ fontSize: '0.82rem', color: 'var(--osrs-muted)' }}>Filter:</span>
         {['all', 'approved', 'rejected'].map(f => (
           <button key={f} style={{ ...s.tab, ...(filter === f ? s.activeTab : {}), padding: '0.3rem 0.8rem' }} onClick={() => setFilter(f)}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#718096' }}>{visible.length} record{visible.length !== 1 ? 's' : ''}</span>
+        <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--osrs-muted)' }}>{visible.length} record{visible.length !== 1 ? 's' : ''}</span>
       </div>
       {visible.length === 0
         ? <div style={s.empty}><p>No {filter === 'all' ? '' : filter} submissions found.</p></div>
@@ -412,7 +412,7 @@ function ByTileTab({ user }) {
     setSubmissions(r.data);
   }
 
-  if (loading) return <p style={{ color: '#718096' }}>Loading...</p>;
+  if (loading) return <p style={{ color: 'var(--osrs-muted)' }}>Loading...</p>;
   if (!event) return <div style={s.empty}><p>No events found.</p></div>;
 
   const teamForUser = user.role !== 'admin' ? teams.find(t => t.id === user.team_id) : null;
@@ -420,15 +420,15 @@ function ByTileTab({ user }) {
   return (
     <div>
       {eventCompleted && (
-        <div style={{ fontSize: '0.78rem', color: '#f6ad55', marginBottom: '1rem', padding: '0.5rem 0.75rem', background: '#2d1a00', borderRadius: 4, border: '1px solid #744210' }}>
+        <div style={{ fontSize: '0.78rem', color: 'var(--osrs-yellow)', marginBottom: '1rem', padding: '0.5rem 0.75rem', background: 'var(--osrs-warn-bg)', borderRadius: 0, border: '1px solid var(--osrs-warn-bg)' }}>
           Event ended — showing <strong>{event.name}</strong>
         </div>
       )}
     <div style={{ display: 'flex', gap: '1.25rem' }}>
       {/* Tile list */}
       <div style={{ width: 220, flexShrink: 0 }}>
-        <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.5rem' }}>Select a tile</div>
-        {tiles.length === 0 && <p style={{ color: '#718096', fontSize: '0.85rem' }}>No tiles set up yet.</p>}
+        <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginBottom: '0.5rem' }}>Select a tile</div>
+        {tiles.length === 0 && <p style={{ color: 'var(--osrs-muted)', fontSize: '0.85rem' }}>No tiles set up yet.</p>}
         {tiles.map(tile => (
           <button
             key={tile.id}
@@ -436,10 +436,10 @@ function ByTileTab({ user }) {
             onClick={() => setSelectedTile(tile)}
           >
             <span>
-              <span style={{ color: '#718096', fontSize: '0.72rem', marginRight: 6 }}>{tile.coord}</span>
-              <span style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>{tile.label}</span>
+              <span style={{ color: 'var(--osrs-muted)', fontSize: '0.72rem', marginRight: 6 }}>{tile.coord}</span>
+              <span style={{ fontSize: '0.82rem', color: 'var(--osrs-text)' }}>{tile.label}</span>
             </span>
-            <span style={{ ...s.badge, background: typeColor(tile.type) + '33', color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
+            <span style={{ ...s.badge, background: `color-mix(in srgb, ${typeColor(tile.type)} 20%, transparent)`, color: typeColor(tile.type) }}>{tileTypeLabel(tile.type, tile.wom_metric)}</span>
           </button>
         ))}
       </div>
@@ -453,27 +453,27 @@ function ByTileTab({ user }) {
         ) : (
           <>
             <div style={{ marginBottom: '1rem' }}>
-              <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '1rem' }}>
+              <div style={{ fontWeight: 700, color: 'var(--osrs-text)', fontSize: '1rem' }}>
                 {selectedTile.coord} — {selectedTile.label}
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#718096', marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginBottom: '0.75rem' }}>
                 {selectedTile.type} · Target: {formatTarget(selectedTile.type, selectedTile.target)}
               </div>
 
               {user.role === 'admin' ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#718096' }}>Team:</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--osrs-muted)' }}>Team:</span>
                   <select style={s.select} value={selectedTeamId || ''} onChange={e => setSelectedTeamId(parseInt(e.target.value))}>
                     {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                 </div>
               ) : (
-                teamForUser && <span style={{ fontSize: '0.82rem', color: teamForUser.color }}>{teamForUser.name}</span>
+                teamForUser && <span style={{ fontSize: '0.82rem', color: 'var(--osrs-text)' }}>{teamForUser.name}</span>
               )}
             </div>
 
             {loadingSubs ? (
-              <p style={{ color: '#718096' }}>Loading...</p>
+              <p style={{ color: 'var(--osrs-muted)' }}>Loading...</p>
             ) : submissions.length === 0 ? (
               <div style={s.empty}><p>No submissions for this tile yet.</p></div>
             ) : (
@@ -529,24 +529,24 @@ function MyTeamTab({ user }) {
     load();
   }
 
-  if (loading) return <p style={{ color: '#718096' }}>Loading…</p>;
+  if (loading) return <p style={{ color: 'var(--osrs-muted)' }}>Loading…</p>;
   if (!team) return <div style={s.empty}><p>You are not assigned to a team.</p></div>;
 
-  const th = { textAlign: 'left', color: '#718096', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)', fontSize: '0.82rem' };
-  const td = { padding: '0.4rem 0.6rem', color: '#e2e8f0', borderBottom: '1px solid var(--c-1a1a2e)', fontSize: '0.85rem' };
+  const th = { textAlign: 'left', color: 'var(--osrs-muted)', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--c-2d3748)', fontSize: '0.82rem' };
+  const td = { padding: '0.4rem 0.6rem', color: 'var(--osrs-text)', borderBottom: '1px solid var(--c-1a1a2e)', fontSize: '0.85rem' };
 
   return (
     <div>
       <div style={{ marginBottom: '1rem' }}>
-        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: team.color || '#e2e8f0' }}>{team.name}</div>
+        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--osrs-text)' }}>{team.name}</div>
         {team.discord_channel_id && (
-          <div style={{ fontSize: '0.78rem', color: '#718096', marginTop: '0.2rem' }}>
+          <div style={{ fontSize: '0.78rem', color: 'var(--osrs-muted)', marginTop: '0.2rem' }}>
             Discord channel: {team.discord_channel_id}
           </div>
         )}
       </div>
 
-      <div style={s.card}>
+      <div className="osrs-card" style={s.card}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
@@ -559,9 +559,9 @@ function MyTeamTab({ user }) {
             {(team.members || []).map(m => (
               <tr key={m.id}>
                 <td style={td}>{m.osrs_name}</td>
-                <td style={{ ...td, color: '#a0aec0' }}>{m.discord_username || '—'}</td>
+                <td style={{ ...td, color: 'var(--osrs-subtle)' }}>{m.discord_username || '—'}</td>
                 <td style={td}>
-                  <button style={s.rejectBtn} onClick={() => removeMember(m.id)}>Remove</button>
+                  <button className="osrs-stone osrs-stone--danger" style={s.rejectBtn} onClick={() => removeMember(m.id)}>Remove</button>
                 </td>
               </tr>
             ))}
@@ -585,12 +585,12 @@ function MyTeamTab({ user }) {
                 />
               </td>
               <td style={{ padding: '0.4rem 0.6rem' }}>
-                <button style={s.approveBtn} onClick={addMember}>Add</button>
+                <button className="osrs-stone osrs-stone--success" style={s.approveBtn} onClick={addMember}>Add</button>
               </td>
             </tr>
           </tbody>
         </table>
-        {msg && <div style={{ fontSize: '0.82rem', color: '#68d391', padding: '0.4rem 0.6rem' }}>{msg}</div>}
+        {msg && <div style={{ fontSize: '0.82rem', color: 'var(--osrs-green)', padding: '0.4rem 0.6rem' }}>{msg}</div>}
       </div>
     </div>
   );

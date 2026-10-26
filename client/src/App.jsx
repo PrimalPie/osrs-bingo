@@ -1,86 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import api from './api';
-import BoardPage from './pages/Board';
+import HomePage from './pages/Home';
 import LoginPage from './pages/Login';
 import CaptainPage from './pages/Captain';
 import AdminPage from './pages/Admin';
 import ChangelogPage from './pages/Changelog';
 import GeneratePage from './pages/Generate';
-import hallowfellIcon from './assets/hallowfell-icon.png';
+import SiteHeader from './components/osrs/SiteHeader';
 
 export const AuthContext = createContext(null);
-export const ThemeContext = createContext({ beta: false, toggleBeta: () => {} });
 
 export function useAuth() { return useContext(AuthContext); }
-export function useTheme() { return useContext(ThemeContext); }
-
-const styles = {
-  nav: {
-    display: 'flex', alignItems: 'center', gap: '1.5rem',
-    background: '#16213e', padding: '0.75rem 1.5rem',
-    borderBottom: '2px solid #0f3460',
-  },
-  navTitle: { color: '#e94560', fontWeight: 700, fontSize: '1.2rem', textDecoration: 'none' },
-  navLink: { color: '#a0aec0', textDecoration: 'none', fontSize: '0.9rem' },
-  navRight: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' },
-  logoutBtn: {
-    background: 'none', border: '1px solid #4a5568', color: '#a0aec0',
-    padding: '0.3rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem',
-  },
-};
-
-function Nav() {
-  const { user, logout } = useAuth();
-  const { beta, toggleBeta } = useTheme();
-
-  return (
-    <nav style={styles.nav}>
-      <Link to="/" style={{ ...styles.navTitle, display: 'inline-flex', alignItems: 'center', gap: '0.35em' }}>
-        {beta
-          ? <img src={hallowfellIcon} alt="" style={{ width: '1.3em', height: '1.3em', objectFit: 'contain' }} />
-          : '⚔️'}
-        OSRS Bingo
-      </Link>
-      <Link to="/" style={styles.navLink}>Board</Link>
-      {user && (user.role === 'captain' || user.role === 'admin') && (
-        <Link to="/captain" style={styles.navLink}>Captain</Link>
-      )}
-      {user?.role === 'admin' && (
-        <Link to="/admin" style={styles.navLink}>Admin</Link>
-      )}
-      {user?.role === 'admin' && (
-        <Link to="/generate" style={styles.navLink}>Generate</Link>
-      )}
-      <Link to="/changelog" style={styles.navLink}>Changelog</Link>
-      <div style={styles.navRight}>
-        <button
-          onClick={toggleBeta}
-          title={beta ? 'Switch to classic theme' : 'Switch to new theme'}
-          style={{
-            background: beta ? '#2d3748' : 'none',
-            border: `1px solid ${beta ? '#68d391' : '#4a5568'}`,
-            color: beta ? '#68d391' : '#4a5568',
-            padding: '0.2rem 0.55rem',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.75rem',
-            fontFamily: 'monospace',
-            letterSpacing: '0.05em',
-          }}
-        >{beta ? 'Classic' : 'New Theme'}</button>
-        {user ? (
-          <>
-            <span style={{ color: '#68d391', fontSize: '0.85rem' }}>{user.username} ({user.role})</span>
-            <button style={styles.logoutBtn} onClick={logout}>Logout</button>
-          </>
-        ) : (
-          <Link to="/login" style={styles.navLink}>Login</Link>
-        )}
-      </div>
-    </nav>
-  );
-}
 
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth();
@@ -94,7 +25,6 @@ function ProtectedRoute({ children, role }) {
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [beta, setBeta] = useState(() => localStorage.getItem('beta-theme-v2') !== 'false');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -107,13 +37,6 @@ export default function App() {
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle('beta-theme', beta);
-    localStorage.setItem('beta-theme-v2', String(beta));
-  }, [beta]);
-
-  function toggleBeta() { setBeta(b => !b); }
 
   function login(token, userData) {
     localStorage.setItem('token', token);
@@ -128,12 +51,11 @@ export default function App() {
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
 
   return (
-    <ThemeContext.Provider value={{ beta, toggleBeta }}>
     <AuthContext.Provider value={{ user, login, logout }}>
       <BrowserRouter>
-        <Nav />
+        <SiteHeader />
         <Routes>
-          <Route path="/" element={<BoardPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/captain" element={
             <ProtectedRoute role="captain"><CaptainPage /></ProtectedRoute>
@@ -148,6 +70,5 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>
-    </ThemeContext.Provider>
   );
 }

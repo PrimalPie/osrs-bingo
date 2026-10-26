@@ -55,6 +55,17 @@ function getDb() {
     if (!eventCols.includes('mode')) {
       raw.exec("ALTER TABLE events ADD COLUMN mode TEXT NOT NULL DEFAULT 'blackout'");
     }
+    // Never read or written anywhere — the real changelog is the hand-maintained
+    // server/data/changelog.js, and event winners are derived from scores, not stored.
+    if (eventCols.includes('winner_team_id')) {
+      raw.exec('ALTER TABLE events DROP COLUMN winner_team_id');
+    }
+    raw.exec('DROP TABLE IF EXISTS changelog');
+    // Team colours were removed from the app
+    const teamCols = raw.prepare("PRAGMA table_info(teams)").all().map(r => r.name);
+    if (teamCols.includes('color')) {
+      raw.exec('ALTER TABLE teams DROP COLUMN color');
+    }
     const tileCols = raw.prepare("PRAGMA table_info(tiles)").all().map(r => r.name);
     if (!tileCols.includes('icon_url')) {
       raw.exec('ALTER TABLE tiles ADD COLUMN icon_url TEXT');
@@ -77,6 +88,9 @@ function getDb() {
     const subCols = raw.prepare("PRAGMA table_info(submissions)").all().map(r => r.name);
     if (!subCols.includes('condition')) {
       raw.exec('ALTER TABLE submissions ADD COLUMN condition INTEGER NOT NULL DEFAULT 1');
+    }
+    if (!subCols.includes('applied_count')) {
+      raw.exec('ALTER TABLE submissions ADD COLUMN applied_count INTEGER');
     }
 
     // Migrate team_members: make osrs_name primary (NOT NULL, unique), discord_username optional
